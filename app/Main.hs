@@ -1,6 +1,9 @@
 module Main where
 
-import Lib ( someFunc )
+import qualified Taxes as T
 
 main :: IO ()
-main = someFunc
+main = 
+  let v = T.bracketWidth T.HeadOfHousehold (T.OrdinaryRate 12)
+  in
+    print v

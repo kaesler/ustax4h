@@ -1,33 +1,34 @@
 module Taxes
-  ( Age,
-    FilingStatus,
-    OrdinaryRate,
-    QualifiedRate,
-    StandardDeduction,
-    rateSuccessor
+  ( Age (..),
+    FilingStatus (..),
+    OrdinaryRate (..),
+    QualifiedRate (..),
+    StandardDeduction (..),
+    bracketWidth
   )
 where
 
 import qualified Data.Map.Strict as Map
 import qualified Data.List as List
+import Data.Coerce ( coerce )
 
 newtype Age = Age Int
-  deriving (Eq, Ord)
+  deriving (Eq, Ord, Show)
 
 data FilingStatus = HeadOfHousehold | Single
-  deriving (Eq, Ord)
+  deriving (Eq, Ord, Show)
 
 newtype OrdinaryRate = OrdinaryRate Int
-  deriving (Eq, Ord)
+  deriving (Eq, Ord, Show)
 
 newtype QualifiedRate = QualifiedRate Int
-  deriving (Eq, Ord)
+  deriving (Eq, Ord, Show)
 
 newtype BracketStart = BracketStart Int
-  deriving (Eq, Ord)
+  deriving (Eq, Ord, Show)
 
 newtype StandardDeduction = StandardDeduction Int
-  deriving (Eq, Ord)
+  deriving (Eq, Ord, Show)
 
 type OrdinaryBracketStarts = Map.Map OrdinaryRate BracketStart
 
@@ -143,11 +144,14 @@ standardDeduction Single = StandardDeduction (12550 + over65Increment)
 fail :: () -> a
 fail = error "boom"
 
-rateSuccessor :: FilingStatus -> OrdinaryRate -> Maybe OrdinaryRate
-rateSuccessor fs rate = 
+bracketWidth :: FilingStatus -> OrdinaryRate -> Maybe Int
+bracketWidth fs rate = 
   do
     brackets <- Map.lookup fs ordinaryBracketStarts
     let rates = Map.keys brackets
     let pairs = zip rates (tail rates) 
     pair <- List.find (\p -> fst p == rate) pairs
-    Just (snd pair)
+    let successor = snd pair
+    rateStart <- Map.lookup rate brackets
+    successorStart <- Map.lookup successor brackets
+    Just (coerce successorStart - coerce rateStart)
