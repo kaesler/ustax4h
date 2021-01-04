@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: b9e9d11d120e48929ab8acc77a67a3710dc247f9de2e446224b76687a4cb919b
+-- hash: 86c4acbabe77d47138c5402ff7491f6f39b4faee9945ccf3c7e5d125ed697148
 
 name:           my-project
 version:        0.1.0.0
@@ -27,7 +27,6 @@ source-repository head
 
 library
   exposed-modules:
-      Lib
       Taxes
   other-modules:
       Paths_my_project
