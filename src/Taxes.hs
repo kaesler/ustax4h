@@ -4,9 +4,10 @@ module Taxes
     OrdinaryRate (..),
     QualifiedRate (..),
     StandardDeduction (..),
+    bracketWidth,
     rmdFractionForAge,
     standardDeduction,
-    bracketWidth
+    taxableSocialSecurity
   )
 where
 
@@ -33,12 +34,9 @@ newtype BracketStart = BracketStart Int
 newtype StandardDeduction = StandardDeduction Int
   deriving (Eq, Ord, Show)
 
-newtype SocialSecurityBenefits = SocialSecurityBenefits Int
-  deriving (Eq, Ord, Show)
+type SocialSecurityBenefits = Float
 
-newtype RelevantIncome = RelevantIncome Int
-  deriving (Eq, Ord, Show)
-
+type RelevantIncome = Float 
 
 type OrdinaryBracketStarts = Map.Map OrdinaryRate BracketStart
 
@@ -165,7 +163,26 @@ bracketWidth fs rate =
     )
 
 ltcgTaxStart :: FilingStatus -> Int
-ltcgTaxStart fs = coerce (Map.elems(qualifiedBracketStarts fs) !! 1)
+ltcgTaxStart fs = coerce (Map.elems (qualifiedBracketStarts fs) !! 1)
 
-{- taxableSocialSecurity :: FilingStatus -> SocialSecurityBenefits -> RelevantIncom -> Float
- -}
+taxableSocialSecurity :: FilingStatus -> SocialSecurityBenefits -> RelevantIncome -> Float
+taxableSocialSecurity filingStatus ssBenefits relevantIncome =
+  let lowBase = case filingStatus of
+        Single -> 25000
+        HeadOfHousehold -> 25000
+      highBase = case filingStatus of
+        Single -> 34000
+        HeadOfHousehold -> 34000
+      combinedIncome = relevantIncome + (ssBenefits / 2.0)
+   in if combinedIncome < lowBase
+        then 0.0
+        else
+          if combinedIncome < highBase
+            then
+              let fractionTaxable = 0.5
+                  maxSocSecTaxable = ssBenefits * fractionTaxable
+               in min ((combinedIncome - lowBase) * fractionTaxable) maxSocSecTaxable
+            else
+              let fractionTaxable = 0.85
+                  maxSocSecTaxable = ssBenefits * fractionTaxable
+               in min (4500 + ((combinedIncome - highBase) * fractionTaxable)) maxSocSecTaxable

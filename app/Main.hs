@@ -1,9 +1,14 @@
 module Main where
-
-import Taxes ( bracketWidth, FilingStatus (..), OrdinaryRate (..))
+import Taxes ( 
+  bracketWidth,
+  taxableSocialSecurity,
+  FilingStatus (..), 
+  OrdinaryRate (..)
+  )
 
 main :: IO ()
 main = 
-  let v = bracketWidth HeadOfHousehold (OrdinaryRate 12)
-  in
-    print v
+  do
+    print $ bracketWidth HeadOfHousehold (OrdinaryRate 12)
+    print $ taxableSocialSecurity Single 40000.0 40000.0
+
