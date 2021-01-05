@@ -7,7 +7,7 @@ module Taxes
     bracketWidth,
     rmdFractionForAge,
     standardDeduction,
-    taxableSocialSecurity
+    taxableSocialSecurity,
   )
 where
 
@@ -15,6 +15,8 @@ import Data.Coerce (coerce)
 import qualified Data.List as List
 import qualified Data.Map.Strict as Map
 import Data.Maybe (fromJust)
+
+type Year = Integer
 
 newtype Age = Age Int
   deriving (Eq, Ord, Show)
@@ -36,7 +38,7 @@ newtype StandardDeduction = StandardDeduction Int
 
 type SocialSecurityBenefits = Float
 
-type RelevantIncome = Float 
+type RelevantIncome = Float
 
 type OrdinaryBracketStarts = Map.Map OrdinaryRate BracketStart
 
@@ -164,6 +166,13 @@ bracketWidth fs rate =
 
 ltcgTaxStart :: FilingStatus -> Int
 ltcgTaxStart fs = coerce (Map.elems (qualifiedBracketStarts fs) !! 1)
+
+taxableSocialSecurityAdjusted :: Year -> FilingStatus -> SocialSecurityBenefits -> RelevantIncome -> Float
+taxableSocialSecurityAdjusted year filingStatus ssBenefits relevantIncome =
+  let unadjusted = taxableSocialSecurity filingStatus ssBenefits relevantIncome
+      adjustmentFactor = 1.0 + 0.03 * (fromInteger (year - 2021) :: Float)
+      adjusted = unadjusted * adjustmentFactor
+   in min adjusted ssBenefits * 0.85
 
 taxableSocialSecurity :: FilingStatus -> SocialSecurityBenefits -> RelevantIncome -> Float
 taxableSocialSecurity filingStatus ssBenefits relevantIncome =
