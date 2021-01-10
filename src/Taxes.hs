@@ -46,6 +46,8 @@ type SocialSecurityBenefits = Double
 
 type RelevantIncome = Double
 
+type CombinedIncome = Double
+
 type OrdinaryBracketStarts = Map.Map OrdinaryRate BracketStart
 
 type QualifiedBracketStarts = Map.Map QualifiedRate BracketStart
@@ -196,18 +198,19 @@ taxableSocialSecurity filingStatus ssBenefits relevantIncome =
         Single -> 34000
         HeadOfHousehold -> 34000
       combinedIncome = relevantIncome + (ssBenefits / 2.0)
-   in if combinedIncome < lowBase
-        then 0.0
-        else
-          if combinedIncome < highBase
-            then
-              let fractionTaxable = 0.5
-                  maxSocSecTaxable = ssBenefits * fractionTaxable
-               in min ((combinedIncome - lowBase) * fractionTaxable) maxSocSecTaxable
-            else
-              let fractionTaxable = 0.85
-                  maxSocSecTaxable = ssBenefits * fractionTaxable
-               in min (4500 + ((combinedIncome - highBase) * fractionTaxable)) maxSocSecTaxable
+   in f combinedIncome (lowBase, highBase)
+  where
+    f :: CombinedIncome -> (CombinedIncome, CombinedIncome) -> Double
+    f combinedIncome (lowBase, highBase)
+      | combinedIncome < lowBase = 0.0
+      | combinedIncome < highBase =
+        let fractionTaxable = 0.5
+            maxSocSecTaxable = ssBenefits * fractionTaxable
+         in min ((combinedIncome - lowBase) * fractionTaxable) maxSocSecTaxable
+      | otherwise =
+        let fractionTaxable = 0.85
+            maxSocSecTaxable = ssBenefits * fractionTaxable
+         in min (4500 + ((combinedIncome - highBase) * fractionTaxable)) maxSocSecTaxable
 
 applyOrdinaryIncomeBrackets :: FilingStatus -> TaxableOrdinaryIncome -> Double
 applyOrdinaryIncomeBrackets fs taxableOrdinaryincome =
