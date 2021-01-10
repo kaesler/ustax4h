@@ -4,6 +4,8 @@ module Taxes
     OrdinaryRate (..),
     QualifiedRate (..),
     StandardDeduction (..),
+    applyOrdinaryIncomeBrackets,
+    applyQualifiedBrackets,
     bracketWidth,
     rmdFractionForAge,
     standardDeduction,

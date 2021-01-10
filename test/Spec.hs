@@ -1,5 +1,6 @@
-import Taxes (FilingStatus (Single), taxableSocialSecurity)
 import Test.Hspec
+import Test.Hspec.QuickCheck
+import Taxes
 
 main :: IO ()
 main = hspec $ do
@@ -18,3 +19,13 @@ main = hspec $ do
       taxableSocialSecurity Single 11000.0 25500.0 `shouldBe` 3000.0
     it "Example like I will face" $
       taxableSocialSecurity Single 49000.0 17000.0 `shouldBe` 10875.0
+
+  describe "applyOrdinaryIncomeBrackets" $ do
+    it "never tax zero" $ do
+      applyOrdinaryIncomeBrackets Single 0.0 `shouldBe` 0.0  
+      applyOrdinaryIncomeBrackets HeadOfHousehold  0.0 `shouldBe` 0.0
+
+  describe "applyQualifiedBrackets" $ do
+    it "never tax zero" $ do
+      applyQualifiedBrackets Single 0.0 0.0 `shouldBe` 0.0  
+      applyQualifiedBrackets HeadOfHousehold 0.0 0.0 `shouldBe` 0.0
