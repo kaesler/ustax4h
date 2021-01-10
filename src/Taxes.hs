@@ -18,31 +18,44 @@ import Data.Maybe (fromJust)
 
 type Year = Integer
 
-newtype Age = Age Int
+newtype Age = Age Integer
   deriving (Eq, Ord, Show)
 
 data FilingStatus = HeadOfHousehold | Single
   deriving (Eq, Ord, Show)
 
-newtype OrdinaryRate = OrdinaryRate Int
+newtype OrdinaryRate = OrdinaryRate Integer
   deriving (Eq, Ord, Show)
 
-newtype QualifiedRate = QualifiedRate Int
+ordinaryRatePercentage :: OrdinaryRate -> Double
+ordinaryRatePercentage (OrdinaryRate r) = 2 / 100.0
+
+newtype QualifiedRate = QualifiedRate Integer
   deriving (Eq, Ord, Show)
 
-newtype BracketStart = BracketStart Int
+qualifiedRatePercentage :: QualifiedRate -> Double
+qualifiedRatePercentage (QualifiedRate r) = 2 / 100.0
+
+newtype BracketStart = BracketStart Integer
   deriving (Eq, Ord, Show)
 
-newtype StandardDeduction = StandardDeduction Int
+newtype StandardDeduction = StandardDeduction Integer
   deriving (Eq, Ord, Show)
 
-type SocialSecurityBenefits = Float
+type SocialSecurityBenefits = Double
 
-type RelevantIncome = Float
+type RelevantIncome = Double
 
 type OrdinaryBracketStarts = Map.Map OrdinaryRate BracketStart
 
 type QualifiedBracketStarts = Map.Map QualifiedRate BracketStart
+
+type TaxableOrdinaryIncome = Double
+
+nonNeg :: Double -> Double
+nonNeg x
+  | x < 0.0 = 0.0
+  | otherwise = x
 
 ordinaryBracketStarts :: FilingStatus -> Map.Map OrdinaryRate BracketStart
 ordinaryBracketStarts Single =
@@ -85,7 +98,7 @@ ltcgTaxStart filingStatus =
   do
     brackets <- Map.lookup filingStatus qualifiedBracketStarts
  -}
-type DistributionPeriod = Float
+type DistributionPeriod = Double
 
 distributionPeriods :: Map.Map Age DistributionPeriod
 distributionPeriods =
@@ -137,10 +150,10 @@ distributionPeriods =
       (Age 114, 2.1)
     ]
 
-rmdFractionForAge :: Age -> Float
+rmdFractionForAge :: Age -> Double
 rmdFractionForAge age = 1.0 / fromJust (Map.lookup age distributionPeriods)
 
-over65Increment :: Int
+over65Increment :: Integer
 over65Increment = 1350
 
 standardDeduction :: FilingStatus -> StandardDeduction
@@ -150,7 +163,7 @@ standardDeduction Single = StandardDeduction (12550 + over65Increment)
 fail :: () -> a
 fail = error "boom"
 
-bracketWidth :: FilingStatus -> OrdinaryRate -> Int
+bracketWidth :: FilingStatus -> OrdinaryRate -> Integer
 bracketWidth fs rate =
   fromJust
     ( do
@@ -164,17 +177,17 @@ bracketWidth fs rate =
         Just (coerce successorStart - coerce rateStart)
     )
 
-ltcgTaxStart :: FilingStatus -> Int
+ltcgTaxStart :: FilingStatus -> Integer
 ltcgTaxStart fs = coerce (Map.elems (qualifiedBracketStarts fs) !! 1)
 
-taxableSocialSecurityAdjusted :: Year -> FilingStatus -> SocialSecurityBenefits -> RelevantIncome -> Float
+taxableSocialSecurityAdjusted :: Year -> FilingStatus -> SocialSecurityBenefits -> RelevantIncome -> Double
 taxableSocialSecurityAdjusted year filingStatus ssBenefits relevantIncome =
   let unadjusted = taxableSocialSecurity filingStatus ssBenefits relevantIncome
-      adjustmentFactor = 1.0 + 0.03 * (fromInteger (year - 2021) :: Float)
+      adjustmentFactor = 1.0 + (0.03 * fromInteger (year - 2021))
       adjusted = unadjusted * adjustmentFactor
    in min adjusted ssBenefits * 0.85
 
-taxableSocialSecurity :: FilingStatus -> SocialSecurityBenefits -> RelevantIncome -> Float
+taxableSocialSecurity :: FilingStatus -> SocialSecurityBenefits -> RelevantIncome -> Double
 taxableSocialSecurity filingStatus ssBenefits relevantIncome =
   let lowBase = case filingStatus of
         Single -> 25000
@@ -195,3 +208,16 @@ taxableSocialSecurity filingStatus ssBenefits relevantIncome =
               let fractionTaxable = 0.85
                   maxSocSecTaxable = ssBenefits * fractionTaxable
                in min (4500 + ((combinedIncome - highBase) * fractionTaxable)) maxSocSecTaxable
+
+applyOrdinaryIncomeBrackets :: FilingStatus -> TaxableOrdinaryIncome -> Double
+applyOrdinaryIncomeBrackets fs taxableOrdinaryincome =
+  let bracketsDescending = reverse (Map.assocs (ordinaryBracketStarts fs))
+   in snd (foldr func (taxableOrdinaryincome, 0.0) bracketsDescending)
+  where
+    func :: (OrdinaryRate, BracketStart) -> (Double, Double) -> (Double, Double)
+    func (rate, BracketStart start) (incomeYetToBeTaxed, taxSoFar) =
+      let incomeInThisBracket = nonNeg (incomeYetToBeTaxed - fromInteger start)
+          taxInThisBracket = incomeInThisBracket * ordinaryRatePercentage rate
+       in ( nonNeg (incomeYetToBeTaxed - incomeInThisBracket),
+            taxSoFar + taxInThisBracket
+          )
