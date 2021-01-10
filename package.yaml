@@ -47,3 +47,5 @@ tests:
     - -with-rtsopts=-N
     dependencies:
     - my-project
+    - hspec >=2.0.0
+
