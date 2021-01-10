@@ -1,10 +1,20 @@
-
+import Taxes (FilingStatus (Single), taxableSocialSecurity)
 import Test.Hspec
 
 main :: IO ()
 main = hspec $ do
-  describe "thingo" $ do
-    it " works" $
-      length [1,2,3] `shouldBe` 3
-
-
+  describe "taxableSocialSecurity" $ do
+    it "Untaxable 1" $
+      taxableSocialSecurity Single 50000.0 0.0 `shouldBe` 0.0
+    it "Untaxable 2" $
+      taxableSocialSecurity Single 40000.0 5000.0 `shouldBe` 0.0
+    it "Top of middle tier 1" $
+      taxableSocialSecurity Single 68000.0 0.0 `shouldBe` 4500.0
+    it "Top of middle tier 2" $
+      taxableSocialSecurity Single 28000.0 20000.0 `shouldBe` 4500.0
+    it "Example 1 from Pub 915" $
+      taxableSocialSecurity Single 5980.0 28900.0 `shouldBe` 2990.0
+    it "Jackson Example from Pub 915" $
+      taxableSocialSecurity Single 11000.0 25500.0 `shouldBe` 3000.0
+    it "Example like I will face" $
+      taxableSocialSecurity Single 49000.0 17000.0 `shouldBe` 10875.0
