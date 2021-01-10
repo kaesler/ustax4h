@@ -54,6 +54,8 @@ type QualifiedBracketStarts = Map.Map QualifiedRate BracketStart
 
 type TaxableOrdinaryIncome = Double
 
+type QualifiedInvestmentIncome = Double
+
 nonNeg :: Double -> Double
 nonNeg x
   | x < 0.0 = 0.0
@@ -223,4 +225,26 @@ applyOrdinaryIncomeBrackets fs taxableOrdinaryincome =
           taxInThisBracket = incomeInThisBracket * ordinaryRatePercentage rate
        in ( nonNeg (incomeYetToBeTaxed - incomeInThisBracket),
             taxSoFar + taxInThisBracket
+          )
+
+applyQualifiedBrackets :: FilingStatus -> TaxableOrdinaryIncome -> QualifiedInvestmentIncome -> Double
+applyQualifiedBrackets fs taxableOrdinaryIncome qualifiedInvestmentIncome =
+  let bracketsDescending = reverse (Map.assocs (qualifiedBracketStarts fs))
+      totalIncome = taxableOrdinaryIncome + qualifiedInvestmentIncome
+   in third (foldr func (taxableOrdinaryIncome, qualifiedInvestmentIncome, 0.0) bracketsDescending)
+  where
+    totalIncome = taxableOrdinaryIncome + qualifiedInvestmentIncome
+    third :: (a, b, c) -> c
+    third (_, _, a) = a
+    func :: (QualifiedRate, BracketStart) -> (Double, Double, Double) -> (Double, Double, Double)
+    func (rate, BracketStart start) (totalIncomeInHigherBrackets, gainsYetToBeTaxed, gainsTaxSoFar) =
+      let totalIncomeYetToBeTaxed = nonNeg (totalIncome - totalIncomeInHigherBrackets)
+          ordinaryIncomeYetToBeTaxed = nonNeg (totalIncomeYetToBeTaxed - gainsYetToBeTaxed)
+          totalIncomeInThisBracket = nonNeg (totalIncomeYetToBeTaxed - fromInteger start)
+          ordinaryIncomeInThisBracket = nonNeg (ordinaryIncomeYetToBeTaxed - fromInteger start)
+          gainsInThisBracket = nonNeg (totalIncomeInThisBracket - ordinaryIncomeInThisBracket)
+          taxInThisBracket = gainsInThisBracket * qualifiedRatePercentage rate
+       in ( totalIncomeInHigherBrackets + totalIncomeInThisBracket,
+            nonNeg (gainsYetToBeTaxed - gainsInThisBracket),
+            gainsTaxSoFar + taxInThisBracket
           )
