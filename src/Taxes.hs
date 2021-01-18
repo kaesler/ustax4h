@@ -3,7 +3,11 @@ module Taxes
     FilingStatus (..),
     OrdinaryRate (..),
     QualifiedRate (..),
+    QualifiedInvestmentIncome,
+    SocialSecurityBenefits (..),
+    SSRelevantIncome (..),
     StandardDeduction (..),
+    TaxableOrdinaryIncome,
     applyOrdinaryIncomeBrackets,
     applyQualifiedBrackets,
     bracketWidth,
@@ -24,7 +28,7 @@ newtype Age = Age Integer
   deriving (Eq, Ord, Show)
 
 data FilingStatus = HeadOfHousehold | Single
-  deriving (Eq, Ord, Show)
+  deriving (Eq, Ord, Show, Enum)
 
 newtype OrdinaryRate = OrdinaryRate Integer
   deriving (Eq, Ord, Show)
@@ -46,7 +50,7 @@ newtype StandardDeduction = StandardDeduction Integer
 
 type SocialSecurityBenefits = Double
 
-type RelevantIncome = Double
+type SSRelevantIncome = Double
 
 type CombinedIncome = Double
 
@@ -186,14 +190,14 @@ bracketWidth fs rate =
 ltcgTaxStart :: FilingStatus -> Integer
 ltcgTaxStart fs = coerce (Map.elems (qualifiedBracketStarts fs) !! 1)
 
-taxableSocialSecurityAdjusted :: Year -> FilingStatus -> SocialSecurityBenefits -> RelevantIncome -> Double
+taxableSocialSecurityAdjusted :: Year -> FilingStatus -> SocialSecurityBenefits ->  SSRelevantIncome -> Double
 taxableSocialSecurityAdjusted year filingStatus ssBenefits relevantIncome =
   let unadjusted = taxableSocialSecurity filingStatus ssBenefits relevantIncome
       adjustmentFactor = 1.0 + (0.03 * fromInteger (year - 2021))
       adjusted = unadjusted * adjustmentFactor
    in min adjusted ssBenefits * 0.85
 
-taxableSocialSecurity :: FilingStatus -> SocialSecurityBenefits -> RelevantIncome -> Double
+taxableSocialSecurity :: FilingStatus -> SocialSecurityBenefits ->  SSRelevantIncome -> Double
 taxableSocialSecurity filingStatus ssBenefits relevantIncome =
   let lowBase = case filingStatus of
         Single -> 25000

@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: e4b74172e895fcc1034106f58bfac0e9b1ef98696e99b718508c8c989ab69f32
+-- hash: 30bfdf93dbc09a48f30171a68df25fb092123d0b6cc4a7c0d716dfdc6ca33f5b
 
 name:           my-project
 version:        0.1.0.0
@@ -59,7 +59,8 @@ test-suite my-project-test
       test
   ghc-options: -threaded -rtsopts -with-rtsopts=-N
   build-depends:
-      base >=4.7 && <5
+      QuickCheck
+    , base >=4.7 && <5
     , containers
     , hspec >=2.0.0
     , my-project
