@@ -7,13 +7,16 @@ module Taxes
     SocialSecurityBenefits (..),
     SSRelevantIncome (..),
     StandardDeduction (..),
-    TaxableOrdinaryIncome,
+    TaxableOrdinaryIncome (..),
     applyOrdinaryIncomeBrackets,
     applyQualifiedBrackets,
+    bottomRateOnOrdinaryIncome,
     bracketWidth,
+    ordinaryRateAsFraction,
     rmdFractionForAge,
     standardDeduction,
     taxableSocialSecurity,
+    topRateOnOrdinaryIncome,
   )
 where
 
@@ -33,14 +36,14 @@ data FilingStatus = HeadOfHousehold | Single
 newtype OrdinaryRate = OrdinaryRate Integer
   deriving (Eq, Ord, Show)
 
-ordinaryRatePercentage :: OrdinaryRate -> Double
-ordinaryRatePercentage (OrdinaryRate r) = 2 / 100.0
+ordinaryRateAsFraction :: OrdinaryRate -> Double
+ordinaryRateAsFraction (OrdinaryRate r) = fromIntegral r / 100.0
 
 newtype QualifiedRate = QualifiedRate Integer
   deriving (Eq, Ord, Show)
 
-qualifiedRatePercentage :: QualifiedRate -> Double
-qualifiedRatePercentage (QualifiedRate r) = 2 / 100.0
+qualifiedRateAsFraction :: QualifiedRate -> Double
+qualifiedRateAsFraction (QualifiedRate r) = fromIntegral r / 100.0
 
 newtype BracketStart = BracketStart Integer
   deriving (Eq, Ord, Show)
@@ -88,6 +91,12 @@ ordinaryBracketStarts HeadOfHousehold =
       (OrdinaryRate 35, BracketStart 209400),
       (OrdinaryRate 37, BracketStart 523600)
     ]
+
+bottomRateOnOrdinaryIncome :: FilingStatus -> OrdinaryRate
+bottomRateOnOrdinaryIncome fs = head $ Map.keys $ ordinaryBracketStarts fs
+
+topRateOnOrdinaryIncome :: FilingStatus -> OrdinaryRate
+topRateOnOrdinaryIncome fs = last $ Map.keys $ ordinaryBracketStarts fs
 
 qualifiedBracketStarts :: FilingStatus -> Map.Map QualifiedRate BracketStart
 qualifiedBracketStarts Single =
@@ -190,14 +199,14 @@ bracketWidth fs rate =
 ltcgTaxStart :: FilingStatus -> Integer
 ltcgTaxStart fs = coerce (Map.elems (qualifiedBracketStarts fs) !! 1)
 
-taxableSocialSecurityAdjusted :: Year -> FilingStatus -> SocialSecurityBenefits ->  SSRelevantIncome -> Double
+taxableSocialSecurityAdjusted :: Year -> FilingStatus -> SocialSecurityBenefits -> SSRelevantIncome -> Double
 taxableSocialSecurityAdjusted year filingStatus ssBenefits relevantIncome =
   let unadjusted = taxableSocialSecurity filingStatus ssBenefits relevantIncome
       adjustmentFactor = 1.0 + (0.03 * fromInteger (year - 2021))
       adjusted = unadjusted * adjustmentFactor
    in min adjusted ssBenefits * 0.85
 
-taxableSocialSecurity :: FilingStatus -> SocialSecurityBenefits ->  SSRelevantIncome -> Double
+taxableSocialSecurity :: FilingStatus -> SocialSecurityBenefits -> SSRelevantIncome -> Double
 taxableSocialSecurity filingStatus ssBenefits relevantIncome =
   let lowBase = case filingStatus of
         Single -> 25000
@@ -228,7 +237,7 @@ applyOrdinaryIncomeBrackets fs taxableOrdinaryincome =
     func :: (OrdinaryRate, BracketStart) -> (Double, Double) -> (Double, Double)
     func (rate, BracketStart start) (incomeYetToBeTaxed, taxSoFar) =
       let incomeInThisBracket = nonNeg (incomeYetToBeTaxed - fromInteger start)
-          taxInThisBracket = incomeInThisBracket * ordinaryRatePercentage rate
+          taxInThisBracket = incomeInThisBracket * ordinaryRateAsFraction rate
        in ( nonNeg (incomeYetToBeTaxed - incomeInThisBracket),
             taxSoFar + taxInThisBracket
           )
@@ -249,7 +258,7 @@ applyQualifiedBrackets fs taxableOrdinaryIncome qualifiedInvestmentIncome =
           totalIncomeInThisBracket = nonNeg (totalIncomeYetToBeTaxed - fromInteger start)
           ordinaryIncomeInThisBracket = nonNeg (ordinaryIncomeYetToBeTaxed - fromInteger start)
           gainsInThisBracket = nonNeg (totalIncomeInThisBracket - ordinaryIncomeInThisBracket)
-          taxInThisBracket = gainsInThisBracket * qualifiedRatePercentage rate
+          taxInThisBracket = gainsInThisBracket * qualifiedRateAsFraction rate
        in ( totalIncomeInHigherBrackets + totalIncomeInThisBracket,
             nonNeg (gainsYetToBeTaxed - gainsInThisBracket),
             gainsTaxSoFar + taxInThisBracket
