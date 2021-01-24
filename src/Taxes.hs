@@ -65,6 +65,8 @@ type TaxableOrdinaryIncome = Double
 
 type QualifiedInvestmentIncome = Double
 
+type DistributionPeriod = Double
+
 nonNeg :: Double -> Double
 nonNeg x
   | x < 0.0 = 0.0
@@ -117,7 +119,6 @@ ltcgTaxStart filingStatus =
   do
     brackets <- Map.lookup filingStatus qualifiedBracketStarts
  -}
-type DistributionPeriod = Double
 
 distributionPeriods :: Map.Map Age DistributionPeriod
 distributionPeriods =
@@ -245,7 +246,6 @@ applyOrdinaryIncomeBrackets fs taxableOrdinaryincome =
 applyQualifiedBrackets :: FilingStatus -> TaxableOrdinaryIncome -> QualifiedInvestmentIncome -> Double
 applyQualifiedBrackets fs taxableOrdinaryIncome qualifiedInvestmentIncome =
   let bracketsDescending = reverse (Map.assocs (qualifiedBracketStarts fs))
-      totalIncome = taxableOrdinaryIncome + qualifiedInvestmentIncome
    in third (foldr func (taxableOrdinaryIncome, qualifiedInvestmentIncome, 0.0) bracketsDescending)
   where
     totalIncome = taxableOrdinaryIncome + qualifiedInvestmentIncome
