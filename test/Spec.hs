@@ -5,13 +5,13 @@ import Test.Hspec.QuickCheck
 import Test.QuickCheck
 
 genSocialSecurityBenefits :: Gen SocialSecurityBenefits
-genSocialSecurityBenefits = fmap fromIntegral (elements [0 .. 50000])
+genSocialSecurityBenefits = fmap fromInteger (elements [0 .. 50000])
 
 genTaxableOrdinaryIncome :: Gen TaxableOrdinaryIncome
-genTaxableOrdinaryIncome = fromIntegral <$> elements [0 .. 100000]
+genTaxableOrdinaryIncome = fromInteger <$> elements [0 .. 100000]
 
 genSsRelevantIncome :: Gen SSRelevantIncome
-genSsRelevantIncome = fmap fromIntegral (elements [0 .. 100000])
+genSsRelevantIncome = fmap fromInteger (elements [0 .. 100000])
 
 genFilingStatus :: Gen FilingStatus
 genFilingStatus = elements [Single, HeadOfHousehold]
@@ -42,7 +42,7 @@ prop_monotonic =
       fs <- genFilingStatus
       i1 <- genTaxableOrdinaryIncome
       i2 <- genTaxableOrdinaryIncome
-      return (fs, i2, i2)
+      return (fs, i1, i2)
 
 prop_singlePaysMoreTax :: Property
 prop_singlePaysMoreTax =
@@ -76,9 +76,40 @@ prop_zeroTaxOnlyOnZeroIncome =
         applyOrdinaryIncomeBrackets fs income /= 0 || income == 0
     )
 
+assertThing :: (Show a1, Show a2, Eq a1, Eq a2, Fractional a1, Fractional a2) => a1 -> a2 -> Expectation
+assertThing x y = do
+  x `shouldBe` 0.0
+  y `shouldBe` 0.0
+
+assertCorrectTaxDueAtBracketBoundary :: FilingStatus -> OrdinaryRate -> Expectation
+assertCorrectTaxDueAtBracketBoundary filingStatus bracketRate =
+  let StandardDeduction deduction = standardDeduction filingStatus
+      income = incomeToEndOfOrdinaryBracket filingStatus bracketRate
+      taxableIncome = income - fromInteger deduction
+      expectedTax = taxToEndOfOrdinaryBracket filingStatus bracketRate
+      computedTax = fromInteger $ round $ applyOrdinaryIncomeBrackets filingStatus taxableIncome
+   in do
+        computedTax `shouldBe` expectedTax
+
+assertCorrectTaxDueAtBracketBoundaries :: FilingStatus -> Expectation
+assertCorrectTaxDueAtBracketBoundaries filingStatus =
+  let brackets = ordinaryRatesExceptTop filingStatus
+      incomes = map (incomeToEndOfOrdinaryBracket filingStatus) brackets
+      expectedTaxes = map (taxToEndOfOrdinaryBracket filingStatus) brackets
+      StandardDeduction deduction = standardDeduction filingStatus
+      expectations = zipWith (curry taxDueIsAsExpected) incomes expectedTaxes
+        where
+          taxDueIsAsExpected :: (Double, Double) -> Expectation
+          taxDueIsAsExpected (income, expectedTax) =
+            let taxableIncome = income - fromInteger deduction
+                computedTax = fromInteger $ round $ applyOrdinaryIncomeBrackets filingStatus taxableIncome
+             in do
+                  computedTax `shouldBe` expectedTax
+   in () <$ sequence expectations
+
 main :: IO ()
 main = hspec $ do
-  describe "taxableSocialSecurity" $ do
+  describe "Taxes.taxableSocialSecurity" $ do
     it "Untaxable 1" $
       taxableSocialSecurity Single 50000.0 0.0 `shouldBe` 0.0
     it "Untaxable 2" $
@@ -94,16 +125,30 @@ main = hspec $ do
     it "Example like I will face" $
       taxableSocialSecurity Single 49000.0 17000.0 `shouldBe` 10875.0
 
-  describe "applyOrdinaryIncomeBrackets" $ do
-    it "never tax zero" $ do
+  describe "Taxes.applyOrdinaryIncomeBrackets" $ do
+    it "Never taxes zero income" $ do
       applyOrdinaryIncomeBrackets Single 0.0 `shouldBe` 0.0
       applyOrdinaryIncomeBrackets HeadOfHousehold 0.0 `shouldBe` 0.0
 
-    it "applyOrdinaryIncomeBrackets is monotonic" $ property prop_monotonic
+    it "Is monotonic" $ property prop_monotonic
     it "Single pays more tax than HeadOfHousehold" $ property prop_singlePaysMoreTax
-    it "top rate is top rate" $ property prop_topRateIsNotExceeded
+    it "Top rate is top rate" $ property prop_topRateIsNotExceeded
+    it "Computes expected tax at bracket boundaries" $ do
+      assertCorrectTaxDueAtBracketBoundaries HeadOfHousehold
+      assertCorrectTaxDueAtBracketBoundaries Single
 
-  describe "applyQualifiedBrackets" $ do
-    it "never tax zero" $ do
+      assertCorrectTaxDueAtBracketBoundary Single (OrdinaryRate 10)
+      assertCorrectTaxDueAtBracketBoundary HeadOfHousehold (OrdinaryRate 10)
+      assertCorrectTaxDueAtBracketBoundary Single (OrdinaryRate 12)
+      assertCorrectTaxDueAtBracketBoundary HeadOfHousehold (OrdinaryRate 12)
+      assertCorrectTaxDueAtBracketBoundary Single (OrdinaryRate 22)
+      assertCorrectTaxDueAtBracketBoundary HeadOfHousehold (OrdinaryRate 22)
+      assertCorrectTaxDueAtBracketBoundary Single (OrdinaryRate 24)
+      assertCorrectTaxDueAtBracketBoundary HeadOfHousehold (OrdinaryRate 24)
+      assertCorrectTaxDueAtBracketBoundary Single (OrdinaryRate 35)
+      assertCorrectTaxDueAtBracketBoundary HeadOfHousehold (OrdinaryRate 35)
+
+  describe "Taxes.applyQualifiedBrackets" $
+    it "never taxes zero income" $ do
       applyQualifiedBrackets Single 0.0 0.0 `shouldBe` 0.0
       applyQualifiedBrackets HeadOfHousehold 0.0 0.0 `shouldBe` 0.0
