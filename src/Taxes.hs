@@ -132,8 +132,8 @@ taxToEndOfOrdinaryBracket filingStatus bracketRate =
       taxesDue = List.map taxForBracket pairs
         where
           taxForBracket (OrdinaryRate r, width) =
-            (fromIntegral width) * (fromInteger r) / 100.0
-   in fromInteger $ round ((List.sum taxesDue) :: Double)
+            fromIntegral width * fromInteger r / 100.0
+   in fromInteger $ round (List.sum taxesDue)
 
 -----------------------------------------
 bottomRateOnOrdinaryIncome :: FilingStatus -> OrdinaryRate
