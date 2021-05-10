@@ -3,9 +3,9 @@ module Taxes
     FilingStatus (..),
     OrdinaryRate (..),
     QualifiedRate (..),
-    QualifiedInvestmentIncome,
-    SocialSecurityBenefits,
-    SSRelevantIncome,
+    QualifiedIncome,
+    SocSec,
+    SSRelevantOtherIncome,
     StandardDeduction (..),
     TaxableOrdinaryIncome,
     applyOrdinaryIncomeBrackets,
@@ -13,7 +13,7 @@ module Taxes
     bottomRateOnOrdinaryIncome,
     bracketWidth,
     incomeToEndOfOrdinaryBracket,
-    ltcgTaxStart,
+    startOfNonZeroQualifiedRate,
     ordinaryRateAsFraction,
     ordinaryRatesExceptTop,
     rmdFractionForAge,
@@ -58,15 +58,15 @@ newtype BracketStart = BracketStart Integer
 newtype StandardDeduction = StandardDeduction Integer
   deriving (Eq, Ord, Show)
 
-type SocialSecurityBenefits = Double
+type SocSec = Double
 
-type SSRelevantIncome = Double
+type SSRelevantOtherIncome = Double
 
 type CombinedIncome = Double
 
 type TaxableOrdinaryIncome = Double
 
-type QualifiedInvestmentIncome = Double
+type QualifiedIncome = Double
 
 type DistributionPeriod = Double
 
@@ -74,6 +74,10 @@ nonNeg :: Double -> Double
 nonNeg x
   | x < 0.0 = 0.0
   | otherwise = x
+
+-- TODO
+-- federalTaxDue :: Year -> FilingStatus -> SocSec -> TaxableOrdinaryIncome -> QualifiedIncome -> Double
+-- federalTaxDue year filingStatus ss
 
 ordinaryBracketStarts :: FilingStatus -> NEMap OrdinaryRate BracketStart
 ordinaryBracketStarts Single =
@@ -236,17 +240,20 @@ bracketWidth fs rate =
         Just (coerce successorStart - coerce rateStart)
     )
 
-ltcgTaxStart :: FilingStatus -> Integer
-ltcgTaxStart fs = coerce $ (NonEmpty.!!) (NEMap.elems (qualifiedBracketStarts fs)) 1
 
-taxableSocialSecurityAdjusted :: Year -> FilingStatus -> SocialSecurityBenefits -> SSRelevantIncome -> Double
+startOfNonZeroQualifiedRate :: FilingStatus -> Integer
+startOfNonZeroQualifiedRate fs = 
+  -- The start of the 2nd-to-bottom bracket.
+  coerce $ (NonEmpty.!!) (NEMap.elems (qualifiedBracketStarts fs)) 1
+
+taxableSocialSecurityAdjusted :: Year -> FilingStatus -> SocSec -> SSRelevantOtherIncome -> Double
 taxableSocialSecurityAdjusted year filingStatus ssBenefits relevantIncome =
   let unadjusted = taxableSocialSecurity filingStatus ssBenefits relevantIncome
       adjustmentFactor = 1.0 + (0.03 * fromInteger (year - 2021))
       adjusted = unadjusted * adjustmentFactor
    in min adjusted ssBenefits * 0.85
 
-taxableSocialSecurity :: FilingStatus -> SocialSecurityBenefits -> SSRelevantIncome -> Double
+taxableSocialSecurity :: FilingStatus -> SocSec -> SSRelevantOtherIncome -> Double
 taxableSocialSecurity filingStatus ssBenefits relevantIncome =
   let lowBase = case filingStatus of
         Single -> 25000
@@ -282,7 +289,7 @@ applyOrdinaryIncomeBrackets fs taxableOrdinaryincome =
             taxSoFar + taxInThisBracket
           )
 
-applyQualifiedBrackets :: FilingStatus -> TaxableOrdinaryIncome -> QualifiedInvestmentIncome -> Double
+applyQualifiedBrackets :: FilingStatus -> TaxableOrdinaryIncome -> QualifiedIncome -> Double
 applyQualifiedBrackets fs taxableOrdinaryIncome qualifiedInvestmentIncome =
   let bracketsDescending = NonEmpty.reverse (NEMap.assocs (qualifiedBracketStarts fs))
    in third (List.foldl func (taxableOrdinaryIncome, qualifiedInvestmentIncome, 0.0) bracketsDescending)

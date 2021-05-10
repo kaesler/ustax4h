@@ -4,13 +4,13 @@ import Test.Hspec
 import Test.Hspec.QuickCheck
 import Test.QuickCheck
 
-genSocialSecurityBenefits :: Gen SocialSecurityBenefits
+genSocialSecurityBenefits :: Gen SocSec
 genSocialSecurityBenefits = fmap fromInteger (elements [0 .. 50000])
 
 genTaxableOrdinaryIncome :: Gen TaxableOrdinaryIncome
 genTaxableOrdinaryIncome = fromInteger <$> elements [0 .. 100000]
 
-genSsRelevantIncome :: Gen SSRelevantIncome
+genSsRelevantIncome :: Gen SSRelevantOtherIncome
 genSsRelevantIncome = fmap fromInteger (elements [0 .. 100000])
 
 genFilingStatus :: Gen FilingStatus
@@ -148,6 +148,7 @@ main = hspec $ do
       assertCorrectTaxDueAtBracketBoundary Single (OrdinaryRate 35)
       assertCorrectTaxDueAtBracketBoundary HeadOfHousehold (OrdinaryRate 35)
 
+  -- TODO More here
   describe "Taxes.applyQualifiedBrackets" $
     it "never taxes zero income" $ do
       applyQualifiedBrackets Single 0.0 0.0 `shouldBe` 0.0
