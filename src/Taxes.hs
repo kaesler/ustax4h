@@ -13,7 +13,7 @@ module Taxes
     bottomRateOnOrdinaryIncome,
     bracketWidth,
     incomeToEndOfOrdinaryBracket,
-    startOfNonZeroQualifiedRate,
+    startOfNonZeroQualifiedRateBracket,
     ordinaryRateAsFraction,
     ordinaryRatesExceptTop,
     rmdFractionForAge,
@@ -241,8 +241,8 @@ bracketWidth fs rate =
     )
 
 
-startOfNonZeroQualifiedRate :: FilingStatus -> Integer
-startOfNonZeroQualifiedRate fs = 
+startOfNonZeroQualifiedRateBracket :: FilingStatus -> Integer
+startOfNonZeroQualifiedRateBracket fs = 
   -- The start of the 2nd-to-bottom bracket.
   coerce $ (NonEmpty.!!) (NEMap.elems (qualifiedBracketStarts fs)) 1
 
