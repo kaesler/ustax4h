@@ -7,7 +7,7 @@ module Taxes
     SocSec,
     SSRelevantOtherIncome,
     StandardDeduction (..),
-    TaxableOrdinaryIncome,
+    OrdinaryIncome,
     applyOrdinaryIncomeBrackets,
     applyQualifiedBrackets,
     bottomRateOnOrdinaryIncome,
@@ -64,7 +64,7 @@ type SSRelevantOtherIncome = Double
 
 type CombinedIncome = Double
 
-type TaxableOrdinaryIncome = Double
+type OrdinaryIncome = Double
 
 type QualifiedIncome = Double
 
@@ -76,8 +76,14 @@ nonNeg x
   | otherwise = x
 
 -- TODO
--- federalTaxDue :: Year -> FilingStatus -> SocSec -> TaxableOrdinaryIncome -> QualifiedIncome -> Double
--- federalTaxDue year filingStatus ss
+federalTaxDue :: Year -> FilingStatus -> SocSec -> OrdinaryIncome -> QualifiedIncome -> Double
+federalTaxDue year filingStatus ss toi qi =
+  let ssRelevantOtherIncome = toi + qi
+      taxableSocSec = taxableSocialSecurity filingStatus  ss ssRelevantOtherIncome
+      StandardDeduction sd = standardDeduction filingStatus
+      taxableOrdinaryIncome = taxableSocSec + toi - fromInteger sd
+  in
+    undefined
 
 ordinaryBracketStarts :: FilingStatus -> NEMap OrdinaryRate BracketStart
 ordinaryBracketStarts Single =
@@ -242,7 +248,7 @@ bracketWidth fs rate =
 
 
 startOfNonZeroQualifiedRateBracket :: FilingStatus -> Integer
-startOfNonZeroQualifiedRateBracket fs = 
+startOfNonZeroQualifiedRateBracket fs =
   -- The start of the 2nd-to-bottom bracket.
   coerce $ (NonEmpty.!!) (NEMap.elems (qualifiedBracketStarts fs)) 1
 
@@ -276,7 +282,7 @@ taxableSocialSecurity filingStatus ssBenefits relevantIncome =
             maxSocSecTaxable = ssBenefits * fractionTaxable
          in min (4500 + ((combinedIncome - highBase) * fractionTaxable)) maxSocSecTaxable
 
-applyOrdinaryIncomeBrackets :: FilingStatus -> TaxableOrdinaryIncome -> Double
+applyOrdinaryIncomeBrackets :: FilingStatus -> OrdinaryIncome -> Double
 applyOrdinaryIncomeBrackets fs taxableOrdinaryincome =
   let bracketsDescending = NonEmpty.reverse (NEMap.assocs (ordinaryBracketStarts fs))
    in snd (List.foldl func (taxableOrdinaryincome, 0.0) bracketsDescending)
@@ -289,7 +295,7 @@ applyOrdinaryIncomeBrackets fs taxableOrdinaryincome =
             taxSoFar + taxInThisBracket
           )
 
-applyQualifiedBrackets :: FilingStatus -> TaxableOrdinaryIncome -> QualifiedIncome -> Double
+applyQualifiedBrackets :: FilingStatus -> OrdinaryIncome -> QualifiedIncome -> Double
 applyQualifiedBrackets fs taxableOrdinaryIncome qualifiedInvestmentIncome =
   let bracketsDescending = NonEmpty.reverse (NEMap.assocs (qualifiedBracketStarts fs))
    in third (List.foldl func (taxableOrdinaryIncome, qualifiedInvestmentIncome, 0.0) bracketsDescending)

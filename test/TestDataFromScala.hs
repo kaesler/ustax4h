@@ -1,12 +1,16 @@
-module TestDataFromScala where
+module TestDataFromScala 
+  ( cases
+  ) 
+  
+where
 
 import Taxes
     ( FilingStatus(..),
       QualifiedIncome,
       SocSec,
-      TaxableOrdinaryIncome )
+      OrdinaryIncome )
 
-cases :: [(FilingStatus, SocSec, TaxableOrdinaryIncome,
+cases :: [(FilingStatus, SocSec, OrdinaryIncome,
   QualifiedIncome, Double)]
 cases = fmap ingestCase [
   (HeadOfHousehold,47145,0,1,0),
@@ -15,7 +19,7 @@ cases = fmap ingestCase [
   (HeadOfHousehold,0,0,0,0)
   ]
 ingestCase :: (FilingStatus, Integer, Integer, Integer, Integer) -> 
-  (FilingStatus, SocSec, TaxableOrdinaryIncome, QualifiedIncome, Double)
+  (FilingStatus, SocSec, OrdinaryIncome, QualifiedIncome, Double)
 ingestCase (filingStatus, ss, inc, qi, expectedTax) = (
     filingStatus,
     fromInteger ss,

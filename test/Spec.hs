@@ -4,11 +4,13 @@ import Test.Hspec
 import Test.Hspec.QuickCheck
 import Test.QuickCheck
 
+import TestDataFromScala ()
+
 genSocialSecurityBenefits :: Gen SocSec
 genSocialSecurityBenefits = fmap fromInteger (elements [0 .. 50000])
 
-genTaxableOrdinaryIncome :: Gen TaxableOrdinaryIncome
-genTaxableOrdinaryIncome = fromInteger <$> elements [0 .. 100000]
+genOrdinaryIncome :: Gen OrdinaryIncome
+genOrdinaryIncome = fromInteger <$> elements [0 .. 100000]
 
 genSsRelevantIncome :: Gen SSRelevantOtherIncome
 genSsRelevantIncome = fmap fromInteger (elements [0 .. 100000])
@@ -22,10 +24,10 @@ genPair = do
   a2 <- arbitrary
   return (a1, a2)
 
-genFsWithIncome :: Gen (FilingStatus, TaxableOrdinaryIncome)
+genFsWithIncome :: Gen (FilingStatus, OrdinaryIncome)
 genFsWithIncome = do
   fs <- genFilingStatus
-  income <- genTaxableOrdinaryIncome
+  income <- genOrdinaryIncome
   return (fs, income)
 
 prop_monotonic :: Property
@@ -37,17 +39,17 @@ prop_monotonic =
           == (applyOrdinaryIncomeBrackets fs i1 <= applyOrdinaryIncomeBrackets fs i2)
     )
   where
-    genCase :: Gen (FilingStatus, TaxableOrdinaryIncome, TaxableOrdinaryIncome)
+    genCase :: Gen (FilingStatus, OrdinaryIncome, OrdinaryIncome)
     genCase = do
       fs <- genFilingStatus
-      i1 <- genTaxableOrdinaryIncome
-      i2 <- genTaxableOrdinaryIncome
+      i1 <- genOrdinaryIncome
+      i2 <- genOrdinaryIncome
       return (fs, i1, i2)
 
 prop_singlePaysMoreTax :: Property
 prop_singlePaysMoreTax =
   forAll
-    genTaxableOrdinaryIncome
+    genOrdinaryIncome
     ( \income ->
         applyOrdinaryIncomeBrackets Single income >= applyOrdinaryIncomeBrackets HeadOfHousehold income
     )
@@ -61,7 +63,7 @@ prop_topRateIsNotExceeded =
          in effectiveRate <= ordinaryRateAsFraction (topRateOnOrdinaryIncome fs)
     )
 
-assertIt :: (FilingStatus, TaxableOrdinaryIncome) -> Bool
+assertIt :: (FilingStatus, OrdinaryIncome) -> Bool
 assertIt (fs, income) =
   let tax = applyOrdinaryIncomeBrackets fs income
       effectiveRate = tax / income
@@ -153,3 +155,5 @@ main = hspec $ do
     it "never taxes zero income" $ do
       applyQualifiedBrackets Single 0.0 0.0 `shouldBe` 0.0
       applyQualifiedBrackets HeadOfHousehold 0.0 0.0 `shouldBe` 0.0
+  
+  -- describe "Taxes.federalTaxDue"

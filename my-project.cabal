@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: b0c9446c9cd3ef7295948bf43a8c26c729af6362b41d50ebd95ac6ff60083418
+-- hash: 4b8725cd36c38ef1ea9fcba31bca0fad47a625e6522ce911baf2e716d110adbb
 
 name:           my-project
 version:        0.1.0.0
@@ -56,6 +56,7 @@ test-suite my-project-test
   type: exitcode-stdio-1.0
   main-is: Spec.hs
   other-modules:
+      TestDataFromScala
       Paths_my_project
   hs-source-dirs:
       test
