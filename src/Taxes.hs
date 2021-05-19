@@ -75,15 +75,16 @@ nonNeg x
   | x < 0.0 = 0.0
   | otherwise = x
 
--- TODO
 federalTaxDue :: Year -> FilingStatus -> SocSec -> OrdinaryIncome -> QualifiedIncome -> Double
 federalTaxDue year filingStatus ss toi qi =
   let ssRelevantOtherIncome = toi + qi
       taxableSocSec = taxableSocialSecurity filingStatus  ss ssRelevantOtherIncome
       StandardDeduction sd = standardDeduction filingStatus
       taxableOrdinaryIncome = taxableSocSec + toi - fromInteger sd
+      taxOnOrdinaryIncome = applyOrdinaryIncomeBrackets filingStatus taxableOrdinaryIncome
+      taxOnQualifiedIncome = applyQualifiedBrackets filingStatus taxableOrdinaryIncome qi
   in
-    undefined
+    taxOnOrdinaryIncome + taxOnQualifiedIncome
 
 ordinaryBracketStarts :: FilingStatus -> NEMap OrdinaryRate BracketStart
 ordinaryBracketStarts Single =
