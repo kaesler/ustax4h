@@ -12,11 +12,14 @@ module Taxes
     applyQualifiedBrackets,
     bottomRateOnOrdinaryIncome,
     bracketWidth,
+    federalTaxDue,
+    federalTaxDueDebug,
     incomeToEndOfOrdinaryBracket,
     startOfNonZeroQualifiedRateBracket,
     ordinaryRateAsFraction,
     ordinaryRatesExceptTop,
     rmdFractionForAge,
+    roundHalfUp,
     standardDeduction,
     taxableSocialSecurity,
     taxableSocialSecurityAdjusted,
@@ -75,16 +78,48 @@ nonNeg x
   | x < 0.0 = 0.0
   | otherwise = x
 
+roundHalfUp :: Double -> Double
+roundHalfUp x =
+  let xAbs = abs x
+      sign = if x >= 0.0 then 1.0 else (-1.0)
+      (whole, frac) = properFraction xAbs
+    in
+      (sign *) $ fromInteger $ if frac >= 0.5 then whole + 1 else whole
+
 federalTaxDue :: Year -> FilingStatus -> SocSec -> OrdinaryIncome -> QualifiedIncome -> Double
-federalTaxDue year filingStatus ss toi qi =
-  let ssRelevantOtherIncome = toi + qi
-      taxableSocSec = taxableSocialSecurity filingStatus  ss ssRelevantOtherIncome
+federalTaxDue year filingStatus socSec ordinaryIncome qualifiedIncome =
+  let ssRelevantOtherIncome = ordinaryIncome + qualifiedIncome
+      taxableSocSec = taxableSocialSecurity filingStatus socSec ssRelevantOtherIncome
       StandardDeduction sd = standardDeduction filingStatus
-      taxableOrdinaryIncome = taxableSocSec + toi - fromInteger sd
+      taxableOrdinaryIncome = nonNeg (taxableSocSec + ordinaryIncome - fromInteger sd)
       taxOnOrdinaryIncome = applyOrdinaryIncomeBrackets filingStatus taxableOrdinaryIncome
-      taxOnQualifiedIncome = applyQualifiedBrackets filingStatus taxableOrdinaryIncome qi
+      taxOnQualifiedIncome = applyQualifiedBrackets filingStatus taxableOrdinaryIncome qualifiedIncome
   in
     taxOnOrdinaryIncome + taxOnQualifiedIncome
+
+federalTaxDueDebug :: Year -> FilingStatus -> SocSec -> OrdinaryIncome -> QualifiedIncome -> IO ()
+federalTaxDueDebug year filingStatus socSec ordinaryIncome qualifiedIncome =
+  let ssRelevantOtherIncome = ordinaryIncome + qualifiedIncome
+      taxableSocSec = taxableSocialSecurity filingStatus socSec ssRelevantOtherIncome
+      StandardDeduction sd = standardDeduction filingStatus
+      taxableOrdinaryIncome = nonNeg (taxableSocSec + ordinaryIncome - fromInteger sd)
+      taxOnOrdinaryIncome = applyOrdinaryIncomeBrackets filingStatus taxableOrdinaryIncome
+      taxOnQualifiedIncome = applyQualifiedBrackets filingStatus taxableOrdinaryIncome qualifiedIncome
+      result = taxOnOrdinaryIncome + taxOnQualifiedIncome
+  in do
+    putStrLn "Inputs"
+    putStrLn (" fs: " ++ show filingStatus)
+    putStrLn (" socSec: " ++ show socSec)
+    putStrLn (" ordinaryIncome: " ++ show ordinaryIncome)
+    putStrLn (" qualifiedIncome: " ++ show qualifiedIncome)
+    putStrLn "Outputs"
+    putStrLn ("  ssRelevantOtherIncome: " ++ show ssRelevantOtherIncome)
+    putStrLn ("  taxableSocSec: " ++ show taxableSocSec)
+    putStrLn ("  standardDeduction: " ++ show sd)
+    putStrLn ("  taxableOrdinaryIncome: " ++ show taxableOrdinaryIncome)
+    putStrLn ("  taxOnOrdinaryIncome: " ++ show taxOnOrdinaryIncome)
+    putStrLn ("  taxOnQualifiedIncome: " ++ show taxOnQualifiedIncome)
+    putStrLn ("  result: " ++ show result)
 
 ordinaryBracketStarts :: FilingStatus -> NEMap OrdinaryRate BracketStart
 ordinaryBracketStarts Single =
@@ -144,7 +179,7 @@ taxToEndOfOrdinaryBracket filingStatus bracketRate =
         where
           taxForBracket (OrdinaryRate r, width) =
             fromIntegral width * fromInteger r / 100.0
-   in fromInteger $ round (List.sum taxesDue)
+   in List.sum taxesDue
 
 -----------------------------------------
 bottomRateOnOrdinaryIncome :: FilingStatus -> OrdinaryRate
@@ -299,14 +334,14 @@ applyOrdinaryIncomeBrackets fs taxableOrdinaryincome =
 applyQualifiedBrackets :: FilingStatus -> OrdinaryIncome -> QualifiedIncome -> Double
 applyQualifiedBrackets fs taxableOrdinaryIncome qualifiedInvestmentIncome =
   let bracketsDescending = NonEmpty.reverse (NEMap.assocs (qualifiedBracketStarts fs))
-   in third (List.foldl func (taxableOrdinaryIncome, qualifiedInvestmentIncome, 0.0) bracketsDescending)
+   in third (List.foldl func (0.0, qualifiedInvestmentIncome, 0.0) bracketsDescending)
   where
-    totalIncome = taxableOrdinaryIncome + qualifiedInvestmentIncome
+    totalTaxableIncome = taxableOrdinaryIncome + qualifiedInvestmentIncome
     third :: (a, b, c) -> c
     third (_, _, a) = a
     func :: (Double, Double, Double) -> (QualifiedRate, BracketStart) -> (Double, Double, Double)
     func (totalIncomeInHigherBrackets, gainsYetToBeTaxed, gainsTaxSoFar) (rate, BracketStart start) =
-      let totalIncomeYetToBeTaxed = nonNeg (totalIncome - totalIncomeInHigherBrackets)
+      let totalIncomeYetToBeTaxed = nonNeg (totalTaxableIncome - totalIncomeInHigherBrackets)
           ordinaryIncomeYetToBeTaxed = nonNeg (totalIncomeYetToBeTaxed - gainsYetToBeTaxed)
           totalIncomeInThisBracket = nonNeg (totalIncomeYetToBeTaxed - fromInteger start)
           ordinaryIncomeInThisBracket = nonNeg (ordinaryIncomeYetToBeTaxed - fromInteger start)

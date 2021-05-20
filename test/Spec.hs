@@ -4,7 +4,7 @@ import Test.Hspec
 import Test.Hspec.QuickCheck
 import Test.QuickCheck
 
-import TestDataFromScala ()
+import TestDataFromScala as TDFS (cases)
 
 genSocialSecurityBenefits :: Gen SocSec
 genSocialSecurityBenefits = fmap fromInteger (elements [0 .. 50000])
@@ -88,8 +88,8 @@ assertCorrectTaxDueAtBracketBoundary filingStatus bracketRate =
   let StandardDeduction deduction = standardDeduction filingStatus
       income = incomeToEndOfOrdinaryBracket filingStatus bracketRate
       taxableIncome = income - fromInteger deduction
-      expectedTax = taxToEndOfOrdinaryBracket filingStatus bracketRate
-      computedTax = fromInteger $ round $ applyOrdinaryIncomeBrackets filingStatus taxableIncome
+      expectedTax = roundHalfUp $ taxToEndOfOrdinaryBracket filingStatus bracketRate
+      computedTax = roundHalfUp $ applyOrdinaryIncomeBrackets filingStatus taxableIncome
    in do
         computedTax `shouldBe` expectedTax
 
@@ -104,9 +104,9 @@ assertCorrectTaxDueAtBracketBoundaries filingStatus =
           taxDueIsAsExpected :: (Double, Double) -> Expectation
           taxDueIsAsExpected (income, expectedTax) =
             let taxableIncome = income - fromInteger deduction
-                computedTax = fromInteger $ round $ applyOrdinaryIncomeBrackets filingStatus taxableIncome
+                computedTax = roundHalfUp $ applyOrdinaryIncomeBrackets filingStatus taxableIncome
              in do
-                  computedTax `shouldBe` expectedTax
+                  computedTax `shouldBe` roundHalfUp expectedTax
    in () <$ sequence expectations
 
 main :: IO ()
@@ -155,5 +155,18 @@ main = hspec $ do
     it "never taxes zero income" $ do
       applyQualifiedBrackets Single 0.0 0.0 `shouldBe` 0.0
       applyQualifiedBrackets HeadOfHousehold 0.0 0.0 `shouldBe` 0.0
-  
-  -- describe "Taxes.federalTaxDue"
+
+  describe "Taxes.federalTaxDue" $
+    it "matches outputs from Scala implementation" $ do
+      let makeExpectation :: (FilingStatus, SocSec, OrdinaryIncome, QualifiedIncome, Double) -> Expectation
+          makeExpectation (fs, socSec, oi, qi, expectedFedTaxDue) =
+            roundHalfUp (federalTaxDue 2021 fs socSec oi qi) `shouldBe` expectedFedTaxDue
+          expectations = fmap makeExpectation TDFS.cases
+        in
+          () <$ sequence expectations
+ 
+-- (Single,50000,0,50000,8113),
+-- (HeadOfHousehold,17332,14250,47963,1288)
+  describe "adHoc" $ do
+    it "works" $ do
+     federalTaxDueDebug 2021 Single 50000.0 0.0 50000.0
