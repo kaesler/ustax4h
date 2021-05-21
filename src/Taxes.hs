@@ -73,6 +73,16 @@ type QualifiedIncome = Double
 
 type DistributionPeriod = Double
 
+data FederalTaxResults = FederalTaxResults
+  { ssRelevantOtherIncome :: Double,
+    taxableSocSec :: Double,
+    stdDeduction :: StandardDeduction,
+    taxableOrdinaryIncome :: Double,
+    taxOnOrdinaryIncome :: Double,
+    taxOnQualifiedIncome :: Double
+  }
+  deriving (Show)
+
 nonNeg :: Double -> Double
 nonNeg x
   | x < 0.0 = 0.0
@@ -83,19 +93,29 @@ roundHalfUp x =
   let xAbs = abs x
       sign = if x >= 0.0 then 1.0 else (-1.0)
       (whole, frac) = properFraction xAbs
-    in
-      (sign *) $ fromInteger $ if frac >= 0.5 then whole + 1 else whole
+   in (sign *) $ fromInteger $ if frac >= 0.5 then whole + 1 else whole
 
-federalTaxDue :: Year -> FilingStatus -> SocSec -> OrdinaryIncome -> QualifiedIncome -> Double
-federalTaxDue year filingStatus socSec ordinaryIncome qualifiedIncome =
+federalTaxResults :: Year -> FilingStatus -> SocSec -> OrdinaryIncome -> QualifiedIncome -> FederalTaxResults
+federalTaxResults year filingStatus socSec ordinaryIncome qualifiedIncome =
   let ssRelevantOtherIncome = ordinaryIncome + qualifiedIncome
       taxableSocSec = taxableSocialSecurity filingStatus socSec ssRelevantOtherIncome
       StandardDeduction sd = standardDeduction filingStatus
       taxableOrdinaryIncome = nonNeg (taxableSocSec + ordinaryIncome - fromInteger sd)
       taxOnOrdinaryIncome = applyOrdinaryIncomeBrackets filingStatus taxableOrdinaryIncome
       taxOnQualifiedIncome = applyQualifiedBrackets filingStatus taxableOrdinaryIncome qualifiedIncome
-  in
-    taxOnOrdinaryIncome + taxOnQualifiedIncome
+   in FederalTaxResults
+        { ssRelevantOtherIncome = ssRelevantOtherIncome,
+          taxableSocSec = taxableSocSec,
+          stdDeduction = standardDeduction filingStatus,
+          taxableOrdinaryIncome = taxableOrdinaryIncome,
+          taxOnOrdinaryIncome = taxOnOrdinaryIncome,
+          taxOnQualifiedIncome = taxOnQualifiedIncome
+        }
+
+federalTaxDue :: Year -> FilingStatus -> SocSec -> OrdinaryIncome -> QualifiedIncome -> Double
+federalTaxDue year filingStatus socSec ordinaryIncome qualifiedIncome =
+  let results = federalTaxResults year filingStatus socSec ordinaryIncome qualifiedIncome
+   in taxOnOrdinaryIncome results + taxOnQualifiedIncome results
 
 federalTaxDueDebug :: Year -> FilingStatus -> SocSec -> OrdinaryIncome -> QualifiedIncome -> IO ()
 federalTaxDueDebug year filingStatus socSec ordinaryIncome qualifiedIncome =
@@ -106,20 +126,20 @@ federalTaxDueDebug year filingStatus socSec ordinaryIncome qualifiedIncome =
       taxOnOrdinaryIncome = applyOrdinaryIncomeBrackets filingStatus taxableOrdinaryIncome
       taxOnQualifiedIncome = applyQualifiedBrackets filingStatus taxableOrdinaryIncome qualifiedIncome
       result = taxOnOrdinaryIncome + taxOnQualifiedIncome
-  in do
-    putStrLn "Inputs"
-    putStrLn (" fs: " ++ show filingStatus)
-    putStrLn (" socSec: " ++ show socSec)
-    putStrLn (" ordinaryIncome: " ++ show ordinaryIncome)
-    putStrLn (" qualifiedIncome: " ++ show qualifiedIncome)
-    putStrLn "Outputs"
-    putStrLn ("  ssRelevantOtherIncome: " ++ show ssRelevantOtherIncome)
-    putStrLn ("  taxableSocSec: " ++ show taxableSocSec)
-    putStrLn ("  standardDeduction: " ++ show sd)
-    putStrLn ("  taxableOrdinaryIncome: " ++ show taxableOrdinaryIncome)
-    putStrLn ("  taxOnOrdinaryIncome: " ++ show taxOnOrdinaryIncome)
-    putStrLn ("  taxOnQualifiedIncome: " ++ show taxOnQualifiedIncome)
-    putStrLn ("  result: " ++ show result)
+   in do
+        putStrLn "Inputs"
+        putStrLn (" fs: " ++ show filingStatus)
+        putStrLn (" socSec: " ++ show socSec)
+        putStrLn (" ordinaryIncome: " ++ show ordinaryIncome)
+        putStrLn (" qualifiedIncome: " ++ show qualifiedIncome)
+        putStrLn "Outputs"
+        putStrLn ("  ssRelevantOtherIncome: " ++ show ssRelevantOtherIncome)
+        putStrLn ("  taxableSocSec: " ++ show taxableSocSec)
+        putStrLn ("  standardDeduction: " ++ show sd)
+        putStrLn ("  taxableOrdinaryIncome: " ++ show taxableOrdinaryIncome)
+        putStrLn ("  taxOnOrdinaryIncome: " ++ show taxOnOrdinaryIncome)
+        putStrLn ("  taxOnQualifiedIncome: " ++ show taxOnQualifiedIncome)
+        putStrLn ("  result: " ++ show result)
 
 ordinaryBracketStarts :: FilingStatus -> NEMap OrdinaryRate BracketStart
 ordinaryBracketStarts Single =
@@ -281,7 +301,6 @@ bracketWidth fs rate =
         successorStart <- NEMap.lookup successor brackets
         Just (coerce successorStart - coerce rateStart)
     )
-
 
 startOfNonZeroQualifiedRateBracket :: FilingStatus -> Integer
 startOfNonZeroQualifiedRateBracket fs =
