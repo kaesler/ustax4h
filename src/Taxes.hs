@@ -73,6 +73,8 @@ type QualifiedIncome = Double
 
 type DistributionPeriod = Double
 
+type MassachusettsGrossIncome = Double
+
 data FederalTaxResults = FederalTaxResults
   { ssRelevantOtherIncome :: Double,
     taxableSocSec :: Double,
@@ -94,6 +96,17 @@ roundHalfUp x =
       sign = if x >= 0.0 then 1.0 else (-1.0)
       (whole, frac) = properFraction xAbs
    in (sign *) $ fromInteger $ if frac >= 0.5 then whole + 1 else whole
+
+maStateTaxRate :: Double
+maStateTaxRate = 0.05
+
+maStateTaxDue :: Year -> FilingStatus -> MassachusettsGrossIncome -> Double
+maStateTaxDue year filingStatus maGrossIncome =
+  let personalExemption = if filingStatus == HeadOfHousehold then 6800 else 4400
+      ageExemption = 700
+      dependents = if filingStatus == HeadOfHousehold then 1 else 0
+      dependentsExemption = 1000.0 * dependents
+   in maStateTaxRate * nonNeg (maGrossIncome - personalExemption - ageExemption - dependentsExemption)
 
 federalTaxResults :: Year -> FilingStatus -> SocSec -> OrdinaryIncome -> QualifiedIncome -> FederalTaxResults
 federalTaxResults year filingStatus socSec ordinaryIncome qualifiedIncome =
