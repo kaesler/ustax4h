@@ -62,13 +62,6 @@ prop_topRateIsNotExceeded =
          in effectiveRate <= ordinaryRateAsFraction (topRateOnOrdinaryIncome fs)
     )
 
-assertIt :: (FilingStatus, OrdinaryIncome) -> Bool
-assertIt (fs, income) =
-  let tax = applyOrdinaryIncomeBrackets fs income
-      effectiveRate = tax / income
-      bottomRate = ordinaryRateAsFraction (bottomRateOnOrdinaryIncome fs)
-   in effectiveRate >= bottomRate
-
 prop_zeroTaxOnlyOnZeroIncome :: Property
 prop_zeroTaxOnlyOnZeroIncome =
   forAll
@@ -76,11 +69,6 @@ prop_zeroTaxOnlyOnZeroIncome =
     ( \(fs, income) ->
         applyOrdinaryIncomeBrackets fs income /= 0 || income == 0
     )
-
-assertThing :: (Show a1, Show a2, Eq a1, Eq a2, Fractional a1, Fractional a2) => a1 -> a2 -> Expectation
-assertThing x y = do
-  x `shouldBe` 0.0
-  y `shouldBe` 0.0
 
 assertCorrectTaxDueAtBracketBoundary :: FilingStatus -> OrdinaryRate -> Expectation
 assertCorrectTaxDueAtBracketBoundary filingStatus bracketRate =
