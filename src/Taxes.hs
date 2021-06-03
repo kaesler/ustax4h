@@ -181,7 +181,6 @@ ordinaryRateSuccessor fs rate =
     pair <- List.find (\p -> fst p == rate) pairs
     Just (snd pair)
 
--------- For tests ---------------------
 ordinaryRatesExceptTop :: FilingStatus -> [OrdinaryRate]
 ordinaryRatesExceptTop fs =
   let brackets = ordinaryBracketStarts fs
