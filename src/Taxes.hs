@@ -203,8 +203,8 @@ taxToEndOfOrdinaryBracket filingStatus bracketRate =
       pairs = relevantRates `zip` bracketWidths
       taxesDue = List.map taxForBracket pairs
         where
-          taxForBracket (OrdinaryRate r, width) =
-            fromIntegral width * fromInteger r / 100.0
+          taxForBracket (rate, width) =
+            fromIntegral width * ordinaryRateAsFraction rate
    in List.sum taxesDue
 
 -----------------------------------------
