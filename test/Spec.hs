@@ -1,9 +1,11 @@
+{-# LANGUAGE NamedFieldPuns #-}
+
 import System.IO.Unsafe (unsafePerformIO)
 import Taxes
 import Test.Hspec
 import Test.Hspec.QuickCheck
 import Test.QuickCheck
-import TestDataFromScala as TDFS (cases)
+import TestDataFromScala as TDFS (TestCase (..), cases)
 
 genSocialSecurityBenefits :: Gen SocSec
 genSocialSecurityBenefits = fmap fromInteger (elements [0 .. 50000])
@@ -148,9 +150,9 @@ main = hspec $ do
 
   describe "Taxes.federalTaxDue" $
     it "matches outputs sampled from Scala implementation" $ do
-      let makeExpectation :: (FilingStatus, SocSec, OrdinaryIncome, QualifiedIncome, Double) -> Expectation
-          makeExpectation (fs, socSec, oi, qi, expectedFedTaxDue) =
-            let calculatedTaxDue = roundHalfUp (federalTaxDue 2021 fs socSec oi qi)
-             in calculatedTaxDue `shouldSatisfy` closeEnoughTo expectedFedTaxDue
+      let makeExpectation :: TestCase -> Expectation
+          makeExpectation TestCase {age, dependents, filingStatus, socSec, ordinaryIncomeNonSS, qualifiedIncome, expectedFederalTax} =
+            let calculatedTaxDue = roundHalfUp (federalTaxDue 2021 filingStatus socSec ordinaryIncomeNonSS qualifiedIncome)
+             in calculatedTaxDue `shouldSatisfy` closeEnoughTo expectedFederalTax
           expectations = fmap makeExpectation TDFS.cases
        in () <$ sequence expectations
