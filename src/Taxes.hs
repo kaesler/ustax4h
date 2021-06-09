@@ -357,11 +357,11 @@ applyOrdinaryIncomeBrackets fs taxableOrdinaryincome =
           )
 
 applyQualifiedBrackets :: FilingStatus -> OrdinaryIncome -> QualifiedIncome -> Double
-applyQualifiedBrackets fs taxableOrdinaryIncome qualifiedInvestmentIncome =
+applyQualifiedBrackets fs taxableOrdinaryIncome qualifiedIncome =
   let bracketsDescending = NonEmpty.reverse (NEMap.assocs (qualifiedBracketStarts fs))
-   in third (List.foldl func (0.0, qualifiedInvestmentIncome, 0.0) bracketsDescending)
+   in third (List.foldl func (0.0, qualifiedIncome, 0.0) bracketsDescending)
   where
-    totalTaxableIncome = taxableOrdinaryIncome + qualifiedInvestmentIncome
+    totalTaxableIncome = taxableOrdinaryIncome + qualifiedIncome
     third :: (a, b, c) -> c
     third (_, _, a) = a
     func :: (Double, Double, Double) -> (QualifiedRate, BracketStart) -> (Double, Double, Double)
