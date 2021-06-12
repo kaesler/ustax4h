@@ -9,13 +9,13 @@ module Taxes
     SocSec,
     StandardDeduction (..),
     applyOrdinaryIncomeBrackets,
-    applyQualifiedBrackets,
+    applyQualifiedIncomeBrackets,
     bottomRateOnOrdinaryIncome,
-    bracketWidth,
     federalTaxDue,
     federalTaxDueDebug,
     incomeToEndOfOrdinaryBracket,
     maStateTaxDue,
+    ordinaryIncomeBracketWidth,
     ordinaryRateAsFraction,
     ordinaryRatesExceptTop,
     rmdFractionForAge,
@@ -35,6 +35,20 @@ import Data.List.NonEmpty as NonEmpty (fromList, head, last, reverse, tail, take
 import Data.Map.NonEmpty as NEMap (NEMap, assocs, elems, fromList, keys, lookup)
 import qualified Data.Map.Strict ()
 import Data.Maybe (fromJust)
+
+type CombinedIncome = Double
+
+type DistributionPeriod = Double
+
+type MassachusettsGrossIncome = Double
+
+type OrdinaryIncome = Double
+
+type QualifiedIncome = Double
+
+type SSRelevantOtherIncome = Double
+
+type SocSec = Double
 
 type Year = Integer
 
@@ -61,20 +75,6 @@ newtype BracketStart = BracketStart Integer
 
 newtype StandardDeduction = StandardDeduction Integer
   deriving (Eq, Ord, Show)
-
-type SocSec = Double
-
-type SSRelevantOtherIncome = Double
-
-type CombinedIncome = Double
-
-type OrdinaryIncome = Double
-
-type QualifiedIncome = Double
-
-type DistributionPeriod = Double
-
-type MassachusettsGrossIncome = Double
 
 data FederalTaxResults = FederalTaxResults
   { ssRelevantOtherIncome :: Double,
@@ -115,7 +115,7 @@ federalTaxResults year filingStatus socSec ordinaryIncome qualifiedIncome =
       StandardDeduction sd = standardDeduction filingStatus
       taxableOrdinaryIncome = nonNeg (taxableSocSec + ordinaryIncome - fromInteger sd)
       taxOnOrdinaryIncome = applyOrdinaryIncomeBrackets filingStatus taxableOrdinaryIncome
-      taxOnQualifiedIncome = applyQualifiedBrackets filingStatus taxableOrdinaryIncome qualifiedIncome
+      taxOnQualifiedIncome = applyQualifiedIncomeBrackets filingStatus taxableOrdinaryIncome qualifiedIncome
    in FederalTaxResults
         { ssRelevantOtherIncome = ssRelevantOtherIncome,
           taxableSocSec = taxableSocSec,
@@ -199,7 +199,7 @@ incomeToEndOfOrdinaryBracket filingStatus bracketRate =
 taxToEndOfOrdinaryBracket :: FilingStatus -> OrdinaryRate -> Double
 taxToEndOfOrdinaryBracket filingStatus bracketRate =
   let relevantRates = List.takeWhile (<= bracketRate) (ordinaryRatesExceptTop filingStatus)
-      bracketWidths = List.map (bracketWidth filingStatus) relevantRates
+      bracketWidths = List.map (ordinaryIncomeBracketWidth filingStatus) relevantRates
       pairs = relevantRates `zip` bracketWidths
       taxesDue = List.map taxForBracket pairs
         where
@@ -294,8 +294,8 @@ standardDeduction Single = StandardDeduction (12550 + over65Increment)
 -- fail :: () -> a
 -- fail = error "boom"
 
-bracketWidth :: FilingStatus -> OrdinaryRate -> Integer
-bracketWidth fs rate =
+ordinaryIncomeBracketWidth :: FilingStatus -> OrdinaryRate -> Integer
+ordinaryIncomeBracketWidth fs rate =
   fromJust
     ( do
         let brackets = ordinaryBracketStarts fs
@@ -356,8 +356,8 @@ applyOrdinaryIncomeBrackets fs taxableOrdinaryincome =
             taxSoFar + taxInThisBracket
           )
 
-applyQualifiedBrackets :: FilingStatus -> OrdinaryIncome -> QualifiedIncome -> Double
-applyQualifiedBrackets fs taxableOrdinaryIncome qualifiedIncome =
+applyQualifiedIncomeBrackets :: FilingStatus -> OrdinaryIncome -> QualifiedIncome -> Double
+applyQualifiedIncomeBrackets fs taxableOrdinaryIncome qualifiedIncome =
   let bracketsDescending = NonEmpty.reverse (NEMap.assocs (qualifiedBracketStarts fs))
    in third (List.foldl func (0.0, qualifiedIncome, 0.0) bracketsDescending)
   where

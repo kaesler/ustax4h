@@ -145,8 +145,8 @@ main = hspec $ do
   -- TODO More here
   describe "Taxes.applyQualifiedBrackets" $
     it "never taxes zero income" $ do
-      applyQualifiedBrackets Single 0.0 0.0 `shouldBe` 0.0
-      applyQualifiedBrackets HeadOfHousehold 0.0 0.0 `shouldBe` 0.0
+      applyQualifiedIncomeBrackets Single 0.0 0.0 `shouldBe` 0.0
+      applyQualifiedIncomeBrackets HeadOfHousehold 0.0 0.0 `shouldBe` 0.0
 
   describe "Taxes.federalTaxDue" $
     it "matches outputs sampled from Scala implementation" $ do
