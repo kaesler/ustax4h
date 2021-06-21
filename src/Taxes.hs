@@ -91,6 +91,9 @@ nonNeg x
   | x < 0.0 = 0.0
   | otherwise = x
 
+nonNegSub :: Double -> Double -> Double
+nonNegSub x y = nonNeg (x - y)
+
 roundHalfUp :: Double -> Double
 roundHalfUp x =
   let xAbs = abs x
@@ -106,14 +109,14 @@ maStateTaxDue year dependents filingStatus maGrossIncome =
   let personalExemption = if filingStatus == HeadOfHousehold then 6800 else 4400
       ageExemption = 700
       dependentsExemption = 1000.0 * fromIntegral dependents
-   in maStateTaxRate * nonNeg (maGrossIncome - personalExemption - ageExemption - dependentsExemption)
+   in maStateTaxRate * (maGrossIncome `nonNegSub` (personalExemption + ageExemption + dependentsExemption))
 
 federalTaxResults :: Year -> FilingStatus -> SocSec -> OrdinaryIncome -> QualifiedIncome -> FederalTaxResults
 federalTaxResults year filingStatus socSec ordinaryIncome qualifiedIncome =
   let ssRelevantOtherIncome = ordinaryIncome + qualifiedIncome
       taxableSocSec = taxableSocialSecurity filingStatus socSec ssRelevantOtherIncome
       StandardDeduction sd = standardDeduction filingStatus
-      taxableOrdinaryIncome = nonNeg (taxableSocSec + ordinaryIncome - fromInteger sd)
+      taxableOrdinaryIncome = (taxableSocSec + ordinaryIncome) `nonNegSub` fromInteger sd
       taxOnOrdinaryIncome = applyOrdinaryIncomeBrackets filingStatus taxableOrdinaryIncome
       taxOnQualifiedIncome = applyQualifiedIncomeBrackets filingStatus taxableOrdinaryIncome qualifiedIncome
    in FederalTaxResults
@@ -350,9 +353,9 @@ applyOrdinaryIncomeBrackets fs taxableOrdinaryincome =
   where
     func :: (Double, Double) -> (OrdinaryRate, BracketStart) -> (Double, Double)
     func (incomeYetToBeTaxed, taxSoFar) (rate, BracketStart start) =
-      let incomeInThisBracket = nonNeg (incomeYetToBeTaxed - fromInteger start)
+      let incomeInThisBracket = incomeYetToBeTaxed `nonNegSub` fromInteger start
           taxInThisBracket = incomeInThisBracket * ordinaryRateAsFraction rate
-       in ( nonNeg (incomeYetToBeTaxed - incomeInThisBracket),
+       in ( incomeYetToBeTaxed `nonNegSub` incomeInThisBracket,
             taxSoFar + taxInThisBracket
           )
 
@@ -366,13 +369,13 @@ applyQualifiedIncomeBrackets fs taxableOrdinaryIncome qualifiedIncome =
     third (_, _, a) = a
     func :: (Double, Double, Double) -> (QualifiedRate, BracketStart) -> (Double, Double, Double)
     func (totalIncomeInHigherBrackets, gainsYetToBeTaxed, gainsTaxSoFar) (rate, BracketStart start) =
-      let totalIncomeYetToBeTaxed = nonNeg (totalTaxableIncome - totalIncomeInHigherBrackets)
-          ordinaryIncomeYetToBeTaxed = nonNeg (totalIncomeYetToBeTaxed - gainsYetToBeTaxed)
-          totalIncomeInThisBracket = nonNeg (totalIncomeYetToBeTaxed - fromInteger start)
-          ordinaryIncomeInThisBracket = nonNeg (ordinaryIncomeYetToBeTaxed - fromInteger start)
-          gainsInThisBracket = nonNeg (totalIncomeInThisBracket - ordinaryIncomeInThisBracket)
+      let totalIncomeYetToBeTaxed = totalTaxableIncome `nonNegSub` totalIncomeInHigherBrackets
+          ordinaryIncomeYetToBeTaxed = totalIncomeYetToBeTaxed `nonNegSub` gainsYetToBeTaxed
+          totalIncomeInThisBracket = totalIncomeYetToBeTaxed `nonNegSub` fromInteger start
+          ordinaryIncomeInThisBracket = ordinaryIncomeYetToBeTaxed `nonNegSub` fromInteger start
+          gainsInThisBracket = totalIncomeInThisBracket `nonNegSub` ordinaryIncomeInThisBracket
           taxInThisBracket = gainsInThisBracket * qualifiedRateAsFraction rate
        in ( totalIncomeInHigherBrackets + totalIncomeInThisBracket,
-            nonNeg (gainsYetToBeTaxed - gainsInThisBracket),
+            gainsYetToBeTaxed `nonNegSub` gainsInThisBracket,
             gainsTaxSoFar + taxInThisBracket
           )
