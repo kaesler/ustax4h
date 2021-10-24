@@ -27,7 +27,9 @@ library
   exposed-modules:
       CommonTypes
       Debug
+      Federal.BracketTypes
       Federal.Deductions
+      Federal.OrdinaryIncome
       Federal.RMDs
       Federal.TaxableSocialSecurity
       Math

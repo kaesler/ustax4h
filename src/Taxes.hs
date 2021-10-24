@@ -46,29 +46,22 @@ import Data.List.NonEmpty as NonEmpty (fromList, head, last, reverse, tail, take
 import Data.Map.NonEmpty as NEMap (NEMap, assocs, elems, fromList, keys, lookup)
 import qualified Data.Map.Strict ()
 import Data.Maybe (fromJust)
+import Federal.BracketTypes
 import Federal.Deductions
   ( StandardDeduction (..),
     standardDeduction,
   )
+import Federal.OrdinaryIncome
 import Federal.RMDs (rmdFractionForAge)
 import Federal.TaxableSocialSecurity (taxableSocialSecurity, taxableSocialSecurityAdjusted)
 import Math (nonNegSub, roundHalfUp)
 import State.MAStateTax (maStateTaxDue)
-
-newtype OrdinaryRate = OrdinaryRate Integer
-  deriving (Eq, Ord, Show)
-
-ordinaryRateAsFraction :: OrdinaryRate -> Double
-ordinaryRateAsFraction (OrdinaryRate r) = fromIntegral r / 100.0
 
 newtype QualifiedRate = QualifiedRate Integer
   deriving (Eq, Ord, Show)
 
 qualifiedRateAsFraction :: QualifiedRate -> Double
 qualifiedRateAsFraction (QualifiedRate r) = fromIntegral r / 100.0
-
-newtype BracketStart = BracketStart Integer
-  deriving (Eq, Ord, Show)
 
 data FederalTaxResults = FederalTaxResults
   { ssRelevantOtherIncome :: Double,
@@ -120,71 +113,6 @@ federalTaxDueDebug year filingStatus socSec ordinaryIncome qualifiedIncome =
         putStrLn ("  taxOnQualifiedIncome: " ++ show (taxOnQualifiedIncome r))
         putStrLn ("  result: " ++ show (taxOnOrdinaryIncome r + taxOnQualifiedIncome r))
 
-ordinaryBracketStarts :: Year -> FilingStatus -> NEMap OrdinaryRate BracketStart
-ordinaryBracketStarts _ Single =
-  NEMap.fromList $
-    NonEmpty.fromList
-      [ (OrdinaryRate 10, BracketStart 0),
-        (OrdinaryRate 12, BracketStart 9950),
-        (OrdinaryRate 22, BracketStart 40525),
-        (OrdinaryRate 24, BracketStart 86375),
-        (OrdinaryRate 32, BracketStart 164925),
-        (OrdinaryRate 35, BracketStart 209425),
-        (OrdinaryRate 37, BracketStart 523600)
-      ]
-ordinaryBracketStarts _ HeadOfHousehold =
-  NEMap.fromList $
-    NonEmpty.fromList
-      [ (OrdinaryRate 10, BracketStart 0),
-        (OrdinaryRate 12, BracketStart 14200),
-        (OrdinaryRate 22, BracketStart 54200),
-        (OrdinaryRate 24, BracketStart 86350),
-        (OrdinaryRate 32, BracketStart 164900),
-        (OrdinaryRate 35, BracketStart 209400),
-        (OrdinaryRate 37, BracketStart 523600)
-      ]
-
-ordinaryRateSuccessor :: Year -> FilingStatus -> OrdinaryRate -> Maybe OrdinaryRate
-ordinaryRateSuccessor year fs rate =
-  do
-    let brackets = ordinaryBracketStarts year fs
-    let rates = NEMap.keys brackets
-    let pairs = Prelude.zip (toList rates) (NonEmpty.tail rates)
-    pair <- List.find (\p -> fst p == rate) pairs
-    Just (snd pair)
-
-ordinaryRatesExceptTop :: Year -> FilingStatus -> [OrdinaryRate]
-ordinaryRatesExceptTop year fs =
-  let brackets = ordinaryBracketStarts year fs
-      rates = NEMap.keys brackets
-      topRate = NonEmpty.last rates
-   in NonEmpty.takeWhile (/= topRate) rates
-
-incomeToEndOfOrdinaryBracket :: Year -> FilingStatus -> OrdinaryRate -> Double
-incomeToEndOfOrdinaryBracket year filingStatus bracketRate =
-  let bracketStarts = ordinaryBracketStarts year filingStatus
-      successorRate = fromJust (ordinaryRateSuccessor year filingStatus bracketRate)
-      BracketStart startOfSuccessor = fromJust (NEMap.lookup successorRate bracketStarts)
-      StandardDeduction deduction = standardDeduction year filingStatus
-   in fromInteger (startOfSuccessor + deduction)
-
-taxToEndOfOrdinaryBracket :: Year -> FilingStatus -> OrdinaryRate -> Double
-taxToEndOfOrdinaryBracket year filingStatus bracketRate =
-  let relevantRates = List.takeWhile (<= bracketRate) (ordinaryRatesExceptTop year filingStatus)
-      bracketWidths = List.map (ordinaryIncomeBracketWidth year filingStatus) relevantRates
-      pairs = relevantRates `zip` bracketWidths
-      taxesDue = List.map taxForBracket pairs
-        where
-          taxForBracket (rate, width) =
-            fromIntegral width * ordinaryRateAsFraction rate
-   in List.sum taxesDue
-
------------------------------------------
-bottomRateOnOrdinaryIncome :: Year -> FilingStatus -> OrdinaryRate
-bottomRateOnOrdinaryIncome year fs = NonEmpty.head $ NEMap.keys $ ordinaryBracketStarts year fs
-
-topRateOnOrdinaryIncome :: Year -> FilingStatus -> OrdinaryRate
-topRateOnOrdinaryIncome year fs = NonEmpty.last $ NEMap.keys $ ordinaryBracketStarts year fs
 
 qualifiedBracketStarts :: FilingStatus -> NEMap QualifiedRate BracketStart
 qualifiedBracketStarts Single =
@@ -202,37 +130,10 @@ qualifiedBracketStarts HeadOfHousehold =
         (QualifiedRate 20, BracketStart 473850)
       ]
 
-ordinaryIncomeBracketWidth :: Year -> FilingStatus -> OrdinaryRate -> Integer
-ordinaryIncomeBracketWidth year fs rate =
-  fromJust
-    ( do
-        let brackets = ordinaryBracketStarts year fs
-        let rates = NEMap.keys brackets
-        let pairs = Prelude.zip (toList rates) (NonEmpty.tail rates)
-        pair <- List.find (\p -> fst p == rate) pairs
-        let successor = snd pair
-        rateStart <- NEMap.lookup rate brackets
-        successorStart <- NEMap.lookup successor brackets
-        Just (coerce successorStart - coerce rateStart)
-    )
-
 startOfNonZeroQualifiedRateBracket :: FilingStatus -> Integer
 startOfNonZeroQualifiedRateBracket fs =
   -- The start of the 2nd-to-bottom bracket.
   coerce $ (NonEmpty.!!) (NEMap.elems (qualifiedBracketStarts fs)) 1
-
-applyOrdinaryIncomeBrackets :: Year -> FilingStatus -> OrdinaryIncome -> Double
-applyOrdinaryIncomeBrackets year fs taxableOrdinaryincome =
-  let bracketsDescending = NonEmpty.reverse (NEMap.assocs (ordinaryBracketStarts year fs))
-   in snd (List.foldl func (taxableOrdinaryincome, 0.0) bracketsDescending)
-  where
-    func :: (Double, Double) -> (OrdinaryRate, BracketStart) -> (Double, Double)
-    func (incomeYetToBeTaxed, taxSoFar) (rate, BracketStart start) =
-      let incomeInThisBracket = incomeYetToBeTaxed `nonNegSub` fromInteger start
-          taxInThisBracket = incomeInThisBracket * ordinaryRateAsFraction rate
-       in ( incomeYetToBeTaxed `nonNegSub` incomeInThisBracket,
-            taxSoFar + taxInThisBracket
-          )
 
 applyQualifiedIncomeBrackets :: FilingStatus -> OrdinaryIncome -> QualifiedIncome -> Double
 applyQualifiedIncomeBrackets fs taxableOrdinaryIncome qualifiedIncome =
