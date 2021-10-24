@@ -46,10 +46,14 @@ import Data.List.NonEmpty as NonEmpty (fromList, head, last, reverse, tail, take
 import Data.Map.NonEmpty as NEMap (NEMap, assocs, elems, fromList, keys, lookup)
 import qualified Data.Map.Strict ()
 import Data.Maybe (fromJust)
+import Federal.Deductions
+  ( StandardDeduction (..),
+    standardDeduction,
+  )
 import Federal.RMDs (rmdFractionForAge)
 import Federal.TaxableSocialSecurity (taxableSocialSecurity)
-import State.MAStateTax (maStateTaxDue)
 import Math (nonNegSub, roundHalfUp)
+import State.MAStateTax (maStateTaxDue)
 
 newtype OrdinaryRate = OrdinaryRate Integer
   deriving (Eq, Ord, Show)
@@ -64,9 +68,6 @@ qualifiedRateAsFraction :: QualifiedRate -> Double
 qualifiedRateAsFraction (QualifiedRate r) = fromIntegral r / 100.0
 
 newtype BracketStart = BracketStart Integer
-  deriving (Eq, Ord, Show)
-
-newtype StandardDeduction = StandardDeduction Integer
   deriving (Eq, Ord, Show)
 
 data FederalTaxResults = FederalTaxResults
@@ -200,16 +201,6 @@ qualifiedBracketStarts HeadOfHousehold =
         (QualifiedRate 15, BracketStart 54100),
         (QualifiedRate 20, BracketStart 473850)
       ]
-
-over65Increment :: Integer
-over65Increment = 1350
-
-standardDeduction :: Year -> FilingStatus -> StandardDeduction
-standardDeduction _ HeadOfHousehold = StandardDeduction (18800 + over65Increment)
-standardDeduction _ Single = StandardDeduction (12550 + over65Increment)
-
--- fail :: () -> a
--- fail = error "boom"
 
 ordinaryIncomeBracketWidth :: Year -> FilingStatus -> OrdinaryRate -> Integer
 ordinaryIncomeBracketWidth year fs rate =
