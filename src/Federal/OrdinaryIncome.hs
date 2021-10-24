@@ -1,6 +1,5 @@
 module Federal.OrdinaryIncome
-  (
-    OrdinaryRate (..),
+  ( OrdinaryRate (..),
     applyOrdinaryIncomeBrackets,
     bottomRateOnOrdinaryIncome,
     incomeToEndOfOrdinaryBracket,
@@ -13,14 +12,14 @@ module Federal.OrdinaryIncome
 where
 
 import CommonTypes
-import Math
 import Data.Coerce (coerce)
 import qualified Data.List as List
-import Data.List.NonEmpty as NonEmpty (fromList, head, last, reverse, tail, takeWhile, toList, (!!))
-import Data.Map.NonEmpty as NEMap (NEMap, assocs, elems, fromList, keys, lookup)
+import Data.List.NonEmpty as NonEmpty (fromList, head, last, reverse, tail, takeWhile, toList)
+import Data.Map.NonEmpty as NEMap (NEMap, assocs, fromList, keys, lookup)
 import Data.Maybe (fromJust)
 import Federal.BracketTypes
 import Federal.Deductions
+import Math
 
 newtype OrdinaryRate = OrdinaryRate Integer
   deriving (Eq, Ord, Show)

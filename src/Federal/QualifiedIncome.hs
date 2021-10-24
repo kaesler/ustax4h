@@ -12,9 +12,8 @@ import CommonTypes
   )
 import Data.Coerce (coerce)
 import qualified Data.List as List
-import Data.List.NonEmpty as NonEmpty (fromList, head, last, reverse, tail, takeWhile, toList, (!!))
-import Data.Map.NonEmpty as NEMap (NEMap, assocs, elems, fromList, keys, lookup)
-import Data.Maybe (fromJust)
+import Data.List.NonEmpty as NonEmpty (fromList, reverse, (!!))
+import Data.Map.NonEmpty as NEMap (NEMap, assocs, elems, fromList)
 import Federal.BracketTypes (BracketStart (..))
 import Math (nonNegSub)
 

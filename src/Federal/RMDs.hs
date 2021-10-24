@@ -4,8 +4,8 @@ module Federal.RMDs
 where
 
 import CommonTypes
-import Data.List.NonEmpty as NonEmpty (fromList, head, last, reverse, tail, takeWhile, toList, (!!))
-import Data.Map.NonEmpty as NEMap (NEMap, assocs, elems, fromList, keys, lookup)
+import Data.List.NonEmpty as NonEmpty (fromList)
+import Data.Map.NonEmpty as NEMap (NEMap, fromList, lookup)
 import Data.Maybe (fromJust)
 
 rmdFractionForAge :: Age -> Double

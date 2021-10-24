@@ -28,6 +28,7 @@ library
       CommonTypes
       Debug
       Federal.BracketTypes
+      Federal.Calculator
       Federal.Deductions
       Federal.OrdinaryIncome
       Federal.QualifiedIncome

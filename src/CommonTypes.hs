@@ -1,14 +1,14 @@
 module CommonTypes
-  ( Age(..),
+  ( Age (..),
     CombinedIncome,
     DistributionPeriod,
-    FilingStatus(..),
+    FilingStatus (..),
     MassachusettsGrossIncome,
     OrdinaryIncome,
     QualifiedIncome,
     SSRelevantOtherIncome,
     SocSec,
-    Year
+    Year,
   )
 where
 
@@ -33,5 +33,3 @@ newtype Age = Age Integer
 
 data FilingStatus = HeadOfHousehold | Single
   deriving (Eq, Ord, Show, Enum)
-
-

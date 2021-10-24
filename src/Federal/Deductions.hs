@@ -1,7 +1,6 @@
 module Federal.Deductions
-  (
-    StandardDeduction(..),
-    standardDeduction
+  ( StandardDeduction (..),
+    standardDeduction,
   )
 where
 
@@ -9,7 +8,6 @@ import CommonTypes
 
 newtype StandardDeduction = StandardDeduction Integer
   deriving (Eq, Ord, Show)
-
 
 over65Increment :: Integer
 over65Increment = 1350

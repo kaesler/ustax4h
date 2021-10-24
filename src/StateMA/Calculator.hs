@@ -4,8 +4,11 @@ module StateMA.Calculator
 where
 
 import CommonTypes
-    ( Year, MassachusettsGrossIncome, FilingStatus(HeadOfHousehold) )
-import Math ( nonNegSub )
+  ( FilingStatus (HeadOfHousehold),
+    MassachusettsGrossIncome,
+    Year,
+  )
+import Math (nonNegSub)
 
 maStateTaxRate :: Double
 maStateTaxRate = 0.05
