@@ -1,4 +1,4 @@
-module State.MAStateTax
+module StateMA.Calculator
   ( maStateTaxDue,
   )
 where

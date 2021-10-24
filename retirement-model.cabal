@@ -34,7 +34,7 @@ library
       Federal.RMDs
       Federal.TaxableSocialSecurity
       Math
-      State.MAStateTax
+      StateMA.Calculator
       Taxes
   other-modules:
       Paths_retirement_model

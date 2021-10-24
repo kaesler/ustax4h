@@ -50,7 +50,7 @@ import Federal.QualifiedIncome
 import Federal.RMDs (rmdFractionForAge)
 import Federal.TaxableSocialSecurity (taxableSocialSecurity, taxableSocialSecurityAdjusted)
 import Math (nonNegSub, roundHalfUp)
-import State.MAStateTax (maStateTaxDue)
+import StateMA.Calculator (maStateTaxDue)
 
 data FederalTaxResults = FederalTaxResults
   { ssRelevantOtherIncome :: Double,
