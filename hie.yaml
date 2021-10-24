@@ -1,13 +1,13 @@
 cradle:
   stack:
     - path: "./src"
-      component: "my-project:lib"
+      component: "retirement-model:lib"
 
     - path: "./app/Main.hs"
-      component: "my-project:exe:my-project-exe"
+      component: "retirement-model:exe:retirement-model-exe"
 
-    - path: "./app/Paths_my_project.hs"
-      component: "my-project:exe:my-project-exe"
+    - path: "./app/Paths_retirement_model.hs"
+      component: "retirement-model:exe:retirement-model-exe"
 
     - path: "./test"
-      component: "my-project:test:my-project-test"
+      component: "retirement-model:test:retirement-model-test"

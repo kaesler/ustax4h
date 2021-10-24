@@ -30,34 +30,26 @@ module Taxes
   )
 where
 
+import CommonTypes
+  ( Age (..),
+    DistributionPeriod,
+    FilingStatus (..),
+    OrdinaryIncome,
+    QualifiedIncome,
+    SSRelevantOtherIncome,
+    SocSec,
+    Year,
+  )
 import Data.Coerce (coerce)
 import qualified Data.List as List
 import Data.List.NonEmpty as NonEmpty (fromList, head, last, reverse, tail, takeWhile, toList, (!!))
 import Data.Map.NonEmpty as NEMap (NEMap, assocs, elems, fromList, keys, lookup)
 import qualified Data.Map.Strict ()
 import Data.Maybe (fromJust)
-
-type CombinedIncome = Double
-
-type DistributionPeriod = Double
-
-type MassachusettsGrossIncome = Double
-
-type OrdinaryIncome = Double
-
-type QualifiedIncome = Double
-
-type SSRelevantOtherIncome = Double
-
-type SocSec = Double
-
-type Year = Integer
-
-newtype Age = Age Integer
-  deriving (Eq, Ord, Show)
-
-data FilingStatus = HeadOfHousehold | Single
-  deriving (Eq, Ord, Show, Enum)
+import MAStateTax (maStateTaxDue)
+import Math (nonNegSub, roundHalfUp)
+import RMDs (rmdFractionForAge)
+import TaxableSocialSecurity (taxableSocialSecurity)
 
 newtype OrdinaryRate = OrdinaryRate Integer
   deriving (Eq, Ord, Show)
@@ -86,31 +78,6 @@ data FederalTaxResults = FederalTaxResults
     taxOnQualifiedIncome :: Double
   }
   deriving (Show)
-
-nonNeg :: Double -> Double
-nonNeg x
-  | x < 0.0 = 0.0
-  | otherwise = x
-
-nonNegSub :: Double -> Double -> Double
-nonNegSub x y = nonNeg (x - y)
-
-roundHalfUp :: Double -> Double
-roundHalfUp x =
-  let xAbs = abs x
-      sign = if x >= 0.0 then 1.0 else (-1.0)
-      (whole, frac) = properFraction xAbs
-   in (sign *) $ fromInteger $ if frac >= 0.5 then whole + 1 else whole
-
-maStateTaxRate :: Double
-maStateTaxRate = 0.05
-
-maStateTaxDue :: Year -> Int -> FilingStatus -> MassachusettsGrossIncome -> Double
-maStateTaxDue year dependents filingStatus maGrossIncome =
-  let personalExemption = if filingStatus == HeadOfHousehold then 6800 else 4400
-      ageExemption = 700
-      dependentsExemption = 1000.0 * fromIntegral dependents
-   in maStateTaxRate * (maGrossIncome `nonNegSub` (personalExemption + ageExemption + dependentsExemption))
 
 federalTaxResults :: Year -> FilingStatus -> SocSec -> OrdinaryIncome -> QualifiedIncome -> FederalTaxResults
 federalTaxResults year filingStatus socSec ordinaryIncome qualifiedIncome =
@@ -234,60 +201,6 @@ qualifiedBracketStarts HeadOfHousehold =
         (QualifiedRate 20, BracketStart 473850)
       ]
 
-distributionPeriods :: NEMap Age DistributionPeriod
-distributionPeriods =
-  NEMap.fromList $
-    NonEmpty.fromList
-      [ (Age 70, 27.4),
-        (Age 71, 26.5),
-        (Age 72, 25.6),
-        (Age 73, 24.7),
-        (Age 74, 23.8),
-        (Age 75, 22.9),
-        (Age 76, 22.0),
-        (Age 77, 21.2),
-        (Age 78, 20.3),
-        (Age 79, 19.5),
-        (Age 80, 18.7),
-        (Age 81, 17.9),
-        (Age 82, 17.1),
-        (Age 83, 16.3),
-        (Age 84, 15.5),
-        (Age 85, 14.8),
-        (Age 86, 14.1),
-        (Age 87, 13.4),
-        (Age 88, 12.7),
-        (Age 89, 12.0),
-        (Age 90, 11.4),
-        (Age 91, 10.8),
-        (Age 92, 10.2),
-        (Age 93, 9.6),
-        (Age 94, 9.1),
-        (Age 95, 8.6),
-        (Age 96, 8.1),
-        (Age 97, 7.6),
-        (Age 98, 7.1),
-        (Age 99, 6.7),
-        (Age 100, 6.3),
-        (Age 101, 5.9),
-        (Age 102, 5.5),
-        (Age 103, 5.2),
-        (Age 104, 4.9),
-        (Age 105, 4.5),
-        (Age 106, 4.2),
-        (Age 107, 3.9),
-        (Age 108, 3.7),
-        (Age 109, 3.4),
-        (Age 110, 3.1),
-        (Age 111, 2.9),
-        (Age 112, 2.6),
-        (Age 113, 2.4),
-        (Age 114, 2.1)
-      ]
-
-rmdFractionForAge :: Age -> Double
-rmdFractionForAge age = 1.0 / fromJust (NEMap.lookup age distributionPeriods)
-
 over65Increment :: Integer
 over65Increment = 1350
 
@@ -323,29 +236,6 @@ taxableSocialSecurityAdjusted year filingStatus ssBenefits relevantIncome =
       adjustmentFactor = 1.0 + (0.03 * fromInteger (year - 2021))
       adjusted = unadjusted * adjustmentFactor
    in min adjusted ssBenefits * 0.85
-
-taxableSocialSecurity :: FilingStatus -> SocSec -> SSRelevantOtherIncome -> Double
-taxableSocialSecurity filingStatus ssBenefits relevantIncome =
-  let lowBase = case filingStatus of
-        Single -> 25000
-        HeadOfHousehold -> 25000
-      highBase = case filingStatus of
-        Single -> 34000
-        HeadOfHousehold -> 34000
-      combinedIncome = relevantIncome + (ssBenefits / 2.0)
-   in f combinedIncome (lowBase, highBase)
-  where
-    f :: CombinedIncome -> (CombinedIncome, CombinedIncome) -> Double
-    f combinedIncome (lowBase, highBase)
-      | combinedIncome < lowBase = 0.0
-      | combinedIncome < highBase =
-        let fractionTaxable = 0.5
-            maxSocSecTaxable = ssBenefits * fractionTaxable
-         in min ((combinedIncome - lowBase) * fractionTaxable) maxSocSecTaxable
-      | otherwise =
-        let fractionTaxable = 0.85
-            maxSocSecTaxable = ssBenefits * fractionTaxable
-         in min (4500 + ((combinedIncome - highBase) * fractionTaxable)) maxSocSecTaxable
 
 applyOrdinaryIncomeBrackets :: Year -> FilingStatus -> OrdinaryIncome -> Double
 applyOrdinaryIncomeBrackets year fs taxableOrdinaryincome =
