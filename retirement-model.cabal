@@ -30,6 +30,7 @@ library
       Federal.BracketTypes
       Federal.Deductions
       Federal.OrdinaryIncome
+      Federal.QualifiedIncome
       Federal.RMDs
       Federal.TaxableSocialSecurity
       Math

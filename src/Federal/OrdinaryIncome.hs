@@ -4,7 +4,7 @@ module Federal.OrdinaryIncome
     applyOrdinaryIncomeBrackets,
     bottomRateOnOrdinaryIncome,
     incomeToEndOfOrdinaryBracket,
-    ordinaryIncomeBracketWidth
+    ordinaryIncomeBracketWidth,
     ordinaryRateAsFraction,
     ordinaryRatesExceptTop,
     taxToEndOfOrdinaryBracket,
