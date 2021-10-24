@@ -1,9 +1,18 @@
 module Federal.TaxableSocialSecurity(
-  taxableSocialSecurity
+  taxableSocialSecurity,
+  taxableSocialSecurityAdjusted
 ) where
 
 import CommonTypes
-    ( SocSec, SSRelevantOtherIncome, CombinedIncome, FilingStatus(..) )
+    ( Year, SocSec, SSRelevantOtherIncome, CombinedIncome, FilingStatus(..) )
+
+taxableSocialSecurityAdjusted :: Year -> FilingStatus -> SocSec -> SSRelevantOtherIncome -> Double
+taxableSocialSecurityAdjusted year filingStatus ssBenefits relevantIncome =
+  let unadjusted = taxableSocialSecurity filingStatus ssBenefits relevantIncome
+      adjustmentFactor = 1.0 + (0.03 * fromInteger (year - 2021))
+      adjusted = unadjusted * adjustmentFactor
+   in min adjusted ssBenefits * 0.85
+
 
 taxableSocialSecurity :: FilingStatus -> SocSec -> SSRelevantOtherIncome -> Double
 taxableSocialSecurity filingStatus ssBenefits relevantIncome =

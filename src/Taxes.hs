@@ -51,7 +51,7 @@ import Federal.Deductions
     standardDeduction,
   )
 import Federal.RMDs (rmdFractionForAge)
-import Federal.TaxableSocialSecurity (taxableSocialSecurity)
+import Federal.TaxableSocialSecurity (taxableSocialSecurity, taxableSocialSecurityAdjusted)
 import Math (nonNegSub, roundHalfUp)
 import State.MAStateTax (maStateTaxDue)
 
@@ -220,13 +220,6 @@ startOfNonZeroQualifiedRateBracket :: FilingStatus -> Integer
 startOfNonZeroQualifiedRateBracket fs =
   -- The start of the 2nd-to-bottom bracket.
   coerce $ (NonEmpty.!!) (NEMap.elems (qualifiedBracketStarts fs)) 1
-
-taxableSocialSecurityAdjusted :: Year -> FilingStatus -> SocSec -> SSRelevantOtherIncome -> Double
-taxableSocialSecurityAdjusted year filingStatus ssBenefits relevantIncome =
-  let unadjusted = taxableSocialSecurity filingStatus ssBenefits relevantIncome
-      adjustmentFactor = 1.0 + (0.03 * fromInteger (year - 2021))
-      adjusted = unadjusted * adjustmentFactor
-   in min adjusted ssBenefits * 0.85
 
 applyOrdinaryIncomeBrackets :: Year -> FilingStatus -> OrdinaryIncome -> Double
 applyOrdinaryIncomeBrackets year fs taxableOrdinaryincome =
