@@ -46,10 +46,10 @@ import Data.List.NonEmpty as NonEmpty (fromList, head, last, reverse, tail, take
 import Data.Map.NonEmpty as NEMap (NEMap, assocs, elems, fromList, keys, lookup)
 import qualified Data.Map.Strict ()
 import Data.Maybe (fromJust)
-import MAStateTax (maStateTaxDue)
+import Federal.RMDs (rmdFractionForAge)
+import Federal.TaxableSocialSecurity (taxableSocialSecurity)
+import State.MAStateTax (maStateTaxDue)
 import Math (nonNegSub, roundHalfUp)
-import RMDs (rmdFractionForAge)
-import TaxableSocialSecurity (taxableSocialSecurity)
 
 newtype OrdinaryRate = OrdinaryRate Integer
   deriving (Eq, Ord, Show)

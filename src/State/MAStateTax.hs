@@ -1,4 +1,4 @@
-module MAStateTax
+module State.MAStateTax
   ( maStateTaxDue,
   )
 where

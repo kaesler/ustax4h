@@ -1,4 +1,4 @@
-module RMDs
+module Federal.RMDs
   ( rmdFractionForAge,
   )
 where

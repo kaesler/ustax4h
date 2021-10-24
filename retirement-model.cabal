@@ -26,10 +26,10 @@ source-repository head
 library
   exposed-modules:
       CommonTypes
-      MAStateTax
+      Federal.RMDs
+      Federal.TaxableSocialSecurity
       Math
-      RMDs
-      TaxableSocialSecurity
+      State.MAStateTax
       Taxes
   other-modules:
       Paths_retirement_model

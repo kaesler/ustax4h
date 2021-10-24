@@ -1,4 +1,4 @@
-module TaxableSocialSecurity(
+module Federal.TaxableSocialSecurity(
   taxableSocialSecurity
 ) where
 
