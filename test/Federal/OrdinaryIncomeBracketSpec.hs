@@ -1,11 +1,40 @@
-{-# LANGUAGE NamedFieldPuns #-}
+module Federal.OrdinaryIncomeBracketSpec
+  ( ordinaryIncomeBracketsSpec,
+  )
+where
 
-import System.IO.Unsafe (unsafePerformIO)
-import Taxes
-import Test.Hspec
-import Test.Hspec.QuickCheck
+import CommonTypes
+  ( FilingStatus (..),
+    OrdinaryIncome,
+    SSRelevantOtherIncome,
+    SocSec,
+    Year,
+  )
+import Federal.Deductions
+  ( StandardDeduction (StandardDeduction),
+    standardDeduction,
+  )
+import Federal.OrdinaryIncome
+  ( OrdinaryRate (..),
+    applyOrdinaryIncomeBrackets,
+    incomeToEndOfOrdinaryBracket,
+    ordinaryRateAsFraction,
+    ordinaryRatesExceptTop,
+    taxToEndOfOrdinaryBracket,
+    topRateOnOrdinaryIncome,
+  )
+import Math (roundHalfUp)
+import MathInSpecs ()
+import Test.Hspec (Expectation, SpecWith, describe, it, shouldBe)
+import Test.Hspec.QuickCheck ()
 import Test.QuickCheck
-import TestDataFromScala as TDFS (TestCase (..), cases)
+  ( Arbitrary (arbitrary),
+    Gen,
+    Property,
+    Testable (property),
+    elements,
+    forAll,
+  )
 
 year :: Year
 year = 2021
@@ -101,27 +130,8 @@ assertCorrectTaxDueAtBracketBoundaries filingStatus =
                   computedTax `shouldBe` roundHalfUp expectedTax
    in () <$ sequence expectations
 
-closeEnoughTo :: Double -> Double -> Bool
-closeEnoughTo x y = abs (x - y) <= 1.0
-
-main :: IO ()
-main = hspec $ do
-  describe "Taxes.taxableSocialSecurity" $ do
-    it "Untaxable 1" $
-      taxableSocialSecurity Single 50000.0 0.0 `shouldBe` 0.0
-    it "Untaxable 2" $
-      taxableSocialSecurity Single 40000.0 5000.0 `shouldBe` 0.0
-    it "Top of middle tier 1" $
-      taxableSocialSecurity Single 68000.0 0.0 `shouldBe` 4500.0
-    it "Top of middle tier 2" $
-      taxableSocialSecurity Single 28000.0 20000.0 `shouldBe` 4500.0
-    it "Example 1 from Pub 915" $
-      taxableSocialSecurity Single 5980.0 28900.0 `shouldBe` 2990.0
-    it "Jackson Example from Pub 915" $
-      taxableSocialSecurity Single 11000.0 25500.0 `shouldBe` 3000.0
-    it "Example like I will face" $
-      taxableSocialSecurity Single 49000.0 17000.0 `shouldBe` 10875.0
-
+ordinaryIncomeBracketsSpec :: SpecWith ()
+ordinaryIncomeBracketsSpec =
   describe "Taxes.applyOrdinaryIncomeBrackets" $ do
     it "Never taxes zero income" $ do
       applyOrdinaryIncomeBrackets year Single 0.0 `shouldBe` 0.0
@@ -144,29 +154,3 @@ main = hspec $ do
       assertCorrectTaxDueAtBracketBoundary HeadOfHousehold (OrdinaryRate 24)
       assertCorrectTaxDueAtBracketBoundary Single (OrdinaryRate 35)
       assertCorrectTaxDueAtBracketBoundary HeadOfHousehold (OrdinaryRate 35)
-
-  -- TODO More here
-  describe "Taxes.applyQualifiedBrackets" $
-    it "never taxes zero income" $ do
-      applyQualifiedIncomeBrackets Single 0.0 0.0 `shouldBe` 0.0
-      applyQualifiedIncomeBrackets HeadOfHousehold 0.0 0.0 `shouldBe` 0.0
-
-  describe "Taxes.federalTaxDue" $
-    it "matches outputs sampled from Scala implementation" $ do
-      let makeExpectation :: TestCase -> Expectation
-          makeExpectation TestCase {age, dependents, filingStatus, socSec, ordinaryIncomeNonSS, qualifiedIncome, expectedFederalTax} =
-            let calculatedTaxDue = roundHalfUp (federalTaxDue 2021 filingStatus socSec ordinaryIncomeNonSS qualifiedIncome)
-             in calculatedTaxDue `shouldSatisfy` closeEnoughTo expectedFederalTax
-          expectations = fmap makeExpectation TDFS.cases
-       in () <$ sequence expectations
-
-  describe "Taxes.stateTaxDue" $
-    it "matches outputs sampled from Scala implementation" $ do
-      let makeExpectation :: TestCase -> Expectation
-          makeExpectation tc@TestCase {age, dependents, filingStatus, socSec, ordinaryIncomeNonSS, qualifiedIncome, expectedFederalTax, expectedStateTax} =
-            let calculatedTaxDue = roundHalfUp $ maStateTaxDue 2021 dependents filingStatus (ordinaryIncomeNonSS + qualifiedIncome)
-             in do
-                  -- print tc
-                  calculatedTaxDue `shouldSatisfy` closeEnoughTo expectedStateTax
-          expectations = fmap makeExpectation TDFS.cases
-       in () <$ sequence expectations

@@ -21,7 +21,8 @@ data TestCase = TestCase
     qualifiedIncome :: QualifiedIncome,
     expectedFederalTax :: Double,
     expectedStateTax :: Double
-  } deriving Show
+  }
+  deriving (Show)
 
 cases :: [TestCase]
 cases =

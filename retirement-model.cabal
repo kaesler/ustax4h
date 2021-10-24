@@ -63,8 +63,14 @@ executable retirement-model-exe
 
 test-suite retirement-model-test
   type: exitcode-stdio-1.0
-  main-is: Spec.hs
+  main-is: Main.hs
   other-modules:
+      Federal.CalculatorSpec
+      Federal.OrdinaryIncomeBracketSpec
+      Federal.QualifiedIncomeBracketSpec
+      Federal.TaxableSocialSecuritySpec
+      MathInSpecs
+      StateMA.CalculatorSpec
       TestDataFromScala
       Paths_retirement_model
   hs-source-dirs:
