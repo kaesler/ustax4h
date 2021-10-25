@@ -5,8 +5,12 @@ module Federal.Calculator
 where
 
 import CommonTypes
-  ( FilingStatus,
+  ( BirthDate,
+    FilingStatus,
+    ItemizedDeductions,
+    Money,
     OrdinaryIncome,
+    PersonalExemptions,
     QualifiedIncome,
     SocSec,
     Year,
@@ -21,6 +25,13 @@ import Federal.RMDs ()
 import Federal.TaxableSocialSecurity (taxableSocialSecurity)
 import Math (nonNegSub)
 import StateMA.Calculator (maStateTaxDue)
+
+data Regime = Trump | NonTrump
+
+type TaxCalculator = SocSec -> OrdinaryIncome -> QualifiedIncome -> ItemizedDeductions -> FederalTaxResults
+
+makeCalculator :: Regime -> Year -> BirthDate -> FilingStatus -> PersonalExemptions -> TaxCalculator
+makeCalculator = undefined 
 
 data FederalTaxResults = FederalTaxResults
   { ssRelevantOtherIncome :: Double,

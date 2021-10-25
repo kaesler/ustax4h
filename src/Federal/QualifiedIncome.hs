@@ -1,5 +1,6 @@
 module Federal.QualifiedIncome
-  ( QualifiedRate,
+  ( QualifiedIncomeBrackets,
+    QualifiedRate,
     applyQualifiedIncomeBrackets,
     startOfNonZeroQualifiedRateBracket,
   )
@@ -8,7 +9,7 @@ where
 import CommonTypes
   ( FilingStatus (..),
     OrdinaryIncome,
-    QualifiedIncome,
+    QualifiedIncome
   )
 import Data.Coerce (coerce)
 import qualified Data.List as List
@@ -17,6 +18,7 @@ import Data.Map.NonEmpty as NEMap (NEMap, assocs, elems, fromList)
 import Federal.BracketTypes (BracketStart (..))
 import Math (nonNegSub)
 
+type QualifiedIncomeBrackets = NEMap QualifiedRate BracketStart
 newtype QualifiedRate = QualifiedRate Integer
   deriving (Eq, Ord, Show)
 

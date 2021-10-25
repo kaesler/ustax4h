@@ -1,30 +1,45 @@
 module CommonTypes
   ( Age (..),
+    BirthDate,
     CombinedIncome,
     DistributionPeriod,
     FilingStatus (..),
+    ItemizedDeductions,
     MassachusettsGrossIncome,
+    Money,
     OrdinaryIncome,
+    PersonalExemptions,
     QualifiedIncome,
     SSRelevantOtherIncome,
     SocSec,
     Year,
   )
+
 where
 
-type CombinedIncome = Double
+import Data.Time.Calendar (Day)
+
+type BirthDate = Day
+
+type Money = Double
+
+type ItemizedDeductions = Money
+
+type CombinedIncome = Money
 
 type DistributionPeriod = Double
 
-type MassachusettsGrossIncome = Double
+type MassachusettsGrossIncome = Money
 
-type OrdinaryIncome = Double
+type OrdinaryIncome = Money
 
-type QualifiedIncome = Double
+type PersonalExemptions = Int 
 
-type SSRelevantOtherIncome = Double
+type QualifiedIncome = Money
 
-type SocSec = Double
+type SSRelevantOtherIncome = Money
+
+type SocSec = Money
 
 type Year = Integer
 

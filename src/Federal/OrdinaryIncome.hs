@@ -1,5 +1,6 @@
 module Federal.OrdinaryIncome
   ( OrdinaryRate (..),
+    OrdinaryIncomeBrackets,
     applyOrdinaryIncomeBrackets,
     bottomRateOnOrdinaryIncome,
     incomeToEndOfOrdinaryBracket,
@@ -20,6 +21,8 @@ import Data.Maybe (fromJust)
 import Federal.BracketTypes
 import Federal.Deductions
 import Math
+
+type OrdinaryIncomeBrackets = NEMap OrdinaryRate BracketStart
 
 newtype OrdinaryRate = OrdinaryRate Integer
   deriving (Eq, Ord, Show)
