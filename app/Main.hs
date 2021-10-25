@@ -1,12 +1,13 @@
 module Main where
 
-import Taxes
-  ( FilingStatus (..),
-    OrdinaryRate (..),
+import CommonTypes (FilingStatus (HeadOfHousehold, Single))
+import Federal.OrdinaryIncome
+  ( OrdinaryRate (OrdinaryRate),
     ordinaryIncomeBracketWidth,
-    taxableSocialSecurity,
   )
+import Federal.TaxableSocialSecurity (taxableSocialSecurity)
 
+-- Smoke test
 main :: IO ()
 main =
   do

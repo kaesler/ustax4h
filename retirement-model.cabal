@@ -36,7 +36,6 @@ library
       Federal.TaxableSocialSecurity
       Math
       StateMA.Calculator
-      Taxes
   other-modules:
       Paths_retirement_model
   hs-source-dirs:

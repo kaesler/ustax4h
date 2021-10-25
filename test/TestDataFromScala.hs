@@ -4,13 +4,7 @@ module TestDataFromScala
   )
 where
 
-import Taxes
-  ( FilingStatus (..),
-    OrdinaryIncome,
-    QualifiedIncome,
-    SSRelevantOtherIncome,
-    SocSec,
-  )
+import CommonTypes
 
 data TestCase = TestCase
   { age :: Int,
