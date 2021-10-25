@@ -19,11 +19,11 @@ import Federal.BracketTypes (BracketStart (..))
 import Math (nonNegSub)
 
 type QualifiedIncomeBrackets = NEMap QualifiedRate BracketStart
-newtype QualifiedRate = QualifiedRate Integer
+newtype QualifiedRate = QualifiedRate Double
   deriving (Eq, Ord, Show)
 
 qualifiedRateAsFraction :: QualifiedRate -> Double
-qualifiedRateAsFraction (QualifiedRate r) = fromIntegral r / 100.0
+qualifiedRateAsFraction (QualifiedRate r) = r / 100.0
 
 qualifiedBracketStarts :: FilingStatus -> NEMap QualifiedRate BracketStart
 qualifiedBracketStarts Single =

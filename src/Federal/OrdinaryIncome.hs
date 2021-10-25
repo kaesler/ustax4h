@@ -24,11 +24,11 @@ import Math
 
 type OrdinaryIncomeBrackets = NEMap OrdinaryRate BracketStart
 
-newtype OrdinaryRate = OrdinaryRate Integer
+newtype OrdinaryRate = OrdinaryRate Double
   deriving (Eq, Ord, Show)
 
 ordinaryRateAsFraction :: OrdinaryRate -> Double
-ordinaryRateAsFraction (OrdinaryRate r) = fromIntegral r / 100.0
+ordinaryRateAsFraction (OrdinaryRate r) = r / 100.0
 
 applyOrdinaryIncomeBrackets :: Year -> FilingStatus -> OrdinaryIncome -> Double
 applyOrdinaryIncomeBrackets year fs taxableOrdinaryincome =
