@@ -1,7 +1,8 @@
 module Federal.QualifiedIncome
   ( QualifiedIncomeBrackets,
-    QualifiedRate,
+    QualifiedRate(..),
     applyQualifiedIncomeBrackets,
+    fromPairs,
     qualifiedIncomeBracketsFor,
     startOfNonZeroQualifiedRateBracket,
   )
@@ -27,22 +28,24 @@ newtype QualifiedRate = QualifiedRate Double
 
 qualifiedRateAsFraction :: QualifiedRate -> Double
 qualifiedRateAsFraction (QualifiedRate r) = r / 100.0
-
+ 
+-- TODO: delete
 qualifiedIncomeBracketsFor :: Year -> FilingStatus -> QualifiedIncomeBrackets
 qualifiedIncomeBracketsFor _ Single =
-  NEMap.fromList $
-    NonEmpty.fromList
+    fromPairs
       [ (QualifiedRate 0, BracketStart 0),
         (QualifiedRate 15, BracketStart 40400),
         (QualifiedRate 20, BracketStart 445850)
       ]
 qualifiedIncomeBracketsFor _ HeadOfHousehold =
-  NEMap.fromList $
-    NonEmpty.fromList
-      [ (QualifiedRate 0, BracketStart 0),
-        (QualifiedRate 15, BracketStart 54100),
-        (QualifiedRate 20, BracketStart 473850)
-      ]
+  fromPairs
+    [ (QualifiedRate 0, BracketStart 0),
+      (QualifiedRate 15, BracketStart 54100),
+      (QualifiedRate 20, BracketStart 473850)
+    ]
+
+fromPairs :: [(QualifiedRate, BracketStart)] -> QualifiedIncomeBrackets
+fromPairs = NEMap.fromList . NonEmpty.fromList
 
 startOfNonZeroQualifiedRateBracket :: QualifiedIncomeBrackets -> Integer
 startOfNonZeroQualifiedRateBracket brackets =
