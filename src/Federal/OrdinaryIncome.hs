@@ -1,5 +1,5 @@
 module Federal.OrdinaryIncome
-  ( OrdinaryRate (..),
+  ( OrdinaryRate(..),
     OrdinaryIncomeBrackets,
     applyOrdinaryIncomeBrackets,
     bottomRateOnOrdinaryIncome,

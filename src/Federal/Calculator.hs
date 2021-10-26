@@ -23,7 +23,7 @@ import Federal.Deductions
     standardDeductionFor,
   )
 import Federal.OrdinaryIncome ( applyOrdinaryIncomeBrackets, ordinaryIncomeBracketsFor )
-import Federal.QualifiedIncome (applyQualifiedIncomeBrackets)
+import Federal.QualifiedIncome (applyQualifiedIncomeBrackets, qualifiedIncomeBracketsFor)
 import Federal.Regime(RegimeKind(..), BoundRegime(..))
 import Federal.RMDs ()
 import Federal.TaxableSocialSecurity (taxableSocialSecurity)
@@ -51,9 +51,10 @@ federalTaxResults year filingStatus socSec ordinaryIncome qualifiedIncome =
       taxableSocSec = taxableSocialSecurity filingStatus socSec ssRelevantOtherIncome
       StandardDeduction sd = standardDeductionFor year filingStatus
       taxableOrdinaryIncome = (taxableSocSec + ordinaryIncome) `nonNegSub` fromInteger sd
-      brackets = ordinaryIncomeBracketsFor year filingStatus
-      taxOnOrdinaryIncome = applyOrdinaryIncomeBrackets brackets taxableOrdinaryIncome
-      taxOnQualifiedIncome = applyQualifiedIncomeBrackets filingStatus taxableOrdinaryIncome qualifiedIncome
+      ordinaryBrackets = ordinaryIncomeBracketsFor year filingStatus
+      taxOnOrdinaryIncome = applyOrdinaryIncomeBrackets ordinaryBrackets taxableOrdinaryIncome
+      qualifiedBrackets = qualifiedIncomeBracketsFor year filingStatus
+      taxOnQualifiedIncome = applyQualifiedIncomeBrackets qualifiedBrackets taxableOrdinaryIncome qualifiedIncome
    in FederalTaxResults
         { ssRelevantOtherIncome = ssRelevantOtherIncome,
           taxableSocSec = taxableSocSec,
