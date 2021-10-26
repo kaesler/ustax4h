@@ -32,6 +32,7 @@ library
       Federal.Deductions
       Federal.OrdinaryIncome
       Federal.QualifiedIncome
+      Federal.Regime
       Federal.RMDs
       Federal.TaxableSocialSecurity
       Math

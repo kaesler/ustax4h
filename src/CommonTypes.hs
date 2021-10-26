@@ -48,3 +48,9 @@ newtype Age = Age Integer
 
 data FilingStatus = HeadOfHousehold | Single
   deriving (Eq, Ord, Show, Enum)
+
+type AnnualGrowthRatePercentage = Double
+
+-- target year, growth rate as a percentage
+data Inflation = Inflation Year AnnualGrowthRatePercentage
+

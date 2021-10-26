@@ -1,3 +1,6 @@
+{-# LANGUAGE NamedFieldPuns #-}
+{-# LANGUAGE RecordWildCards #-}
+
 module Federal.Calculator
   ( federalTaxDue,
     federalTaxDueDebug,
@@ -17,21 +20,20 @@ import CommonTypes
   )
 import Federal.Deductions
   ( StandardDeduction (..),
-    standardDeduction,
+    standardDeductionFor,
   )
-import Federal.OrdinaryIncome (applyOrdinaryIncomeBrackets)
+import Federal.OrdinaryIncome ( applyOrdinaryIncomeBrackets, ordinaryIncomeBracketsFor )
 import Federal.QualifiedIncome (applyQualifiedIncomeBrackets)
+import Federal.Regime(RegimeKind(..), BoundRegime(..))
 import Federal.RMDs ()
 import Federal.TaxableSocialSecurity (taxableSocialSecurity)
 import Math (nonNegSub)
 import StateMA.Calculator (maStateTaxDue)
 
-data Regime = Trump | NonTrump
-
 type TaxCalculator = SocSec -> OrdinaryIncome -> QualifiedIncome -> ItemizedDeductions -> FederalTaxResults
 
-makeCalculator :: Regime -> Year -> BirthDate -> FilingStatus -> PersonalExemptions -> TaxCalculator
-makeCalculator = undefined 
+makeCalculator :: BoundRegime -> TaxCalculator
+makeCalculator BoundRegime{..} = undefined
 
 data FederalTaxResults = FederalTaxResults
   { ssRelevantOtherIncome :: Double,
@@ -47,14 +49,15 @@ federalTaxResults :: Year -> FilingStatus -> SocSec -> OrdinaryIncome -> Qualifi
 federalTaxResults year filingStatus socSec ordinaryIncome qualifiedIncome =
   let ssRelevantOtherIncome = ordinaryIncome + qualifiedIncome
       taxableSocSec = taxableSocialSecurity filingStatus socSec ssRelevantOtherIncome
-      StandardDeduction sd = standardDeduction year filingStatus
+      StandardDeduction sd = standardDeductionFor year filingStatus
       taxableOrdinaryIncome = (taxableSocSec + ordinaryIncome) `nonNegSub` fromInteger sd
-      taxOnOrdinaryIncome = applyOrdinaryIncomeBrackets year filingStatus taxableOrdinaryIncome
+      brackets = ordinaryIncomeBracketsFor year filingStatus
+      taxOnOrdinaryIncome = applyOrdinaryIncomeBrackets brackets taxableOrdinaryIncome
       taxOnQualifiedIncome = applyQualifiedIncomeBrackets filingStatus taxableOrdinaryIncome qualifiedIncome
    in FederalTaxResults
         { ssRelevantOtherIncome = ssRelevantOtherIncome,
           taxableSocSec = taxableSocSec,
-          stdDeduction = standardDeduction year filingStatus,
+          stdDeduction = standardDeductionFor year filingStatus,
           taxableOrdinaryIncome = taxableOrdinaryIncome,
           taxOnOrdinaryIncome = taxOnOrdinaryIncome,
           taxOnQualifiedIncome = taxOnQualifiedIncome

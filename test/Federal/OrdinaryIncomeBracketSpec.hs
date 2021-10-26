@@ -12,13 +12,14 @@ import CommonTypes
   )
 import Federal.Deductions
   ( StandardDeduction (StandardDeduction),
-    standardDeduction,
+    standardDeductionFor,
   )
 import Federal.OrdinaryIncome
   ( OrdinaryRate (..),
     applyOrdinaryIncomeBrackets,
     incomeToEndOfOrdinaryBracket,
     ordinaryRateAsFraction,
+    ordinaryIncomeBracketsFor,
     ordinaryRatesExceptTop,
     taxToEndOfOrdinaryBracket,
     topRateOnOrdinaryIncome,
@@ -69,7 +70,8 @@ prop_monotonic =
     genCase
     ( \(fs, i1, i2) ->
         (i1 <= i2)
-          == (applyOrdinaryIncomeBrackets year fs i1 <= applyOrdinaryIncomeBrackets year fs i2)
+          == (applyOrdinaryIncomeBrackets (ordinaryIncomeBracketsFor year fs) i1 <= 
+            applyOrdinaryIncomeBrackets (ordinaryIncomeBracketsFor year fs) i2)
     )
   where
     genCase :: Gen (FilingStatus, OrdinaryIncome, OrdinaryIncome)
@@ -84,7 +86,8 @@ prop_singlePaysMoreTax =
   forAll
     genOrdinaryIncome
     ( \income ->
-        applyOrdinaryIncomeBrackets year Single income >= applyOrdinaryIncomeBrackets year HeadOfHousehold income
+        applyOrdinaryIncomeBrackets (ordinaryIncomeBracketsFor year Single) income >= 
+          applyOrdinaryIncomeBrackets (ordinaryIncomeBracketsFor year HeadOfHousehold) income
     )
 
 prop_topRateIsNotExceeded :: Property
@@ -92,8 +95,9 @@ prop_topRateIsNotExceeded =
   forAll
     genFsWithIncome
     ( \(fs, income) ->
-        let effectiveRate = applyOrdinaryIncomeBrackets year fs income / income
-         in effectiveRate <= ordinaryRateAsFraction (topRateOnOrdinaryIncome year fs)
+        let brackets = ordinaryIncomeBracketsFor year fs
+            effectiveRate = applyOrdinaryIncomeBrackets brackets income / income
+         in effectiveRate <= ordinaryRateAsFraction (topRateOnOrdinaryIncome brackets)
     )
 
 prop_zeroTaxOnlyOnZeroIncome :: Property
@@ -101,31 +105,35 @@ prop_zeroTaxOnlyOnZeroIncome =
   forAll
     genFsWithIncome
     ( \(fs, income) ->
-        applyOrdinaryIncomeBrackets year fs income /= 0 || income == 0
+        applyOrdinaryIncomeBrackets (ordinaryIncomeBracketsFor year fs) income /= 0 || income == 0
     )
 
 assertCorrectTaxDueAtBracketBoundary :: FilingStatus -> OrdinaryRate -> Expectation
 assertCorrectTaxDueAtBracketBoundary filingStatus bracketRate =
-  let StandardDeduction deduction = standardDeduction year filingStatus
-      income = incomeToEndOfOrdinaryBracket year filingStatus bracketRate
+  let brackets = ordinaryIncomeBracketsFor year filingStatus
+      stdDed = standardDeductionFor year filingStatus
+      StandardDeduction deduction = stdDed
+      income = incomeToEndOfOrdinaryBracket brackets stdDed bracketRate
       taxableIncome = income - fromInteger deduction
-      expectedTax = roundHalfUp $ taxToEndOfOrdinaryBracket year filingStatus bracketRate
-      computedTax = roundHalfUp $ applyOrdinaryIncomeBrackets year filingStatus taxableIncome
+      expectedTax = roundHalfUp $ taxToEndOfOrdinaryBracket brackets bracketRate
+      computedTax = roundHalfUp $ applyOrdinaryIncomeBrackets brackets taxableIncome
    in do
         computedTax `shouldBe` expectedTax
 
 assertCorrectTaxDueAtBracketBoundaries :: FilingStatus -> Expectation
 assertCorrectTaxDueAtBracketBoundaries filingStatus =
-  let brackets = ordinaryRatesExceptTop year filingStatus
-      incomes = map (incomeToEndOfOrdinaryBracket year filingStatus) brackets
-      expectedTaxes = map (taxToEndOfOrdinaryBracket year filingStatus) brackets
-      StandardDeduction deduction = standardDeduction year filingStatus
+  let brackets = ordinaryIncomeBracketsFor year filingStatus
+      rates = ordinaryRatesExceptTop brackets
+      stdDed = standardDeductionFor year filingStatus
+      incomes = map (incomeToEndOfOrdinaryBracket brackets stdDed) rates
+      expectedTaxes = map (taxToEndOfOrdinaryBracket brackets) rates
       expectations = zipWith (curry taxDueIsAsExpected) incomes expectedTaxes
         where
           taxDueIsAsExpected :: (Double, Double) -> Expectation
           taxDueIsAsExpected (income, expectedTax) =
-            let taxableIncome = income - fromInteger deduction
-                computedTax = roundHalfUp $ applyOrdinaryIncomeBrackets year filingStatus taxableIncome
+            let StandardDeduction deduction = stdDed
+                taxableIncome = income - fromInteger deduction
+                computedTax = roundHalfUp $ applyOrdinaryIncomeBrackets brackets taxableIncome
              in do
                   computedTax `shouldBe` roundHalfUp expectedTax
    in () <$ sequence expectations
@@ -134,8 +142,8 @@ ordinaryIncomeBracketsSpec :: SpecWith ()
 ordinaryIncomeBracketsSpec =
   describe "Taxes.applyOrdinaryIncomeBrackets" $ do
     it "Never taxes zero income" $ do
-      applyOrdinaryIncomeBrackets year Single 0.0 `shouldBe` 0.0
-      applyOrdinaryIncomeBrackets year HeadOfHousehold 0.0 `shouldBe` 0.0
+      applyOrdinaryIncomeBrackets (ordinaryIncomeBracketsFor year Single) 0.0 `shouldBe` 0.0
+      applyOrdinaryIncomeBrackets (ordinaryIncomeBracketsFor year HeadOfHousehold) 0.0 `shouldBe` 0.0
 
     it "Is monotonic" $ property prop_monotonic
     it "Single pays more tax than HeadOfHousehold" $ property prop_singlePaysMoreTax
