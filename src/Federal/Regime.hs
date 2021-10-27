@@ -15,7 +15,7 @@ import CommonTypes
     PersonalExemptions,
     QualifiedIncome,
     SocSec,
-    StandardDeduction(..),
+    StandardDeduction (..),
     Year,
   )
 import Data.Time (Day, fromGregorian, toGregorian)
@@ -96,19 +96,48 @@ bindRegime Trump 2021 HeadOfHousehold birthDate _ =
 bindRegime NonTrump 2017 Single birthDate personalExemtions =
   BoundRegime
     { filingStatus = Single,
-      standardDeduction = undefined,
-      personalExemptionDeduction = undefined,
-      ordinaryIncomeBrackets = undefined,
-      qualifiedIncomeBrackets = undefined
+      standardDeduction =
+        StandardDeduction $ 6350 + if ageAtYearEnd 2021 birthDate > 65 then 1350 else 0,
+      personalExemptionDeduction = 4050,
+      ordinaryIncomeBrackets =
+        Federal.OrdinaryIncome.fromPairs
+          [ (OrdinaryRate 10, BracketStart 0),
+            (OrdinaryRate 15, BracketStart 9235),
+            (OrdinaryRate 25, BracketStart 37950),
+            (OrdinaryRate 28, BracketStart 91900),
+            (OrdinaryRate 33, BracketStart 191650),
+            (OrdinaryRate 35, BracketStart 416700),
+            (OrdinaryRate 39.6, BracketStart 418400)
+          ],
+      qualifiedIncomeBrackets =
+        Federal.QualifiedIncome.fromPairs
+          [ (QualifiedRate 0, BracketStart 0),
+            (QualifiedRate 15, BracketStart 37950),
+            (QualifiedRate 20, BracketStart 418400)
+          ]
     }
 bindRegime NonTrump 2017 HeadOfHousehold birthDate personalExemtions =
   BoundRegime
     { filingStatus = HeadOfHousehold,
       standardDeduction =
-        undefined,
-      personalExemptionDeduction = undefined,
-      ordinaryIncomeBrackets = undefined,
-      qualifiedIncomeBrackets = undefined
+        StandardDeduction $ 9350 + if ageAtYearEnd 2021 birthDate > 65 then 1350 else 0,
+      personalExemptionDeduction = 4050,
+      ordinaryIncomeBrackets =
+        Federal.OrdinaryIncome.fromPairs
+          [ (OrdinaryRate 10, BracketStart 0),
+            (OrdinaryRate 15, BracketStart 13350),
+            (OrdinaryRate 25, BracketStart 50800),
+            (OrdinaryRate 28, BracketStart 131200),
+            (OrdinaryRate 33, BracketStart 212500),
+            (OrdinaryRate 35, BracketStart 416700),
+            (OrdinaryRate 39.6, BracketStart 444550)
+          ],
+      qualifiedIncomeBrackets =
+        Federal.QualifiedIncome.fromPairs
+          [ (QualifiedRate 0, BracketStart 0),
+            (QualifiedRate 15, BracketStart 50800),
+            (QualifiedRate 20, BracketStart 444550)
+          ]
     }
 bindRegime _ _ _ _ _ = error "Unsupported"
 
