@@ -15,15 +15,16 @@ import Federal.Deductions
     standardDeductionFor,
   )
 import Federal.OrdinaryIncome
-  ( OrdinaryRate (..),
+  ( OrdinaryIncomeBrackets,
+    OrdinaryRate (..),
     applyOrdinaryIncomeBrackets,
     incomeToEndOfOrdinaryBracket,
     ordinaryRateAsFraction,
-    ordinaryIncomeBracketsFor,
     ordinaryRatesExceptTop,
     taxToEndOfOrdinaryBracket,
     topRateOnOrdinaryIncome,
   )
+import Federal.Regime
 import Math (roundHalfUp)
 import MathInSpecs ()
 import Test.Hspec (Expectation, SpecWith, describe, it, shouldBe)
@@ -36,9 +37,18 @@ import Test.QuickCheck
     elements,
     forAll,
   )
+import qualified Kevin
+
+regime :: RegimeKind
+regime = Trump
 
 year :: Year
 year = 2021
+
+ordinaryIncomeBracketsFor :: FilingStatus -> OrdinaryIncomeBrackets
+ordinaryIncomeBracketsFor filingStatus = 
+  let br = bindRegime Trump year filingStatus Kevin.birthDate Kevin.personalExemptions 
+  in (ordinaryIncomeBrackets br)
 
 genSocialSecurityBenefits :: Gen SocSec
 genSocialSecurityBenefits = fmap fromInteger (elements [0 .. 50000])
@@ -70,8 +80,8 @@ prop_monotonic =
     genCase
     ( \(fs, i1, i2) ->
         (i1 <= i2)
-          == (applyOrdinaryIncomeBrackets (ordinaryIncomeBracketsFor year fs) i1 <= 
-            applyOrdinaryIncomeBrackets (ordinaryIncomeBracketsFor year fs) i2)
+          == (applyOrdinaryIncomeBrackets (ordinaryIncomeBracketsFor fs) i1 <= 
+            applyOrdinaryIncomeBrackets (ordinaryIncomeBracketsFor fs) i2)
     )
   where
     genCase :: Gen (FilingStatus, OrdinaryIncome, OrdinaryIncome)
@@ -86,8 +96,8 @@ prop_singlePaysMoreTax =
   forAll
     genOrdinaryIncome
     ( \income ->
-        applyOrdinaryIncomeBrackets (ordinaryIncomeBracketsFor year Single) income >= 
-          applyOrdinaryIncomeBrackets (ordinaryIncomeBracketsFor year HeadOfHousehold) income
+        applyOrdinaryIncomeBrackets (ordinaryIncomeBracketsFor Single) income >= 
+          applyOrdinaryIncomeBrackets (ordinaryIncomeBracketsFor HeadOfHousehold) income
     )
 
 prop_topRateIsNotExceeded :: Property
@@ -95,7 +105,7 @@ prop_topRateIsNotExceeded =
   forAll
     genFsWithIncome
     ( \(fs, income) ->
-        let brackets = ordinaryIncomeBracketsFor year fs
+        let brackets = ordinaryIncomeBracketsFor fs
             effectiveRate = applyOrdinaryIncomeBrackets brackets income / income
          in effectiveRate <= ordinaryRateAsFraction (topRateOnOrdinaryIncome brackets)
     )
@@ -105,12 +115,12 @@ prop_zeroTaxOnlyOnZeroIncome =
   forAll
     genFsWithIncome
     ( \(fs, income) ->
-        applyOrdinaryIncomeBrackets (ordinaryIncomeBracketsFor year fs) income /= 0 || income == 0
+        applyOrdinaryIncomeBrackets (ordinaryIncomeBracketsFor fs) income /= 0 || income == 0
     )
 
 assertCorrectTaxDueAtBracketBoundary :: FilingStatus -> OrdinaryRate -> Expectation
 assertCorrectTaxDueAtBracketBoundary filingStatus bracketRate =
-  let brackets = ordinaryIncomeBracketsFor year filingStatus
+  let brackets = ordinaryIncomeBracketsFor filingStatus
       stdDed = standardDeductionFor year filingStatus
       StandardDeduction deduction = stdDed
       income = incomeToEndOfOrdinaryBracket brackets stdDed bracketRate
@@ -122,7 +132,7 @@ assertCorrectTaxDueAtBracketBoundary filingStatus bracketRate =
 
 assertCorrectTaxDueAtBracketBoundaries :: FilingStatus -> Expectation
 assertCorrectTaxDueAtBracketBoundaries filingStatus =
-  let brackets = ordinaryIncomeBracketsFor year filingStatus
+  let brackets = ordinaryIncomeBracketsFor filingStatus
       rates = ordinaryRatesExceptTop brackets
       stdDed = standardDeductionFor year filingStatus
       incomes = map (incomeToEndOfOrdinaryBracket brackets stdDed) rates
@@ -142,8 +152,8 @@ ordinaryIncomeBracketsSpec :: SpecWith ()
 ordinaryIncomeBracketsSpec =
   describe "Taxes.applyOrdinaryIncomeBrackets" $ do
     it "Never taxes zero income" $ do
-      applyOrdinaryIncomeBrackets (ordinaryIncomeBracketsFor year Single) 0.0 `shouldBe` 0.0
-      applyOrdinaryIncomeBrackets (ordinaryIncomeBracketsFor year HeadOfHousehold) 0.0 `shouldBe` 0.0
+      applyOrdinaryIncomeBrackets (ordinaryIncomeBracketsFor Single) 0.0 `shouldBe` 0.0
+      applyOrdinaryIncomeBrackets (ordinaryIncomeBracketsFor HeadOfHousehold) 0.0 `shouldBe` 0.0
 
     it "Is monotonic" $ property prop_monotonic
     it "Single pays more tax than HeadOfHousehold" $ property prop_singlePaysMoreTax
