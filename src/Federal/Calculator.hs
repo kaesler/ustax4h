@@ -24,7 +24,7 @@ import Federal.Deductions
   )
 import Federal.OrdinaryIncome ( applyOrdinaryIncomeBrackets, ordinaryIncomeBracketsFor )
 import Federal.QualifiedIncome (applyQualifiedIncomeBrackets, qualifiedIncomeBracketsFor)
-import Federal.Regime(RegimeKind(..), BoundRegime(..))
+import Federal.Regime(RegimeKind(..), BoundRegime(..), netDeduction)
 import Federal.RMDs ()
 import Federal.TaxableSocialSecurity (taxableSocialSecurity)
 import Math (nonNegSub)
@@ -33,7 +33,22 @@ import StateMA.Calculator (maStateTaxDue)
 type TaxCalculator = SocSec -> OrdinaryIncome -> QualifiedIncome -> ItemizedDeductions -> FederalTaxResults
 
 makeCalculator :: BoundRegime -> TaxCalculator
-makeCalculator BoundRegime{..} = undefined
+makeCalculator br@BoundRegime{..} socSec ordinaryIncome qualifiedIncome itemized =
+  let ssRelevantOtherIncome = ordinaryIncome + qualifiedIncome
+      taxableSocSec = taxableSocialSecurity filingStatus socSec ssRelevantOtherIncome
+      StandardDeduction sd = standardDeduction
+      taxableOrdinaryIncome = (taxableSocSec + ordinaryIncome) `nonNegSub` netDeduction br itemized
+      taxOnOrdinaryIncome = applyOrdinaryIncomeBrackets ordinaryIncomeBrackets taxableOrdinaryIncome
+      taxOnQualifiedIncome = applyQualifiedIncomeBrackets qualifiedIncomeBrackets taxableOrdinaryIncome qualifiedIncome
+   in FederalTaxResults
+        { ssRelevantOtherIncome = ssRelevantOtherIncome,
+          taxableSocSec = taxableSocSec,
+          stdDeduction = standardDeduction,
+          taxableOrdinaryIncome = taxableOrdinaryIncome,
+          taxOnOrdinaryIncome = taxOnOrdinaryIncome,
+          taxOnQualifiedIncome = taxOnQualifiedIncome
+        }
+
 
 data FederalTaxResults = FederalTaxResults
   { ssRelevantOtherIncome :: Double,

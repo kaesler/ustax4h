@@ -1,40 +1,50 @@
 module Federal.Regime
   ( RegimeKind (..),
     BoundRegime (..),
+    netDeduction
   )
 where
 
 import CommonTypes
-    ( BirthDate,
-      FilingStatus(..),
-      ItemizedDeductions,
-      Money,
-      PersonalExemptions,
-      Year )
-import Federal.BracketTypes (BracketStart (BracketStart))
-import Federal.OrdinaryIncome (OrdinaryIncomeBrackets, OrdinaryRate (..), fromPairs)
-import Federal.QualifiedIncome (QualifiedIncomeBrackets, QualifiedRate (..), fromPairs)
-import Data.Time (toGregorian)
+  ( BirthDate,
+    FilingStatus (..),
+    ItemizedDeductions,
+    Money,
+    PersonalExemptions,
+    Year, SocSec, OrdinaryIncome, QualifiedIncome
+  )
+import Data.Time (Day, fromGregorian, toGregorian)
+import Federal.BracketTypes ( BracketStart(BracketStart) )
+import Federal.OrdinaryIncome
+    ( OrdinaryRate(OrdinaryRate), OrdinaryIncomeBrackets, fromPairs )
+import Federal.QualifiedIncome
+    ( QualifiedRate(QualifiedRate),
+      QualifiedIncomeBrackets,
+      fromPairs )
+import Federal.Deductions
 
 data RegimeKind = Trump | NonTrump
 
--- bound: Year, FilingStatus, BirthDate, PersonalExemptions
 data BoundRegime = BoundRegime
-  { standardDeduction :: Money,
+  { filingStatus :: FilingStatus,
+    standardDeduction :: StandardDeduction,
     personalExemptionDeduction :: Money,
     ordinaryIncomeBrackets :: OrdinaryIncomeBrackets,
     qualifiedIncomeBrackets :: QualifiedIncomeBrackets
   }
 
 netDeduction :: BoundRegime -> ItemizedDeductions -> Money
-netDeduction br itemized = personalExemptionDeduction br + max itemized (standardDeduction br)
+netDeduction br itemized = 
+  let StandardDeduction stdDed = standardDeduction br
+    in
+      personalExemptionDeduction br + max itemized (fromIntegral stdDed)
 
 bindRegime :: RegimeKind -> Year -> FilingStatus -> BirthDate -> PersonalExemptions -> BoundRegime
 bindRegime Trump 2021 Single birthDate _ =
   BoundRegime
-    { standardDeduction =
-        -- TODO: how to compute age at year end?
-        undefined,
+    { filingStatus = Single,
+      standardDeduction =
+        StandardDeduction $ 12550 + if ageAtYearEnd 2021 birthDate > 65 then 1350 else 0,
       personalExemptionDeduction = 0,
       ordinaryIncomeBrackets =
         Federal.OrdinaryIncome.fromPairs
@@ -55,7 +65,9 @@ bindRegime Trump 2021 Single birthDate _ =
     }
 bindRegime Trump 2021 HeadOfHousehold birthDate _ =
   BoundRegime
-    { standardDeduction = undefined,
+    { filingStatus = HeadOfHousehold,
+      standardDeduction =
+        StandardDeduction $ 18800 + if ageAtYearEnd 2021 birthDate > 65 then 1350 else 0,
       personalExemptionDeduction = 0,
       ordinaryIncomeBrackets =
         Federal.OrdinaryIncome.fromPairs
@@ -76,15 +88,16 @@ bindRegime Trump 2021 HeadOfHousehold birthDate _ =
     }
 bindRegime NonTrump 2017 Single birthDate personalExemtions =
   BoundRegime
-    { standardDeduction = 
-        undefined,
+    { filingStatus = Single,
+      standardDeduction = undefined,
       personalExemptionDeduction = undefined,
       ordinaryIncomeBrackets = undefined,
       qualifiedIncomeBrackets = undefined
     }
 bindRegime NonTrump 2017 HeadOfHousehold birthDate personalExemtions =
   BoundRegime
-    { standardDeduction =
+    { filingStatus = HeadOfHousehold,
+      standardDeduction =
         undefined,
       personalExemptionDeduction = undefined,
       ordinaryIncomeBrackets = undefined,
@@ -94,6 +107,5 @@ bindRegime _ _ _ _ _ = error "Unsupported"
 
 ageAtYearEnd :: Year -> BirthDate -> Integer
 ageAtYearEnd year birthDate =
-  let (birthYear, _, _) = toGregorian birthDate 
-  in
-    year - birthYear
+  let (birthYear, _, _) = toGregorian birthDate
+   in year - birthYear
