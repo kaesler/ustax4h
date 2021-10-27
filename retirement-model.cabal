@@ -35,6 +35,7 @@ library
       Federal.Regime
       Federal.RMDs
       Federal.TaxableSocialSecurity
+      Kevin
       Math
       StateMA.Calculator
   other-modules:

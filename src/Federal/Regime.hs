@@ -1,6 +1,7 @@
 module Federal.Regime
   ( RegimeKind (..),
     BoundRegime (..),
+    bindRegime,
     netDeduction
   )
 where
@@ -24,7 +25,6 @@ import Federal.QualifiedIncome
 import Federal.Deductions
 
 data RegimeKind = Trump | NonTrump
-
 data BoundRegime = BoundRegime
   { filingStatus :: FilingStatus,
     standardDeduction :: StandardDeduction,
