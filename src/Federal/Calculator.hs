@@ -16,12 +16,10 @@ import CommonTypes
     PersonalExemptions,
     QualifiedIncome,
     SocSec,
+    StandardDeduction(..),
     Year,
   )
-import Federal.Deductions
-  ( StandardDeduction (..),
-    standardDeductionFor,
-  )
+
 import Federal.OrdinaryIncome (applyOrdinaryIncomeBrackets)
 import Federal.QualifiedIncome (applyQualifiedIncomeBrackets)
 import Federal.RMDs ()

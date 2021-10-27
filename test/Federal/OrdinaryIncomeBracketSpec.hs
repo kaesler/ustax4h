@@ -8,12 +8,10 @@ import CommonTypes
     OrdinaryIncome,
     SSRelevantOtherIncome,
     SocSec,
+    StandardDeduction(..),
     Year,
   )
-import Federal.Deductions
-  ( StandardDeduction (StandardDeduction),
-    standardDeductionFor,
-  )
+
 import Federal.OrdinaryIncome
   ( OrdinaryIncomeBrackets,
     OrdinaryRate (..),
@@ -48,7 +46,12 @@ year = 2021
 ordinaryIncomeBracketsFor :: FilingStatus -> OrdinaryIncomeBrackets
 ordinaryIncomeBracketsFor filingStatus = 
   let br = bindRegime Trump year filingStatus Kevin.birthDate Kevin.personalExemptions 
-  in (ordinaryIncomeBrackets br)
+  in ordinaryIncomeBrackets br
+
+standardDeductionFor :: FilingStatus -> StandardDeduction
+standardDeductionFor filingStatus = 
+  let br = bindRegime Trump year filingStatus Kevin.birthDate Kevin.personalExemptions 
+  in standardDeduction br
 
 genSocialSecurityBenefits :: Gen SocSec
 genSocialSecurityBenefits = fmap fromInteger (elements [0 .. 50000])
@@ -121,7 +124,7 @@ prop_zeroTaxOnlyOnZeroIncome =
 assertCorrectTaxDueAtBracketBoundary :: FilingStatus -> OrdinaryRate -> Expectation
 assertCorrectTaxDueAtBracketBoundary filingStatus bracketRate =
   let brackets = ordinaryIncomeBracketsFor filingStatus
-      stdDed = standardDeductionFor year filingStatus
+      stdDed = standardDeductionFor filingStatus
       StandardDeduction deduction = stdDed
       income = incomeToEndOfOrdinaryBracket brackets stdDed bracketRate
       taxableIncome = income - fromInteger deduction
@@ -134,7 +137,7 @@ assertCorrectTaxDueAtBracketBoundaries :: FilingStatus -> Expectation
 assertCorrectTaxDueAtBracketBoundaries filingStatus =
   let brackets = ordinaryIncomeBracketsFor filingStatus
       rates = ordinaryRatesExceptTop brackets
-      stdDed = standardDeductionFor year filingStatus
+      stdDed = standardDeductionFor filingStatus
       incomes = map (incomeToEndOfOrdinaryBracket brackets stdDed) rates
       expectedTaxes = map (taxToEndOfOrdinaryBracket brackets) rates
       expectations = zipWith (curry taxDueIsAsExpected) incomes expectedTaxes

@@ -12,6 +12,7 @@ module CommonTypes
     QualifiedIncome,
     SSRelevantOtherIncome,
     SocSec,
+    StandardDeduction(..),
     Year,
   )
 
@@ -48,6 +49,9 @@ newtype Age = Age Integer
 
 data FilingStatus = HeadOfHousehold | Single
   deriving (Eq, Ord, Show, Enum)
+
+newtype StandardDeduction = StandardDeduction Integer
+  deriving (Eq, Ord, Show)
 
 type AnnualGrowthRatePercentage = Double
 

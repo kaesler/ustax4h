@@ -2,7 +2,7 @@ module Federal.Regime
   ( RegimeKind (..),
     BoundRegime (..),
     bindRegime,
-    netDeduction
+    netDeduction,
   )
 where
 
@@ -11,20 +11,28 @@ import CommonTypes
     FilingStatus (..),
     ItemizedDeductions,
     Money,
+    OrdinaryIncome,
     PersonalExemptions,
-    Year, SocSec, OrdinaryIncome, QualifiedIncome
+    QualifiedIncome,
+    SocSec,
+    StandardDeduction(..),
+    Year,
   )
 import Data.Time (Day, fromGregorian, toGregorian)
-import Federal.BracketTypes ( BracketStart(BracketStart) )
+import Federal.BracketTypes (BracketStart (BracketStart))
 import Federal.OrdinaryIncome
-    ( OrdinaryRate(OrdinaryRate), OrdinaryIncomeBrackets, fromPairs )
+  ( OrdinaryIncomeBrackets,
+    OrdinaryRate (OrdinaryRate),
+    fromPairs,
+  )
 import Federal.QualifiedIncome
-    ( QualifiedRate(QualifiedRate),
-      QualifiedIncomeBrackets,
-      fromPairs )
-import Federal.Deductions
+  ( QualifiedIncomeBrackets,
+    QualifiedRate (QualifiedRate),
+    fromPairs,
+  )
 
 data RegimeKind = Trump | NonTrump
+
 data BoundRegime = BoundRegime
   { filingStatus :: FilingStatus,
     standardDeduction :: StandardDeduction,
@@ -34,10 +42,9 @@ data BoundRegime = BoundRegime
   }
 
 netDeduction :: BoundRegime -> ItemizedDeductions -> Money
-netDeduction br itemized = 
+netDeduction br itemized =
   let StandardDeduction stdDed = standardDeduction br
-    in
-      personalExemptionDeduction br + max itemized (fromIntegral stdDed)
+   in personalExemptionDeduction br + max itemized (fromIntegral stdDed)
 
 bindRegime :: RegimeKind -> Year -> FilingStatus -> BirthDate -> PersonalExemptions -> BoundRegime
 bindRegime Trump 2021 Single birthDate _ =

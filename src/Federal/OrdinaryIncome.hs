@@ -13,18 +13,12 @@ module Federal.OrdinaryIncome
 where
 
 import CommonTypes
-  ( FilingStatus (..),
-    Money,
-    OrdinaryIncome,
-    Year,
-  )
 import Data.Coerce (coerce)
 import qualified Data.List as List
 import Data.List.NonEmpty as NonEmpty (fromList, head, last, reverse, tail, takeWhile, toList)
 import Data.Map.NonEmpty as NEMap (NEMap, assocs, fromList, keys, lookup)
 import Data.Maybe (fromJust)
 import Federal.BracketTypes (BracketStart (..))
-import Federal.Deductions (StandardDeduction (..))
 import Math (nonNegSub)
 
 type OrdinaryIncomeBrackets = NEMap OrdinaryRate BracketStart
