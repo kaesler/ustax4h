@@ -3,8 +3,8 @@ module Federal.TaxableSocialSecuritySpec
   )
 where
 
-import CommonTypes
-import Federal.TaxableSocialSecurity
+import CommonTypes ( FilingStatus(Single) )
+import Federal.TaxableSocialSecurity ( taxableSocialSecurity )
 import Test.Hspec (SpecWith, describe, it, shouldBe)
 
 taxableSocialSecuritySpec :: SpecWith ()

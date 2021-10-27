@@ -23,6 +23,9 @@ import Federal.OrdinaryIncome
     topRateOnOrdinaryIncome,
   )
 import Federal.Regime
+    ( bindRegime,
+      BoundRegime(ordinaryIncomeBrackets, standardDeduction),
+      RegimeKind(Trump) )
 import Math (roundHalfUp)
 import MathInSpecs ()
 import Test.Hspec (Expectation, SpecWith, describe, it, shouldBe)

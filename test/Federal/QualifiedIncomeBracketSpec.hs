@@ -6,6 +6,9 @@ where
 import CommonTypes ( FilingStatus(HeadOfHousehold, Single), Year)
 import Federal.QualifiedIncome (applyQualifiedIncomeBrackets)
 import Federal.Regime
+    ( bindRegime,
+      BoundRegime(qualifiedIncomeBrackets),
+      RegimeKind(Trump) )
 import Test.Hspec (SpecWith, describe, it, shouldBe)
 import qualified Kevin
 

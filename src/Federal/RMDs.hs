@@ -3,7 +3,7 @@ module Federal.RMDs
   )
 where
 
-import CommonTypes
+import CommonTypes ( Age(..), DistributionPeriod )
 import Data.List.NonEmpty as NonEmpty (fromList)
 import Data.Map.NonEmpty as NEMap (NEMap, fromList, lookup)
 import Data.Maybe (fromJust)

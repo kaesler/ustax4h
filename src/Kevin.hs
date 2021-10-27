@@ -4,7 +4,7 @@ module Kevin
   )
 where
 
-import CommonTypes
+import CommonTypes ( BirthDate )
 import Data.Time (Day, fromGregorian, toGregorian)
 
 birthDate :: BirthDate

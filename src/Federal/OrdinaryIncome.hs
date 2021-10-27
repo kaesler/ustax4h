@@ -12,7 +12,7 @@ module Federal.OrdinaryIncome
   )
 where
 
-import CommonTypes
+import CommonTypes ( StandardDeduction(..), OrdinaryIncome, Money )
 import Data.Coerce (coerce)
 import qualified Data.List as List
 import Data.List.NonEmpty as NonEmpty (fromList, head, last, reverse, tail, takeWhile, toList)
