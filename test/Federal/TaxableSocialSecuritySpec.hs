@@ -9,7 +9,7 @@ import Test.Hspec (SpecWith, describe, it, shouldBe)
 
 taxableSocialSecuritySpec :: SpecWith ()
 taxableSocialSecuritySpec =
-  describe "Taxes.taxableSocialSecurity" $ do
+  describe "Federal.TaxableSocialSecurit.taxableSocialSecurity" $ do
     it "Untaxable 1" $
       taxableSocialSecurity Single 50000.0 0.0 `shouldBe` 0.0
     it "Untaxable 2" $

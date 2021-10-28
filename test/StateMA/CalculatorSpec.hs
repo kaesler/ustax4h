@@ -14,7 +14,7 @@ import TestDataFromScala as TDFS (TestCase (..), cases)
 
 stateMATaxCalculatorSpec :: SpecWith ()
 stateMATaxCalculatorSpec =
-  describe "Taxes.stateTaxDue" $
+  describe "StateMA.maStateTaxDue" $
     it "matches outputs sampled from Scala implementation" $ do
       let makeExpectation :: TestCase -> Expectation
           makeExpectation tc@TestCase {age, dependents, filingStatus, socSec, ordinaryIncomeNonSS, qualifiedIncome, expectedFederalTax, expectedStateTax} =
