@@ -23,7 +23,7 @@ import CommonTypes
 import Federal.OrdinaryIncome (applyOrdinaryIncomeBrackets)
 import Federal.QualifiedIncome (applyQualifiedIncomeBrackets)
 import Federal.RMDs ()
-import Federal.Regime (BoundRegime (..), RegimeKind (..), bindRegime, netDeduction)
+import Federal.Regime (BoundRegime (..), Regime (..), bindRegime, netDeduction)
 import Federal.TaxableSocialSecurity (taxableSocialSecurity)
 import qualified Kevin
 import Math (nonNegSub)

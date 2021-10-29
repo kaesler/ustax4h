@@ -8,7 +8,7 @@ import Federal.QualifiedIncome (applyQualifiedIncomeBrackets)
 import Federal.Regime
     ( bindRegime,
       BoundRegime(qualifiedIncomeBrackets),
-      RegimeKind(Trump) )
+      Regime(Trump) )
 import Test.Hspec (SpecWith, describe, it, shouldBe)
 import qualified Kevin
 

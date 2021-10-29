@@ -25,7 +25,7 @@ import Federal.OrdinaryIncome
 import Federal.Regime
     ( bindRegime,
       BoundRegime(ordinaryIncomeBrackets, standardDeduction),
-      RegimeKind(Trump) )
+      Regime(Trump) )
 import Math (roundHalfUp)
 import MathInSpecs ()
 import Test.Hspec (Expectation, SpecWith, describe, it, shouldBe)
@@ -40,7 +40,7 @@ import Test.QuickCheck
   )
 import qualified Kevin
 
-regime :: RegimeKind
+regime :: Regime
 regime = Trump
 
 year :: Year

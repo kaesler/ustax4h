@@ -1,5 +1,5 @@
 module Federal.Regime
-  ( RegimeKind (..),
+  ( Regime (..),
     BoundRegime (..),
     bindRegime,
     netDeduction,
@@ -31,7 +31,7 @@ import Federal.QualifiedIncome
     fromPairs,
   )
 
-data RegimeKind = Trump | NonTrump
+data Regime = Trump | NonTrump
 
 data BoundRegime = BoundRegime
   { filingStatus :: FilingStatus,
@@ -46,7 +46,7 @@ netDeduction br itemized =
   let StandardDeduction stdDed = standardDeduction br
    in personalExemptionDeduction br + max itemized (fromIntegral stdDed)
 
-bindRegime :: RegimeKind -> Year -> FilingStatus -> BirthDate -> PersonalExemptions -> BoundRegime
+bindRegime :: Regime -> Year -> FilingStatus -> BirthDate -> PersonalExemptions -> BoundRegime
 bindRegime Trump 2021 Single birthDate _ =
   BoundRegime
     { filingStatus = Single,
