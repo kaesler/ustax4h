@@ -56,5 +56,5 @@ newtype StandardDeduction = StandardDeduction Integer
 type AnnualGrowthRatePercentage = Double
 
 -- target year, growth rate as a percentage
-data Inflation = Inflation Year AnnualGrowthRatePercentage
+data InflationEstimate = InflationEstimate Year AnnualGrowthRatePercentage
 
