@@ -13,6 +13,7 @@ import Test.Hspec (hspec)
 main :: IO ()
 main = hspec $ do
   taxableSocialSecuritySpec
+  --
   ordinaryIncomeBracketsSpec
   qualifiedIncomeBracketsSpec
   federalTaxCalculatorSpec
