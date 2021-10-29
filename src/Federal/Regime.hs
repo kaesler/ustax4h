@@ -34,7 +34,9 @@ import Federal.QualifiedIncome
 data Regime = Trump | NonTrump
 
 data BoundRegime = BoundRegime
-  { filingStatus :: FilingStatus,
+  { regime :: Regime,
+    year :: Year,
+    filingStatus :: FilingStatus,
     standardDeduction :: StandardDeduction,
     personalExemptionDeduction :: Money,
     ordinaryIncomeBrackets :: OrdinaryIncomeBrackets,
@@ -49,7 +51,9 @@ netDeduction br itemized =
 bindRegime :: Regime -> Year -> FilingStatus -> BirthDate -> PersonalExemptions -> BoundRegime
 bindRegime Trump 2021 Single birthDate _ =
   BoundRegime
-    { filingStatus = Single,
+    { regime = Trump,
+      year = 2021,
+      filingStatus = Single,
       standardDeduction =
         StandardDeduction $ 12550 + if ageAtYearEnd 2021 birthDate > 65 then 1350 else 0,
       personalExemptionDeduction = 0,
@@ -72,7 +76,9 @@ bindRegime Trump 2021 Single birthDate _ =
     }
 bindRegime Trump 2021 HeadOfHousehold birthDate _ =
   BoundRegime
-    { filingStatus = HeadOfHousehold,
+    { regime = Trump,
+      year = 2021,
+      filingStatus = HeadOfHousehold,
       standardDeduction =
         StandardDeduction $ 18800 + if ageAtYearEnd 2021 birthDate > 65 then 1350 else 0,
       personalExemptionDeduction = 0,
@@ -95,7 +101,9 @@ bindRegime Trump 2021 HeadOfHousehold birthDate _ =
     }
 bindRegime NonTrump 2017 Single birthDate personalExemtions =
   BoundRegime
-    { filingStatus = Single,
+    { regime = NonTrump,
+      year = 2017,
+      filingStatus = Single,
       standardDeduction =
         StandardDeduction $ 6350 + if ageAtYearEnd 2021 birthDate > 65 then 1350 else 0,
       personalExemptionDeduction = 4050,
@@ -118,7 +126,9 @@ bindRegime NonTrump 2017 Single birthDate personalExemtions =
     }
 bindRegime NonTrump 2017 HeadOfHousehold birthDate personalExemtions =
   BoundRegime
-    { filingStatus = HeadOfHousehold,
+    { regime = NonTrump,
+      year = 2017,
+      filingStatus = HeadOfHousehold,
       standardDeduction =
         StandardDeduction $ 9350 + if ageAtYearEnd 2021 birthDate > 65 then 1350 else 0,
       personalExemptionDeduction = 4050,
