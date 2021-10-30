@@ -19,6 +19,7 @@ import CommonTypes
     Year,
   )
 import Data.Time (Day, fromGregorian, toGregorian)
+import Text.Printf
 import Federal.BracketTypes (BracketStart (BracketStart))
 import Federal.OrdinaryIncome
   ( OrdinaryIncomeBrackets,
@@ -154,7 +155,8 @@ bindRegime NonTrump 2017 HeadOfHousehold birthDate personalExemtions =
             (QualifiedRate 20, BracketStart 444550)
           ]
     }
-bindRegime _ _ _ _ _ = error "Unsupported"
+bindRegime regime year filingStatus _ _ = 
+  error $ printf "Unsupported combination %s, %d, %s " (show regime) year (show filingStatus)
 
 ageAtYearEnd :: Year -> BirthDate -> Integer
 ageAtYearEnd year birthDate =
