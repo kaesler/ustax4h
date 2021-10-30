@@ -32,6 +32,11 @@ import Federal.QualifiedIncome
   )
 
 data Regime = Trump | NonTrump
+  deriving (Eq, Ord, Show, Enum)
+
+regimeValidInYear :: Regime -> Year -> Bool
+regimeValidInYear Trump year = year >= 2018
+regimeValidInYear NonTrump year = year < 2018 || year > 20215
 
 data BoundRegime = BoundRegime
   { regime :: Regime,
