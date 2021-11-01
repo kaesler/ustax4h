@@ -1,5 +1,5 @@
 module Federal.RMDs
-  ( rmdFractionForAge,
+  ( fractionForAge,
   )
 where
 
@@ -8,8 +8,8 @@ import Data.List.NonEmpty as NonEmpty (fromList)
 import Data.Map.NonEmpty as NEMap (NEMap, fromList, lookup)
 import Data.Maybe (fromJust)
 
-rmdFractionForAge :: Age -> Double
-rmdFractionForAge age = 1.0 / fromJust (NEMap.lookup age distributionPeriods)
+fractionForAge :: Age -> Double
+fractionForAge age = 1.0 / fromJust (NEMap.lookup age distributionPeriods)
 
 distributionPeriods :: NEMap Age DistributionPeriod
 distributionPeriods =

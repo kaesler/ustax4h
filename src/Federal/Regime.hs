@@ -26,14 +26,12 @@ import qualified Federal.OrdinaryIncome as FO
   ( OrdinaryIncomeBrackets,
     OrdinaryRate (OrdinaryRate),
     fromPairs,
-    fromPairsX,
     inflate,
   )
 import qualified Federal.QualifiedIncome as FQ
   ( QualifiedIncomeBrackets,
     QualifiedRate (QualifiedRate),
     fromPairs,
-    fromPairsX,
     inflate,
   )
 import GHC.Stack (HasCallStack)
@@ -77,7 +75,7 @@ bindRegime Trump 2021 Single birthDate _ =
         StandardDeduction $ 12550 + if ageAtYearEnd 2021 birthDate > 65 then 1350 else 0,
       personalExemptionDeduction = 0,
       ordinaryIncomeBrackets =
-        FO.fromPairsX
+        FO.fromPairs
           [ (10, 0),
             (12, 9950),
             (22, 40525),
@@ -87,7 +85,7 @@ bindRegime Trump 2021 Single birthDate _ =
             (37, 523600)
           ],
       qualifiedIncomeBrackets =
-        FQ.fromPairsX
+        FQ.fromPairs
           [ (0, 0),
             (15, 40400),
             (20, 445850)
@@ -102,7 +100,7 @@ bindRegime Trump 2021 HeadOfHousehold birthDate _ =
         StandardDeduction $ 18800 + if ageAtYearEnd 2021 birthDate > 65 then 1350 else 0,
       personalExemptionDeduction = 0,
       ordinaryIncomeBrackets =
-        FO.fromPairsX
+        FO.fromPairs
           [ (10, 0),
             (12, 14200),
             (22, 54200),
@@ -112,7 +110,7 @@ bindRegime Trump 2021 HeadOfHousehold birthDate _ =
             (37, 523600)
           ],
       qualifiedIncomeBrackets =
-        FQ.fromPairsX
+        FQ.fromPairs
           [ (0, 0),
             (15, 54100),
             (20, 473850)
@@ -127,7 +125,7 @@ bindRegime NonTrump 2017 Single birthDate personalExemtions =
         StandardDeduction $ 6350 + if ageAtYearEnd 2021 birthDate > 65 then 1350 else 0,
       personalExemptionDeduction = 4050,
       ordinaryIncomeBrackets =
-        FO.fromPairsX
+        FO.fromPairs
           [ (10, 0),
             (15, 9235),
             (25, 37950),
@@ -137,7 +135,7 @@ bindRegime NonTrump 2017 Single birthDate personalExemtions =
             (39.6, 418400)
           ],
       qualifiedIncomeBrackets =
-        FQ.fromPairsX
+        FQ.fromPairs
           [ (0, 0),
             (15, 37950),
             (20, 418400)
@@ -152,7 +150,7 @@ bindRegime NonTrump 2017 HeadOfHousehold birthDate personalExemtions =
         StandardDeduction $ 9350 + if ageAtYearEnd 2021 birthDate > 65 then 1350 else 0,
       personalExemptionDeduction = 4050,
       ordinaryIncomeBrackets =
-        FO.fromPairsX
+        FO.fromPairs
           [ (10, 0),
             (15, 13350),
             (25, 50800),
@@ -162,7 +160,7 @@ bindRegime NonTrump 2017 HeadOfHousehold birthDate personalExemtions =
             (39.6, 444550)
           ],
       qualifiedIncomeBrackets =
-        FQ.fromPairsX
+        FQ.fromPairs
           [ (0, 0),
             (15, 50800),
             (20, 444550)

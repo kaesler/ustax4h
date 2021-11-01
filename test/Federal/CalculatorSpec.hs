@@ -2,7 +2,7 @@
 
 module Federal.CalculatorSpec (federalTaxCalculatorSpec) where
 
-import Federal.Calculator (federalTaxDue)
+import qualified Federal.Calculator as Calc
 import Math (roundHalfUp)
 import MathInSpecs (closeEnoughTo)
 import Test.Hspec
@@ -20,7 +20,7 @@ federalTaxCalculatorSpec =
     it "matches outputs sampled from Scala implementation" $ do
       let makeExpectation :: TestCase -> Expectation
           makeExpectation TestCase {age, dependents, filingStatus, socSec, ordinaryIncomeNonSS, qualifiedIncome, expectedFederalTax} =
-            let calculatedTaxDue = roundHalfUp (federalTaxDue 2021 filingStatus socSec ordinaryIncomeNonSS qualifiedIncome)
+            let calculatedTaxDue = roundHalfUp (Calc.taxDue 2021 filingStatus socSec ordinaryIncomeNonSS qualifiedIncome)
              in calculatedTaxDue `shouldSatisfy` closeEnoughTo expectedFederalTax
           expectations = fmap makeExpectation TDFS.cases
        in () <$ sequence expectations

@@ -1,10 +1,10 @@
 module Main where
 
 import CommonTypes (FilingStatus (HeadOfHousehold, Single))
-import Federal.TaxableSocialSecurity (taxableSocialSecurity)
+import qualified Federal.TaxableSocialSecurity as TSS
 
 -- Smoke test
 main :: IO ()
 main =
   do
-    print $ taxableSocialSecurity Single 40000.0 40000.0
+    print $ TSS.amountTaxable Single 40000.0 40000.0

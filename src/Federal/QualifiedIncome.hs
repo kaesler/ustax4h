@@ -3,7 +3,6 @@ module Federal.QualifiedIncome
     QualifiedRate (..),
     applyQualifiedIncomeBrackets,
     fromPairs,
-    fromPairsX,
     inflate,
     startOfNonZeroQualifiedRateBracket,
   )
@@ -30,13 +29,10 @@ newtype QualifiedRate = QualifiedRate Double
 qualifiedRateAsFraction :: QualifiedRate -> Double
 qualifiedRateAsFraction (QualifiedRate r) = r / 100.0
 
-fromPairsX :: [(Double, Integer)] -> QualifiedIncomeBrackets
-fromPairsX = NEMap.fromList . NonEmpty.fromList . fmap f
+fromPairs :: [(Double, Integer)] -> QualifiedIncomeBrackets
+fromPairs = NEMap.fromList . NonEmpty.fromList . fmap f
   where
     f (rateAsDouble, startAsInt) = (QualifiedRate rateAsDouble, BracketStart startAsInt)
-
-fromPairs :: [(QualifiedRate, BracketStart)] -> QualifiedIncomeBrackets
-fromPairs = NEMap.fromList . NonEmpty.fromList
 
 inflate :: QualifiedIncomeBrackets -> Double -> QualifiedIncomeBrackets
 inflate brackets factor =

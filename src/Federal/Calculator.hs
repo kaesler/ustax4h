@@ -2,8 +2,8 @@
 {-# LANGUAGE RecordWildCards #-}
 
 module Federal.Calculator
-  ( federalTaxDue,
-    federalTaxDueDebug,
+  ( taxDue,
+    taxDueDebug,
   )
 where
 
@@ -16,25 +16,24 @@ import CommonTypes
     PersonalExemptions,
     QualifiedIncome,
     SocSec,
-    StandardDeduction(..),
+    StandardDeduction (..),
     Year,
   )
-
 import Federal.OrdinaryIncome (applyOrdinaryIncomeBrackets)
 import Federal.QualifiedIncome (applyQualifiedIncomeBrackets)
 import Federal.RMDs ()
 import Federal.Regime (BoundRegime (..), Regime (..), bindRegime, netDeduction)
-import Federal.TaxableSocialSecurity (taxableSocialSecurity)
+import qualified Federal.TaxableSocialSecurity as TaxableSocialSecurity
 import qualified Kevin
 import Math (nonNegSub)
-import StateMA.Calculator (maStateTaxDue)
+import qualified StateMA.Calculator as MA
 
 type TaxCalculator = SocSec -> OrdinaryIncome -> QualifiedIncome -> ItemizedDeductions -> FederalTaxResults
 
 makeCalculator :: BoundRegime -> TaxCalculator
 makeCalculator br@BoundRegime {..} socSec ordinaryIncome qualifiedIncome itemized =
   let ssRelevantOtherIncome = ordinaryIncome + qualifiedIncome
-      taxableSocSec = taxableSocialSecurity filingStatus socSec ssRelevantOtherIncome
+      taxableSocSec = TaxableSocialSecurity.amountTaxable filingStatus socSec ssRelevantOtherIncome
       StandardDeduction sd = standardDeduction
       taxableOrdinaryIncome = (taxableSocSec + ordinaryIncome) `nonNegSub` netDeduction br itemized
       taxOnOrdinaryIncome = applyOrdinaryIncomeBrackets ordinaryIncomeBrackets taxableOrdinaryIncome
@@ -58,21 +57,21 @@ data FederalTaxResults = FederalTaxResults
   }
   deriving (Show)
 
-federalTaxResults :: Year -> FilingStatus -> SocSec -> OrdinaryIncome -> QualifiedIncome -> FederalTaxResults
-federalTaxResults year filingStatus socSec ordinaryIncome qualifiedIncome =
+taxResults :: Year -> FilingStatus -> SocSec -> OrdinaryIncome -> QualifiedIncome -> FederalTaxResults
+taxResults year filingStatus socSec ordinaryIncome qualifiedIncome =
   let boundRegime = bindRegime Trump year filingStatus Kevin.birthDate Kevin.personalExemptions
       calculator = makeCalculator boundRegime
       itemized = 0
    in calculator socSec ordinaryIncome qualifiedIncome itemized
 
-federalTaxDue :: Year -> FilingStatus -> SocSec -> OrdinaryIncome -> QualifiedIncome -> Double
-federalTaxDue year filingStatus socSec ordinaryIncome qualifiedIncome =
-  let results = federalTaxResults year filingStatus socSec ordinaryIncome qualifiedIncome
+taxDue :: Year -> FilingStatus -> SocSec -> OrdinaryIncome -> QualifiedIncome -> Double
+taxDue year filingStatus socSec ordinaryIncome qualifiedIncome =
+  let results = taxResults year filingStatus socSec ordinaryIncome qualifiedIncome
    in taxOnOrdinaryIncome results + taxOnQualifiedIncome results
 
-federalTaxDueDebug :: Year -> FilingStatus -> SocSec -> OrdinaryIncome -> QualifiedIncome -> IO ()
-federalTaxDueDebug year filingStatus socSec ordinaryIncome qualifiedIncome =
-  let r = federalTaxResults year filingStatus socSec ordinaryIncome qualifiedIncome
+taxDueDebug :: Year -> FilingStatus -> SocSec -> OrdinaryIncome -> QualifiedIncome -> IO ()
+taxDueDebug year filingStatus socSec ordinaryIncome qualifiedIncome =
+  let r = taxResults year filingStatus socSec ordinaryIncome qualifiedIncome
    in do
         putStrLn "Inputs"
         putStrLn (" fs: " ++ show filingStatus)

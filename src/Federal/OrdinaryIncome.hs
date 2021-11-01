@@ -4,7 +4,6 @@ module Federal.OrdinaryIncome
     applyOrdinaryIncomeBrackets,
     bottomRateOnOrdinaryIncome,
     fromPairs,
-    fromPairsX,
     incomeToEndOfOrdinaryBracket,
     inflate,
     ordinaryRateAsFraction,
@@ -53,13 +52,10 @@ applyOrdinaryIncomeBrackets brackets taxableOrdinaryincome =
             taxSoFar + taxInThisBracket
           )
 
-fromPairsX :: [(Double, Integer)] -> OrdinaryIncomeBrackets
-fromPairsX = NEMap.fromList . NonEmpty.fromList . fmap f
+fromPairs :: [(Double, Integer)] -> OrdinaryIncomeBrackets
+fromPairs = NEMap.fromList . NonEmpty.fromList . fmap f
   where
     f (rateAsDouble, startAsInt) = (OrdinaryRate rateAsDouble, BracketStart startAsInt)
-
-fromPairs :: [(OrdinaryRate, BracketStart)] -> OrdinaryIncomeBrackets
-fromPairs = NEMap.fromList . NonEmpty.fromList
 
 rateSuccessor :: OrdinaryIncomeBrackets -> OrdinaryRate -> Maybe OrdinaryRate
 rateSuccessor brackets rate =

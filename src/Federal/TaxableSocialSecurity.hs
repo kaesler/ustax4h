@@ -1,6 +1,6 @@
 module Federal.TaxableSocialSecurity
-  ( taxableSocialSecurity,
-    taxableSocialSecurityAdjusted,
+  ( amountTaxable,
+    amountTaxableInflationAdjusted,
   )
 where
 
@@ -11,16 +11,16 @@ import CommonTypes
     SocSec,
     Year,
   )
-
-taxableSocialSecurityAdjusted :: Year -> FilingStatus -> SocSec -> SSRelevantOtherIncome -> Double
-taxableSocialSecurityAdjusted year filingStatus ssBenefits relevantIncome =
-  let unadjusted = taxableSocialSecurity filingStatus ssBenefits relevantIncome
+--  TODO: use InflationEstimate type instead?
+amountTaxableInflationAdjusted :: Year -> FilingStatus -> SocSec -> SSRelevantOtherIncome -> Double
+amountTaxableInflationAdjusted year filingStatus ssBenefits relevantIncome =
+  let unadjusted = amountTaxable filingStatus ssBenefits relevantIncome
       adjustmentFactor = 1.0 + (0.03 * fromInteger (year - 2021))
       adjusted = unadjusted * adjustmentFactor
    in min adjusted ssBenefits * 0.85
 
-taxableSocialSecurity :: FilingStatus -> SocSec -> SSRelevantOtherIncome -> Double
-taxableSocialSecurity filingStatus ssBenefits relevantIncome =
+amountTaxable :: FilingStatus -> SocSec -> SSRelevantOtherIncome -> Double
+amountTaxable filingStatus ssBenefits relevantIncome =
   let lowBase = case filingStatus of
         Single -> 25000
         HeadOfHousehold -> 25000
