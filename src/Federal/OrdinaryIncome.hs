@@ -4,7 +4,9 @@ module Federal.OrdinaryIncome
     applyOrdinaryIncomeBrackets,
     bottomRateOnOrdinaryIncome,
     fromPairs,
+    fromPairsX,
     incomeToEndOfOrdinaryBracket,
+    inflate,
     ordinaryRateAsFraction,
     ordinaryRatesExceptTop,
     topRateOnOrdinaryIncome,
@@ -12,14 +14,16 @@ module Federal.OrdinaryIncome
   )
 where
 
-import CommonTypes ( StandardDeduction(..), OrdinaryIncome, Money )
+import CommonTypes (Money, OrdinaryIncome, StandardDeduction (..))
+import Control.Exception.Base (bracket)
+import Data.Bits (toIntegralSized)
 import Data.Coerce (coerce)
 import qualified Data.List as List
 import Data.List.NonEmpty as NonEmpty (fromList, head, last, reverse, tail, takeWhile, toList)
 import Data.Map.NonEmpty as NEMap (NEMap, assocs, fromList, keys, lookup)
 import Data.Maybe (fromJust)
 import Federal.BracketTypes (BracketStart (..))
-import Math (nonNegSub)
+import Math (nonNegSub, roundHalfUp)
 
 type OrdinaryIncomeBrackets = NEMap OrdinaryRate BracketStart
 
@@ -28,6 +32,13 @@ newtype OrdinaryRate = OrdinaryRate Double
 
 ordinaryRateAsFraction :: OrdinaryRate -> Double
 ordinaryRateAsFraction (OrdinaryRate r) = r / 100.0
+
+inflate :: OrdinaryIncomeBrackets -> Double -> OrdinaryIncomeBrackets
+inflate brackets factor =
+  fmap inflateBracketStart brackets
+  where
+    inflateBracketStart (BracketStart s) =
+      BracketStart $ round $ roundHalfUp $ factor * fromIntegral s
 
 applyOrdinaryIncomeBrackets :: OrdinaryIncomeBrackets -> OrdinaryIncome -> Money
 applyOrdinaryIncomeBrackets brackets taxableOrdinaryincome =
@@ -41,6 +52,11 @@ applyOrdinaryIncomeBrackets brackets taxableOrdinaryincome =
        in ( incomeYetToBeTaxed `nonNegSub` incomeInThisBracket,
             taxSoFar + taxInThisBracket
           )
+
+fromPairsX :: [(Double, Integer)] -> OrdinaryIncomeBrackets
+fromPairsX = NEMap.fromList . NonEmpty.fromList . fmap f
+  where
+    f (rateAsDouble, startAsInt) = (OrdinaryRate rateAsDouble, BracketStart startAsInt)
 
 fromPairs :: [(OrdinaryRate, BracketStart)] -> OrdinaryIncomeBrackets
 fromPairs = NEMap.fromList . NonEmpty.fromList

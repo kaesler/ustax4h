@@ -1,4 +1,6 @@
 module Debug (myFail) where
+  
+import GHC.Stack (HasCallStack)
 
-myFail :: () -> a
+myFail :: HasCallStack => ()  -> a
 myFail = error "boom"

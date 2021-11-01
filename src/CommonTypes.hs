@@ -1,9 +1,12 @@
 module CommonTypes
   ( Age (..),
+    AnnualGrowthRatePercentage,
     BirthDate,
     CombinedIncome,
     DistributionPeriod,
     FilingStatus (..),
+    InflationEstimate (..),
+    inflationFactor,
     ItemizedDeductions,
     MassachusettsGrossIncome,
     Money,
@@ -12,10 +15,9 @@ module CommonTypes
     QualifiedIncome,
     SSRelevantOtherIncome,
     SocSec,
-    StandardDeduction(..),
+    StandardDeduction (..),
     Year,
   )
-
 where
 
 import Data.Time.Calendar (Day)
@@ -34,7 +36,7 @@ type MassachusettsGrossIncome = Money
 
 type OrdinaryIncome = Money
 
-type PersonalExemptions = Int 
+type PersonalExemptions = Int
 
 type QualifiedIncome = Money
 
@@ -50,6 +52,7 @@ newtype Age = Age Integer
 data FilingStatus = HeadOfHousehold | Single
   deriving (Eq, Ord, Show, Enum)
 
+-- TODO: just Integer?
 newtype StandardDeduction = StandardDeduction Integer
   deriving (Eq, Ord, Show)
 
@@ -58,3 +61,6 @@ type AnnualGrowthRatePercentage = Double
 -- target year, growth rate as a percentage
 data InflationEstimate = InflationEstimate Year AnnualGrowthRatePercentage
 
+inflationFactor :: InflationEstimate -> Year -> Double
+inflationFactor (InflationEstimate baseYear annualGrowthRate) targetYear =
+  undefined
