@@ -3,7 +3,7 @@ module Main
   )
 where
 
-import Federal.CalculatorSpec (federalTaxCalculatorSpec)
+import Federal.CalculatorSpec (agreementWithScalaImplementationSpec, agreementWithMy2017ReturnSpec)
 import Federal.OrdinaryIncomeBracketSpec (ordinaryIncomeBracketsSpec)
 import Federal.QualifiedIncomeBracketSpec (qualifiedIncomeBracketsSpec)
 import Federal.TaxableSocialSecuritySpec (taxableSocialSecuritySpec)
@@ -16,5 +16,6 @@ main = hspec $ do
   --
   ordinaryIncomeBracketsSpec
   qualifiedIncomeBracketsSpec
-  federalTaxCalculatorSpec
+  agreementWithScalaImplementationSpec
+  agreementWithMy2017ReturnSpec
   stateMATaxCalculatorSpec

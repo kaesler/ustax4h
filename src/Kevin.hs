@@ -1,14 +1,18 @@
 module Kevin
   ( birthDate,
-    personalExemptions
+    filingStatus,
+    personalExemptions,
   )
 where
 
-import CommonTypes ( BirthDate )
+import CommonTypes (BirthDate, FilingStatus (HeadOfHousehold))
 import Data.Time (Day, fromGregorian, toGregorian)
 
 birthDate :: BirthDate
 birthDate = fromGregorian 1955 10 2
 
-personalExemptions :: Int 
+filingStatus :: FilingStatus
+filingStatus = HeadOfHousehold
+
+personalExemptions :: Int
 personalExemptions = 2

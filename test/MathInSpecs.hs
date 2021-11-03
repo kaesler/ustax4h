@@ -4,4 +4,4 @@ module MathInSpecs
 where
 
 closeEnoughTo :: Double -> Double -> Bool
-closeEnoughTo x y = abs (x - y) <= 1.0
+closeEnoughTo x y = abs (x - y) <= 2.0

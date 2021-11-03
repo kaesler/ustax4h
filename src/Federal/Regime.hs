@@ -2,6 +2,7 @@ module Federal.Regime
   ( Regime (..),
     BoundRegime (..),
     bindRegime,
+    futureEstimated,
     netDeduction,
   )
 where
@@ -12,25 +13,21 @@ import CommonTypes
     InflationEstimate (..),
     ItemizedDeductions,
     Money,
-    OrdinaryIncome,
     PersonalExemptions,
-    QualifiedIncome,
-    SocSec,
     StandardDeduction (..),
     Year,
     inflationFactor,
   )
-import Data.Time (Day, UniversalTime, fromGregorian, toGregorian)
-import Federal.BracketTypes (BracketStart (BracketStart))
+import Data.Function (fix)
+import Data.Time (toGregorian)
+import Federal.BracketTypes ()
 import qualified Federal.OrdinaryIncome as FO
   ( OrdinaryIncomeBrackets,
-    OrdinaryRate (OrdinaryRate),
     fromPairs,
     inflate,
   )
 import qualified Federal.QualifiedIncome as FQ
   ( QualifiedIncomeBrackets,
-    QualifiedRate (QualifiedRate),
     fromPairs,
     inflate,
   )
@@ -59,6 +56,11 @@ data BoundRegime = BoundRegime
     ordinaryIncomeBrackets :: FO.OrdinaryIncomeBrackets,
     qualifiedIncomeBrackets :: FQ.QualifiedIncomeBrackets
   }
+  deriving (Show)
+
+perPersonExemption :: Regime -> Year -> Money
+perPersonExemption NonTrump _ = 4050
+perPersonExemption Trump _ = 0
 
 netDeduction :: BoundRegime -> ItemizedDeductions -> Money
 netDeduction br itemized =
@@ -66,14 +68,15 @@ netDeduction br itemized =
    in personalExemptionDeduction br + max itemized (fromIntegral stdDed)
 
 bindRegime :: HasCallStack => Regime -> Year -> FilingStatus -> BirthDate -> PersonalExemptions -> BoundRegime
-bindRegime Trump 2021 Single birthDate _ =
+bindRegime Trump 2021 Single birthDate personalExemptions =
+  -- TODO: try open recursion and a "this" reference here, for personalExemptionDed and stdDed?
   BoundRegime
     { regime = Trump,
       year = 2021,
       filingStatus = Single,
       standardDeduction =
         StandardDeduction $ 12550 + if ageAtYearEnd 2021 birthDate > 65 then 1350 else 0,
-      personalExemptionDeduction = 0,
+      personalExemptionDeduction = perPersonExemption Trump 2021 * fromIntegral personalExemptions,
       ordinaryIncomeBrackets =
         FO.fromPairs
           [ (10, 0),
@@ -91,14 +94,14 @@ bindRegime Trump 2021 Single birthDate _ =
             (20, 445850)
           ]
     }
-bindRegime Trump 2021 HeadOfHousehold birthDate _ =
+bindRegime Trump 2021 HeadOfHousehold birthDate personalExemptions =
   BoundRegime
     { regime = Trump,
       year = 2021,
       filingStatus = HeadOfHousehold,
       standardDeduction =
         StandardDeduction $ 18800 + if ageAtYearEnd 2021 birthDate > 65 then 1350 else 0,
-      personalExemptionDeduction = 0,
+      personalExemptionDeduction = perPersonExemption Trump 2021 * fromIntegral personalExemptions,
       ordinaryIncomeBrackets =
         FO.fromPairs
           [ (10, 0),
@@ -116,14 +119,14 @@ bindRegime Trump 2021 HeadOfHousehold birthDate _ =
             (20, 473850)
           ]
     }
-bindRegime NonTrump 2017 Single birthDate personalExemtions =
+bindRegime NonTrump 2017 Single birthDate personalExemptions =
   BoundRegime
     { regime = NonTrump,
       year = 2017,
       filingStatus = Single,
       standardDeduction =
         StandardDeduction $ 6350 + if ageAtYearEnd 2021 birthDate > 65 then 1350 else 0,
-      personalExemptionDeduction = 4050,
+      personalExemptionDeduction = perPersonExemption NonTrump 2017 * fromIntegral personalExemptions,
       ordinaryIncomeBrackets =
         FO.fromPairs
           [ (10, 0),
@@ -141,14 +144,14 @@ bindRegime NonTrump 2017 Single birthDate personalExemtions =
             (20, 418400)
           ]
     }
-bindRegime NonTrump 2017 HeadOfHousehold birthDate personalExemtions =
+bindRegime NonTrump 2017 HeadOfHousehold birthDate personalExemptions =
   BoundRegime
     { regime = NonTrump,
       year = 2017,
       filingStatus = HeadOfHousehold,
       standardDeduction =
         StandardDeduction $ 9350 + if ageAtYearEnd 2021 birthDate > 65 then 1350 else 0,
-      personalExemptionDeduction = 4050,
+      personalExemptionDeduction = perPersonExemption NonTrump 2017 * fromIntegral personalExemptions,
       ordinaryIncomeBrackets =
         FO.fromPairs
           [ (10, 0),
@@ -166,13 +169,14 @@ bindRegime NonTrump 2017 HeadOfHousehold birthDate personalExemtions =
             (20, 444550)
           ]
     }
-bindRegime regime year filingStatus _ _ =
-  error $ printf "Unsupported combination %s, %d, %s " (show regime) year (show filingStatus)
+bindRegime r y fs _ _ =
+  error $ printf "Unsupported combination %s, %d, %s " (show r) y (show fs)
 
 futureEstimated :: BoundRegime -> InflationEstimate -> BoundRegime
 futureEstimated br inflationEstimate =
-  let factor = inflationFactor inflationEstimate (year br)
-      InflationEstimate futureYear _ = inflationEstimate
+  let InflationEstimate futureYear _ = inflationEstimate
+      _ = requireRegimeValidInYear (regime br) futureYear
+      factor = inflationFactor inflationEstimate (year br)
       StandardDeduction oldStdDed = standardDeduction br
    in br
         { year = futureYear,
@@ -183,6 +187,6 @@ futureEstimated br inflationEstimate =
         }
 
 ageAtYearEnd :: Year -> BirthDate -> Integer
-ageAtYearEnd year birthDate =
+ageAtYearEnd y birthDate =
   let (birthYear, _, _) = toGregorian birthDate
-   in year - birthYear
+   in y - birthYear

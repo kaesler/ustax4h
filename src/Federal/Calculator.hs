@@ -1,8 +1,11 @@
+{-# LANGUAGE DisambiguateRecordFields #-}
 {-# LANGUAGE NamedFieldPuns #-}
 {-# LANGUAGE RecordWildCards #-}
 
 module Federal.Calculator
-  ( taxDue,
+  ( FederalTaxResults (..),
+    makeCalculator,
+    taxDue,
     taxDueDebug,
   )
 where
@@ -22,7 +25,12 @@ import CommonTypes
 import Federal.OrdinaryIncome (applyOrdinaryIncomeBrackets)
 import Federal.QualifiedIncome (applyQualifiedIncomeBrackets)
 import Federal.RMDs ()
-import Federal.Regime (BoundRegime (..), Regime (..), bindRegime, netDeduction)
+import Federal.Regime
+  ( BoundRegime (..),
+    Regime,
+    bindRegime,
+    netDeduction,
+  )
 import qualified Federal.TaxableSocialSecurity as TaxableSocialSecurity
 import qualified Kevin
 import Math (nonNegSub)
@@ -39,39 +47,72 @@ makeCalculator br@BoundRegime {..} socSec ordinaryIncome qualifiedIncome itemize
       taxOnOrdinaryIncome = applyOrdinaryIncomeBrackets ordinaryIncomeBrackets taxableOrdinaryIncome
       taxOnQualifiedIncome = applyQualifiedIncomeBrackets qualifiedIncomeBrackets taxableOrdinaryIncome qualifiedIncome
    in FederalTaxResults
-        { ssRelevantOtherIncome = ssRelevantOtherIncome,
+        { boundRegime = br,
+          ssRelevantOtherIncome = ssRelevantOtherIncome,
           taxableSocSec = taxableSocSec,
-          stdDeduction = standardDeduction,
+          finalStandardDeduction = standardDeduction,
+          finalPersonalExemptionDeduction = personalExemptionDeduction, -- TODO: we're just getting 1 here
+          finalNetDeduction = netDeduction br itemized,
           taxableOrdinaryIncome = taxableOrdinaryIncome,
           taxOnOrdinaryIncome = taxOnOrdinaryIncome,
           taxOnQualifiedIncome = taxOnQualifiedIncome
         }
 
 data FederalTaxResults = FederalTaxResults
-  { ssRelevantOtherIncome :: Double,
-    taxableSocSec :: Double,
-    stdDeduction :: StandardDeduction,
-    taxableOrdinaryIncome :: Double,
-    taxOnOrdinaryIncome :: Double,
-    taxOnQualifiedIncome :: Double
+  { boundRegime :: BoundRegime,
+    ssRelevantOtherIncome :: Money,
+    taxableSocSec :: Money,
+    finalStandardDeduction :: StandardDeduction,
+    finalPersonalExemptionDeduction :: Money,
+    finalNetDeduction :: Money,
+    taxableOrdinaryIncome :: Money,
+    taxOnOrdinaryIncome :: Money,
+    taxOnQualifiedIncome :: Money
   }
   deriving (Show)
 
-taxResults :: Year -> FilingStatus -> SocSec -> OrdinaryIncome -> QualifiedIncome -> FederalTaxResults
-taxResults year filingStatus socSec ordinaryIncome qualifiedIncome =
-  let boundRegime = bindRegime Trump year filingStatus Kevin.birthDate Kevin.personalExemptions
+taxResults ::
+  Regime ->
+  Year ->
+  FilingStatus ->
+  BirthDate ->
+  PersonalExemptions ->
+  SocSec ->
+  OrdinaryIncome ->
+  QualifiedIncome ->
+  FederalTaxResults
+taxResults regime year filingStatus birthDate personalExemptions socSec ordinaryIncome qualifiedIncome =
+  let boundRegime = bindRegime regime year filingStatus birthDate personalExemptions
       calculator = makeCalculator boundRegime
       itemized = 0
    in calculator socSec ordinaryIncome qualifiedIncome itemized
 
-taxDue :: Year -> FilingStatus -> SocSec -> OrdinaryIncome -> QualifiedIncome -> Double
-taxDue year filingStatus socSec ordinaryIncome qualifiedIncome =
-  let results = taxResults year filingStatus socSec ordinaryIncome qualifiedIncome
+taxDue ::
+  Regime ->
+  Year ->
+  FilingStatus ->
+  BirthDate ->
+  PersonalExemptions ->
+  SocSec ->
+  OrdinaryIncome ->
+  QualifiedIncome ->
+  Double
+taxDue regime year filingStatus birthDate personalExemptions socSec ordinaryIncome qualifiedIncome =
+  let results = taxResults regime year filingStatus birthDate personalExemptions socSec ordinaryIncome qualifiedIncome
    in taxOnOrdinaryIncome results + taxOnQualifiedIncome results
 
-taxDueDebug :: Year -> FilingStatus -> SocSec -> OrdinaryIncome -> QualifiedIncome -> IO ()
-taxDueDebug year filingStatus socSec ordinaryIncome qualifiedIncome =
-  let r = taxResults year filingStatus socSec ordinaryIncome qualifiedIncome
+taxDueDebug ::
+  Regime ->
+  Year ->
+  FilingStatus ->
+  BirthDate ->
+  PersonalExemptions ->
+  SocSec ->
+  OrdinaryIncome ->
+  QualifiedIncome ->
+  IO ()
+taxDueDebug regime year filingStatus birthDate personalExemptions socSec ordinaryIncome qualifiedIncome =
+  let r = taxResults regime year filingStatus birthDate personalExemptions socSec ordinaryIncome qualifiedIncome
    in do
         putStrLn "Inputs"
         putStrLn (" fs: " ++ show filingStatus)
@@ -81,7 +122,8 @@ taxDueDebug year filingStatus socSec ordinaryIncome qualifiedIncome =
         putStrLn "Outputs"
         putStrLn ("  ssRelevantOtherIncome: " ++ show (ssRelevantOtherIncome r))
         putStrLn ("  taxableSocSec: " ++ show (taxableSocSec r))
-        putStrLn ("  standardDeduction: " ++ show (stdDeduction r))
+        putStrLn ("  finalStandardDeduction: " ++ show (finalStandardDeduction r))
+        putStrLn ("  finalNetDeduction: " ++ show (finalNetDeduction r))
         putStrLn ("  taxableOrdinaryIncome: " ++ show (taxableOrdinaryIncome r))
         putStrLn ("  taxOnOrdinaryIncome: " ++ show (taxOnOrdinaryIncome r))
         putStrLn ("  taxOnQualifiedIncome: " ++ show (taxOnQualifiedIncome r))
