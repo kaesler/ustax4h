@@ -55,6 +55,6 @@ agreementWithMy2017ReturnSpec =
           calc = makeCalculator boundRegime
           res = calc socSec ordinaryIncome qualifiedIncome itemizedDeductions
        in do
-            print res
+            -- print res
             taxOnOrdinaryIncome res `shouldSatisfy` closeEnoughTo 18246
             taxOnQualifiedIncome res `shouldSatisfy` closeEnoughTo 1153

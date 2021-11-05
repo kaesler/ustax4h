@@ -89,10 +89,12 @@ mkBoundRegime ::
   FilingStatus ->
   BirthDate ->
   PersonalExemptions ->
+  Money ->
+  Integer ->
   FO.OrdinaryIncomeBrackets ->
   FQ.QualifiedIncomeBrackets ->
   BoundRegime
-mkBoundRegime r y fs bd pe ob qb =
+mkBoundRegime r y fs bd pe ppe uasd ob qb =
   -- Note: Self-reference to allow some fields to depend on others.
   let self =
         BoundRegime
@@ -101,8 +103,8 @@ mkBoundRegime r y fs bd pe ob qb =
             filingStatus = fs,
             birthDate = bd,
             personalExemptions = pe,
-            perPersonExemption = perPersonExemptionFor r y,
-            unadjustedStandardDeduction = nonAgeAdjustedStdDeduction r y fs,
+            perPersonExemption = ppe,
+            unadjustedStandardDeduction = uasd,
             ordinaryIncomeBrackets = ob,
             qualifiedIncomeBrackets = qb,
             standardDeduction =
@@ -142,6 +144,8 @@ bindRegime Trump 2021 Single bd pes =
     Single
     bd
     pes
+    (perPersonExemptionFor Trump 2021)
+    (nonAgeAdjustedStdDeduction Trump 2021 Single)
     ( FO.fromPairs
         [ (10, 0),
           (12, 9950),
@@ -165,6 +169,8 @@ bindRegime Trump 2021 HeadOfHousehold bd pes =
     HeadOfHousehold
     bd
     pes
+    (perPersonExemptionFor Trump 2021)
+    (nonAgeAdjustedStdDeduction Trump 2021 HeadOfHousehold)
     ( FO.fromPairs
         [ (10, 0),
           (12, 14200),
@@ -188,6 +194,8 @@ bindRegime NonTrump 2017 Single bd pes =
     Single
     bd
     pes
+    (perPersonExemptionFor NonTrump 2017)
+    (nonAgeAdjustedStdDeduction NonTrump 2017 Single)
     ( FO.fromPairs
         [ (10, 0),
           (15, 9235),
@@ -211,6 +219,8 @@ bindRegime NonTrump 2017 HeadOfHousehold bd pes =
     HeadOfHousehold
     bd
     pes
+    (perPersonExemptionFor NonTrump 2017)
+    (nonAgeAdjustedStdDeduction NonTrump 2017 HeadOfHousehold)
     ( FO.fromPairs
         [ (10, 0),
           (15, 13350),
@@ -235,11 +245,13 @@ futureEstimated br inflationEstimate =
   let InflationEstimate futureYear _ = inflationEstimate
       _ = requireRegimeValidInYear (regime br) futureYear
       factor = inflationFactor inflationEstimate (year br)
-      StandardDeduction oldStdDed = standardDeduction br
-   in br
-        { year = futureYear,
-          standardDeduction = StandardDeduction $ round $ factor * fromIntegral oldStdDed,
-          personalExemptionDeduction = personalExemptionDeduction br * factor,
-          ordinaryIncomeBrackets = FO.inflate (ordinaryIncomeBrackets br) factor,
-          qualifiedIncomeBrackets = FQ.inflate (qualifiedIncomeBrackets br) factor
-        }
+   in mkBoundRegime
+        (regime br)
+        futureYear -- TODO: is this what we want ?
+        (filingStatus br)
+        (birthDate br)
+        (personalExemptions br)
+        (perPersonExemption br * factor)
+        (round $ factor * fromIntegral (unadjustedStandardDeduction br))
+        (FO.inflate (ordinaryIncomeBrackets br) factor)
+        (FQ.inflate (qualifiedIncomeBrackets br) factor)

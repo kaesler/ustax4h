@@ -7,6 +7,7 @@ import Federal.CalculatorSpec (agreementWithScalaImplementationSpec, agreementWi
 import Federal.OrdinaryIncomeBracketSpec (ordinaryIncomeBracketsSpec)
 import Federal.QualifiedIncomeBracketSpec (qualifiedIncomeBracketsSpec)
 import Federal.TaxableSocialSecuritySpec (taxableSocialSecuritySpec)
+import Federal.RegimeSpec (lateBindingSpec)
 import StateMA.CalculatorSpec (stateMATaxCalculatorSpec)
 import Test.Hspec (hspec)
 
@@ -19,3 +20,4 @@ main = hspec $ do
   agreementWithScalaImplementationSpec
   agreementWithMy2017ReturnSpec
   stateMATaxCalculatorSpec
+  lateBindingSpec
