@@ -16,8 +16,8 @@ import Test.Hspec (SpecWith, describe, it, shouldBe)
 
 lateBindingSpec :: SpecWith ()
 lateBindingSpec =
-  describe "late binding of record fields" $
-    it "should work" $ do
+  describe "late binding of self references in record fields" $
+    it "should work as expected" $ do
       let before = bindRegime Trump 2021 HeadOfHousehold Kevin.birthDate Kevin.personalExemptions
           rate = 0.03 :: Double
           factor = 1.0 + rate
@@ -31,3 +31,4 @@ lateBindingSpec =
             perPersonExemption after `shouldBe` perPersonExemption before * factor
             standardDeduction before < standardDeduction after `shouldBe` True
             netDeduction before 15000 < netDeduction after 15000 `shouldBe` True
+            netDeduction before 0 < netDeduction after 0 `shouldBe` True
