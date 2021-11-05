@@ -16,8 +16,8 @@ import Test.Hspec (SpecWith, describe, it, shouldBe)
 
 lateBindingSpec :: SpecWith ()
 lateBindingSpec =
-  describe "late binding of self references in record fields" $
-    it "should work as expected" $ do
+  describe "Federal.Regime.futureEstimated" $
+    it "should use late-bound inflatable values" $ do
       let before = bindRegime Trump 2021 HeadOfHousehold Kevin.birthDate Kevin.personalExemptions
           rate = 0.03 :: Double
           factor = 1.0 + rate
