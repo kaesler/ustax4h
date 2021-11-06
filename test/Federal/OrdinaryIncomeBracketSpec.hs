@@ -8,10 +8,9 @@ import CommonTypes
     OrdinaryIncome,
     SSRelevantOtherIncome,
     SocSec,
-    StandardDeduction(..),
+    StandardDeduction (..),
     Year,
   )
-
 import Federal.OrdinaryIncome
   ( OrdinaryIncomeBrackets,
     OrdinaryRate (..),
@@ -23,9 +22,12 @@ import Federal.OrdinaryIncome
     topRateOnOrdinaryIncome,
   )
 import Federal.Regime
-    ( bindRegime,
-      BoundRegime(ordinaryIncomeBrackets, standardDeduction),
-      Regime(Trump) )
+  ( BoundRegime (ordinaryIncomeBrackets),
+    Regime (Trump),
+    bindRegime,
+    standardDeduction,
+  )
+import qualified Kevin
 import Math (roundHalfUp)
 import MathInSpecs ()
 import Test.Hspec (Expectation, SpecWith, describe, it, shouldBe)
@@ -38,7 +40,6 @@ import Test.QuickCheck
     elements,
     forAll,
   )
-import qualified Kevin
 
 regime :: Regime
 regime = Trump
@@ -47,14 +48,14 @@ year :: Year
 year = 2021
 
 ordinaryIncomeBracketsFor :: FilingStatus -> OrdinaryIncomeBrackets
-ordinaryIncomeBracketsFor filingStatus = 
-  let br = bindRegime Trump year filingStatus Kevin.birthDate Kevin.personalExemptions 
-  in ordinaryIncomeBrackets br
+ordinaryIncomeBracketsFor filingStatus =
+  let br = bindRegime Trump year filingStatus Kevin.birthDate Kevin.personalExemptions
+   in ordinaryIncomeBrackets br
 
 standardDeductionFor :: FilingStatus -> StandardDeduction
-standardDeductionFor filingStatus = 
-  let br = bindRegime Trump year filingStatus Kevin.birthDate Kevin.personalExemptions 
-  in standardDeduction br
+standardDeductionFor filingStatus =
+  let br = bindRegime Trump year filingStatus Kevin.birthDate Kevin.personalExemptions
+   in standardDeduction br
 
 genSocialSecurityBenefits :: Gen SocSec
 genSocialSecurityBenefits = fmap fromInteger (elements [0 .. 50000])
@@ -86,8 +87,9 @@ prop_monotonic =
     genCase
     ( \(fs, i1, i2) ->
         (i1 <= i2)
-          == (applyOrdinaryIncomeBrackets (ordinaryIncomeBracketsFor fs) i1 <= 
-            applyOrdinaryIncomeBrackets (ordinaryIncomeBracketsFor fs) i2)
+          == ( applyOrdinaryIncomeBrackets (ordinaryIncomeBracketsFor fs) i1
+                 <= applyOrdinaryIncomeBrackets (ordinaryIncomeBracketsFor fs) i2
+             )
     )
   where
     genCase :: Gen (FilingStatus, OrdinaryIncome, OrdinaryIncome)
@@ -102,8 +104,8 @@ prop_singlePaysMoreTax =
   forAll
     genOrdinaryIncome
     ( \income ->
-        applyOrdinaryIncomeBrackets (ordinaryIncomeBracketsFor Single) income >= 
-          applyOrdinaryIncomeBrackets (ordinaryIncomeBracketsFor HeadOfHousehold) income
+        applyOrdinaryIncomeBrackets (ordinaryIncomeBracketsFor Single) income
+          >= applyOrdinaryIncomeBrackets (ordinaryIncomeBracketsFor HeadOfHousehold) income
     )
 
 prop_topRateIsNotExceeded :: Property

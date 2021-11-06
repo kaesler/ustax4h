@@ -1,5 +1,5 @@
 module Federal.RegimeSpec
-  ( lateBindingSpec,
+  ( futureEstimationSpec,
   )
 where
 
@@ -10,14 +10,16 @@ import Federal.Regime
     bindRegime,
     futureEstimated,
     netDeduction,
+    personalExemptionDeduction,
+    standardDeduction,
   )
 import qualified Kevin
 import Test.Hspec (SpecWith, describe, it, shouldBe)
 
-lateBindingSpec :: SpecWith ()
-lateBindingSpec =
+futureEstimationSpec :: SpecWith ()
+futureEstimationSpec =
   describe "Federal.Regime.futureEstimated" $
-    it "should use late-bound inflatable values" $ do
+    it "should behave as expected" $ do
       let before = bindRegime Trump 2021 HeadOfHousehold Kevin.birthDate Kevin.personalExemptions
           rate = 0.03 :: Double
           factor = 1.0 + rate

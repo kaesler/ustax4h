@@ -30,6 +30,8 @@ import Federal.Regime
     Regime,
     bindRegime,
     netDeduction,
+    personalExemptionDeduction,
+    standardDeduction,
   )
 import qualified Federal.TaxableSocialSecurity as TaxableSocialSecurity
 import qualified Kevin
@@ -42,7 +44,7 @@ makeCalculator :: BoundRegime -> TaxCalculator
 makeCalculator br@BoundRegime {..} socSec ordinaryIncome qualifiedIncome itemized =
   let ssRelevantOtherIncome = ordinaryIncome + qualifiedIncome
       taxableSocSec = TaxableSocialSecurity.amountTaxable filingStatus socSec ssRelevantOtherIncome
-      StandardDeduction sd = standardDeduction
+      StandardDeduction sd = standardDeduction br
       taxableOrdinaryIncome = (taxableSocSec + ordinaryIncome) `nonNegSub` netDeduction br itemized
       taxOnOrdinaryIncome = applyOrdinaryIncomeBrackets ordinaryIncomeBrackets taxableOrdinaryIncome
       taxOnQualifiedIncome = applyQualifiedIncomeBrackets qualifiedIncomeBrackets taxableOrdinaryIncome qualifiedIncome
@@ -50,8 +52,8 @@ makeCalculator br@BoundRegime {..} socSec ordinaryIncome qualifiedIncome itemize
         { boundRegime = br,
           ssRelevantOtherIncome = ssRelevantOtherIncome,
           taxableSocSec = taxableSocSec,
-          finalStandardDeduction = standardDeduction,
-          finalPersonalExemptionDeduction = personalExemptionDeduction, -- TODO: we're just getting 1 here
+          finalStandardDeduction = standardDeduction br,
+          finalPersonalExemptionDeduction = personalExemptionDeduction br,
           finalNetDeduction = netDeduction br itemized,
           taxableOrdinaryIncome = taxableOrdinaryIncome,
           taxOnOrdinaryIncome = taxOnOrdinaryIncome,

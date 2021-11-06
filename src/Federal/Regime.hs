@@ -4,6 +4,8 @@ module Federal.Regime
     bindRegime,
     futureEstimated,
     netDeduction,
+    personalExemptionDeduction,
+    standardDeduction,
   )
 where
 
@@ -64,15 +66,18 @@ data BoundRegime = BoundRegime
     perPersonExemption :: Money,
     unadjustedStandardDeduction :: Integer,
     ordinaryIncomeBrackets :: FO.OrdinaryIncomeBrackets,
-    qualifiedIncomeBrackets :: FQ.QualifiedIncomeBrackets,
-    --
-    -- These are calculated from other fields in this record.
-    standardDeduction :: StandardDeduction,
-    personalExemptionDeduction :: Money
+    qualifiedIncomeBrackets :: FQ.QualifiedIncomeBrackets
   }
   deriving (Show)
 
--- Note: could be a "method" on BoundRegime but we'd have to write a Show instance then.
+standardDeduction :: BoundRegime -> StandardDeduction
+standardDeduction br =
+  StandardDeduction $ unadjustedStandardDeduction br + ageAdjustment (year br) (birthDate br)
+
+personalExemptionDeduction :: BoundRegime -> Money
+personalExemptionDeduction br =
+  perPersonExemption br * fromIntegral (personalExemptions br)
+
 netDeduction :: BoundRegime -> ItemizedDeductions -> Money
 netDeduction br itemized =
   let StandardDeduction stdDed = standardDeduction br
@@ -106,11 +111,7 @@ mkBoundRegime r y fs bd pe ppe uasd ob qb =
             perPersonExemption = ppe,
             unadjustedStandardDeduction = uasd,
             ordinaryIncomeBrackets = ob,
-            qualifiedIncomeBrackets = qb,
-            standardDeduction =
-              StandardDeduction $ unadjustedStandardDeduction self + ageAdjustment y bd,
-            personalExemptionDeduction =
-              perPersonExemption self * fromIntegral (personalExemptions self)
+            qualifiedIncomeBrackets = qb
           }
    in self
 

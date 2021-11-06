@@ -3,11 +3,11 @@ module Main
   )
 where
 
-import Federal.CalculatorSpec (agreementWithScalaImplementationSpec, agreementWithMy2017ReturnSpec)
+import Federal.CalculatorSpec (agreementWithMy2017ReturnSpec, agreementWithScalaImplementationSpec)
 import Federal.OrdinaryIncomeBracketSpec (ordinaryIncomeBracketsSpec)
 import Federal.QualifiedIncomeBracketSpec (qualifiedIncomeBracketsSpec)
+import Federal.RegimeSpec (futureEstimationSpec)
 import Federal.TaxableSocialSecuritySpec (taxableSocialSecuritySpec)
-import Federal.RegimeSpec (lateBindingSpec)
 import StateMA.CalculatorSpec (stateMATaxCalculatorSpec)
 import Test.Hspec (hspec)
 
@@ -20,4 +20,4 @@ main = hspec $ do
   agreementWithScalaImplementationSpec
   agreementWithMy2017ReturnSpec
   stateMATaxCalculatorSpec
-  lateBindingSpec
+  futureEstimationSpec
