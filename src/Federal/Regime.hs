@@ -38,6 +38,10 @@ import Text.Printf
 data Regime = Trump | NonTrump
   deriving (Eq, Ord, Show, Enum)
 
+lastYearKnown :: Regime -> Year
+lastYearKnown Trump = 2021
+lastYearKnown NonTrump = 2017
+
 requireRegimeValidInYear :: Regime -> Year -> ()
 requireRegimeValidInYear r y =
   if regimeValidInYear r y
