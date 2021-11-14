@@ -22,21 +22,19 @@ import CommonTypes
     StandardDeduction (..),
     Year,
   )
-import Federal.OrdinaryIncome (applyOrdinaryIncomeBrackets)
-import Federal.QualifiedIncome (applyQualifiedIncomeBrackets)
-import Federal.RMDs ()
-import Federal.Regime
+import Federal.BoundRegime
   ( BoundRegime (..),
-    Regime,
     bindRegime,
     netDeduction,
     personalExemptionDeduction,
     standardDeduction,
   )
+import Federal.OrdinaryIncome (applyOrdinaryIncomeBrackets)
+import Federal.QualifiedIncome (applyQualifiedIncomeBrackets)
+import Federal.RMDs ()
+import Federal.Regime (Regime)
 import qualified Federal.TaxableSocialSecurity as TaxableSocialSecurity
-import qualified Kevin
 import Math (nonNegSub)
-import qualified StateMA.Calculator as MA
 
 type TaxCalculator = SocSec -> OrdinaryIncome -> QualifiedIncome -> ItemizedDeductions -> FederalTaxResults
 

@@ -4,15 +4,8 @@ module Federal.RegimeSpec
 where
 
 import CommonTypes (FilingStatus (HeadOfHousehold), InflationEstimate (InflationEstimate))
+import Federal.BoundRegime
 import Federal.Regime
-  ( BoundRegime (..),
-    Regime (Trump),
-    bindRegime,
-    futureEstimated,
-    netDeduction,
-    personalExemptionDeduction,
-    standardDeduction,
-  )
 import qualified Kevin
 import Test.Hspec (SpecWith, describe, it, shouldBe)
 

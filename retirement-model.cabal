@@ -27,6 +27,7 @@ library
   exposed-modules:
       CommonTypes
       Debug
+      Federal.BoundRegime
       Federal.BracketTypes
       Federal.Calculator
       Federal.OrdinaryIncome

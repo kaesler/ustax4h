@@ -1,4 +1,6 @@
+{-# LANGUAGE DisambiguateRecordFields #-}
 {-# LANGUAGE NamedFieldPuns #-}
+{-# LANGUAGE RecordWildCards #-}
 
 module Federal.CalculatorSpec
   ( agreementWithMy2017ReturnSpec,
@@ -6,8 +8,9 @@ module Federal.CalculatorSpec
   )
 where
 
+import Federal.BoundRegime (bindRegime)
 import Federal.Calculator (FederalTaxResults (..), makeCalculator, taxDue)
-import Federal.Regime (Regime (NonTrump, Trump), bindRegime)
+import Federal.Regime (Regime (..))
 import qualified Kevin
 import Math (roundHalfUp)
 import MathInSpecs (closeEnoughTo)
@@ -25,7 +28,7 @@ agreementWithScalaImplementationSpec =
   describe "Federal.Calculator.taxDue" $
     it "matches outputs sampled from Scala implementation" $ do
       let makeExpectation :: TestCase -> Expectation
-          makeExpectation TestCase {age, dependents, filingStatus, socSec, ordinaryIncomeNonSS, qualifiedIncome, expectedFederalTax} =
+          makeExpectation TestCase {..} =
             let calculatedTaxDue = roundHalfUp $ taxDue Trump 2021 filingStatus Kevin.birthDate Kevin.personalExemptions socSec ordinaryIncomeNonSS qualifiedIncome
              in calculatedTaxDue `shouldSatisfy` closeEnoughTo expectedFederalTax
           expectations = fmap makeExpectation TDFS.cases

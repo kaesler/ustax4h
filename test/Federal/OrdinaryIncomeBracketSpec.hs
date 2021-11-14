@@ -11,6 +11,11 @@ import CommonTypes
     StandardDeduction (..),
     Year,
   )
+import Federal.BoundRegime
+  ( BoundRegime (ordinaryIncomeBrackets),
+    bindRegime,
+    standardDeduction,
+  )
 import Federal.OrdinaryIncome
   ( OrdinaryIncomeBrackets,
     OrdinaryRate (..),
@@ -22,11 +27,6 @@ import Federal.OrdinaryIncome
     topRateOnOrdinaryIncome,
   )
 import Federal.Regime
-  ( BoundRegime (ordinaryIncomeBrackets),
-    Regime (Trump),
-    bindRegime,
-    standardDeduction,
-  )
 import qualified Kevin
 import Math (roundHalfUp)
 import MathInSpecs ()
@@ -41,20 +41,20 @@ import Test.QuickCheck
     forAll,
   )
 
-regime :: Regime
-regime = Trump
+theRegime :: Regime
+theRegime = Trump
 
-year :: Year
-year = 2021
+theYear :: Year
+theYear = 2021
 
 ordinaryIncomeBracketsFor :: FilingStatus -> OrdinaryIncomeBrackets
 ordinaryIncomeBracketsFor filingStatus =
-  let br = bindRegime Trump year filingStatus Kevin.birthDate Kevin.personalExemptions
+  let br = bindRegime theRegime theYear filingStatus Kevin.birthDate Kevin.personalExemptions
    in ordinaryIncomeBrackets br
 
 standardDeductionFor :: FilingStatus -> StandardDeduction
 standardDeductionFor filingStatus =
-  let br = bindRegime Trump year filingStatus Kevin.birthDate Kevin.personalExemptions
+  let br = bindRegime theRegime theYear filingStatus Kevin.birthDate Kevin.personalExemptions
    in standardDeduction br
 
 genSocialSecurityBenefits :: Gen SocSec
