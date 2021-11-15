@@ -37,7 +37,11 @@ data BoundRegime = BoundRegime
     -- These are inflatable. They may get adjusted to estimate the
     -- the tax regime for a future year, based on estimated inflation.
     perPersonExemption :: Money,
+
     unadjustedStandardDeduction :: Integer,
+    --adjustmentWhenOver65 :: Integer,
+    --adjustmentWhenOldAndSingle :: Integer,
+
     ordinaryIncomeBrackets :: FO.OrdinaryIncomeBrackets,
     qualifiedIncomeBrackets :: FQ.QualifiedIncomeBrackets
   }
@@ -60,33 +64,6 @@ netDeduction br itemized =
 perPersonExemptionFor :: Regime -> Year -> Money
 perPersonExemptionFor NonTrump _ = 4050
 perPersonExemptionFor Trump _ = 0
-
-mkBoundRegime ::
-  Regime ->
-  Year ->
-  FilingStatus ->
-  BirthDate ->
-  PersonalExemptions ->
-  Money ->
-  Integer ->
-  FO.OrdinaryIncomeBrackets ->
-  FQ.QualifiedIncomeBrackets ->
-  BoundRegime
-mkBoundRegime r y fs bd pe ppe uasd ob qb =
-  -- Note: Self-reference to allow some fields to depend on others.
-  let self =
-        BoundRegime
-          { regime = r,
-            year = y,
-            filingStatus = fs,
-            birthDate = bd,
-            personalExemptions = pe,
-            perPersonExemption = ppe,
-            unadjustedStandardDeduction = uasd,
-            ordinaryIncomeBrackets = ob,
-            qualifiedIncomeBrackets = qb
-          }
-   in self
 
 nonAgeAdjustedStdDeduction :: Regime -> Year -> FilingStatus -> Integer
 nonAgeAdjustedStdDeduction NonTrump 2017 Single = 6350
@@ -112,7 +89,7 @@ bindRegime ::
   PersonalExemptions ->
   BoundRegime
 bindRegime Trump 2021 Single bd pes =
-  mkBoundRegime
+  BoundRegime
     Trump
     2021
     Single
@@ -136,8 +113,9 @@ bindRegime Trump 2021 Single bd pes =
           (20, 445850)
         ]
     )
+
 bindRegime Trump 2021 HeadOfHousehold bd pes =
-  mkBoundRegime
+  BoundRegime
     Trump
     2021
     HeadOfHousehold
@@ -162,7 +140,7 @@ bindRegime Trump 2021 HeadOfHousehold bd pes =
         ]
     )
 bindRegime NonTrump 2017 Single bd pes =
-  mkBoundRegime
+  BoundRegime
     NonTrump
     2017
     Single
@@ -187,7 +165,7 @@ bindRegime NonTrump 2017 Single bd pes =
         ]
     )
 bindRegime NonTrump 2017 HeadOfHousehold bd pes =
-  mkBoundRegime
+  BoundRegime
     NonTrump
     2017
     HeadOfHousehold
@@ -219,7 +197,7 @@ futureEstimated br inflationEstimate =
   let InflationEstimate futureYear _ = inflationEstimate
       _ = requireRegimeValidInYear (regime br) futureYear
       factor = inflationFactor inflationEstimate (year br)
-   in mkBoundRegime
+   in BoundRegime
         (regime br)
         futureYear -- TODO: is this what we want ?
         (filingStatus br)
