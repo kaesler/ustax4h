@@ -29,7 +29,19 @@ agreementWithScalaImplementationSpec =
     it "matches outputs sampled from Scala implementation" $ do
       let makeExpectation :: TestCase -> Expectation
           makeExpectation TestCase {..} =
-            let calculatedTaxDue = roundHalfUp $ taxDue Trump 2021 filingStatus Kevin.birthDate Kevin.personalExemptions socSec ordinaryIncomeNonSS qualifiedIncome
+            let calculatedTaxDue = 
+                  roundHalfUp (
+                    taxDue 
+                      regime 
+                      year 
+                      filingStatus 
+                      birthDate 
+                      (dependents + 1)
+                      socSec 
+                      ordinaryIncomeNonSS 
+                      qualifiedIncome 
+                      itemizedDeductions
+                    )
              in calculatedTaxDue `shouldSatisfy` closeEnoughTo expectedFederalTax
           expectations = fmap makeExpectation TDFS.cases
        in () <$ sequence expectations

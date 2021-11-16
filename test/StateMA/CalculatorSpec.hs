@@ -1,4 +1,6 @@
+{-# LANGUAGE DisambiguateRecordFields #-}
 {-# LANGUAGE NamedFieldPuns #-}
+{-# LANGUAGE RecordWildCards #-}
 
 module StateMA.CalculatorSpec
   ( stateMATaxCalculatorSpec,
@@ -22,8 +24,15 @@ stateMATaxCalculatorSpec =
   describe "StateMA.taxDue" $
     it "matches outputs sampled from Scala implementation" $ do
       let makeExpectation :: TestCase -> Expectation
-          makeExpectation tc@TestCase {age, dependents, filingStatus, socSec, ordinaryIncomeNonSS, qualifiedIncome, expectedFederalTax, expectedStateTax} =
-            let calculatedTaxDue = roundHalfUp $ Calc.taxDue 2021 dependents filingStatus (ordinaryIncomeNonSS + qualifiedIncome)
+          makeExpectation TestCase {..} =
+            let calculatedTaxDue =
+                  roundHalfUp
+                    ( Calc.taxDue
+                        year
+                        dependents
+                        filingStatus
+                        (ordinaryIncomeNonSS + qualifiedIncome)
+                    )
              in do
                   calculatedTaxDue `shouldSatisfy` closeEnoughTo expectedStateTax
           expectations = fmap makeExpectation TDFS.cases

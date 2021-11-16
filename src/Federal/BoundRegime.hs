@@ -1,29 +1,32 @@
-module Federal.BoundRegime(
-    BoundRegime (..),
+module Federal.BoundRegime
+  ( BoundRegime (..),
     bindRegime,
     futureEstimated,
     netDeduction,
     personalExemptionDeduction,
     standardDeduction,
-)
+  )
 where
 
 import CommonTypes
-    ( InflationEstimate(..),
-      StandardDeduction(..),
-      FilingStatus(..),
-      Year,
-      PersonalExemptions,
-      ItemizedDeductions,
-      Money,
-      BirthDate,
-      inflationFactor )
-import Federal.Regime ( Regime (NonTrump), Regime(Trump), requireRegimeValidInYear )
-import Federal.OrdinaryIncome as FO ( OrdinaryIncomeBrackets, fromPairs, inflate )
-import Federal.QualifiedIncome as FQ ( QualifiedIncomeBrackets, fromPairs, inflate )
-import GHC.Stack (HasCallStack)
-import Text.Printf ( printf )
+  ( BirthDate,
+    FilingStatus (..),
+    InflationEstimate (..),
+    ItemizedDeductions,
+    Money,
+    PersonalExemptions,
+    StandardDeduction (..),
+    Year,
+    inflationFactor,
+    isUnmarried,
+  )
+import Control.Exception.Base (bracket)
 import Data.Time (toGregorian)
+import Federal.OrdinaryIncome as FO (OrdinaryIncomeBrackets, fromPairs, inflate)
+import Federal.QualifiedIncome as FQ (QualifiedIncomeBrackets, fromPairs, inflate)
+import Federal.Regime (Regime (NonTrump, Trump), requireRegimeValidInYear)
+import GHC.Stack (HasCallStack)
+import Text.Printf (printf)
 
 data BoundRegime = BoundRegime
   { --
@@ -34,14 +37,12 @@ data BoundRegime = BoundRegime
     birthDate :: BirthDate,
     personalExemptions :: Int,
     --
-    -- These are inflatable. They may get adjusted to estimate the
+    -- The following are inflatable. They may get adjusted to estimate the
     -- the tax regime for a future year, based on estimated inflation.
     perPersonExemption :: Money,
-
     unadjustedStandardDeduction :: Integer,
-    --adjustmentWhenOver65 :: Integer,
-    --adjustmentWhenOldAndSingle :: Integer,
-
+    adjustmentWhenOver65 :: Integer,
+    adjustmentWhenOver65AndSingle :: Integer,
     ordinaryIncomeBrackets :: FO.OrdinaryIncomeBrackets,
     qualifiedIncomeBrackets :: FQ.QualifiedIncomeBrackets
   }
@@ -49,7 +50,17 @@ data BoundRegime = BoundRegime
 
 standardDeduction :: BoundRegime -> StandardDeduction
 standardDeduction br =
-  StandardDeduction $ unadjustedStandardDeduction br + ageAdjustment (year br) (birthDate br)
+  StandardDeduction $
+    unadjustedStandardDeduction br
+      + ( if ageAtYearEnd (year br) (birthDate br) > 65
+            then
+              adjustmentWhenOver65 br
+                + ( if isUnmarried (filingStatus br)
+                      then adjustmentWhenOver65AndSingle br
+                      else 0
+                  )
+            else 0
+        )
 
 personalExemptionDeduction :: BoundRegime -> Money
 personalExemptionDeduction br =
@@ -65,20 +76,27 @@ perPersonExemptionFor :: Regime -> Year -> Money
 perPersonExemptionFor NonTrump _ = 4050
 perPersonExemptionFor Trump _ = 0
 
-nonAgeAdjustedStdDeduction :: Regime -> Year -> FilingStatus -> Integer
-nonAgeAdjustedStdDeduction NonTrump 2017 Single = 6350
-nonAgeAdjustedStdDeduction NonTrump 2017 HeadOfHousehold = 9350
-nonAgeAdjustedStdDeduction Trump 2021 Single = 12550
-nonAgeAdjustedStdDeduction Trump 2021 HeadOfHousehold = 18800
-nonAgeAdjustedStdDeduction r y fs = error $ printf "Unsupported combination %s, %d, %s " (show r) y (show fs)
+unAdjustedStdDeductionFor :: Regime -> Year -> FilingStatus -> Integer
+unAdjustedStdDeductionFor NonTrump 2017 Single = 6350
+unAdjustedStdDeductionFor NonTrump 2017 HeadOfHousehold = 9350
+unAdjustedStdDeductionFor Trump 2021 Single = 12550
+unAdjustedStdDeductionFor Trump 2021 HeadOfHousehold = 18800
+unAdjustedStdDeductionFor r y _ = error $ printf "Unsupported combination %s, %d " (show r) y
+
+ageAdjustmentFor :: HasCallStack => Regime -> Year -> Integer
+ageAdjustmentFor Trump 2021 = 1350
+ageAdjustmentFor NonTrump 2017 = 1250
+ageAdjustmentFor r y = error $ printf "Unsupported combination %s, %d" (show r) y
+
+ageAndSingleAdjustmentFor :: HasCallStack => Regime -> Year -> Integer
+ageAndSingleAdjustmentFor Trump 2021 = 350
+ageAndSingleAdjustmentFor NonTrump 2017 = 300
+ageAndSingleAdjustmentFor r y = error $ printf "Unsupported combination %s, %d" (show r) y
 
 ageAtYearEnd :: Year -> BirthDate -> Integer
-ageAtYearEnd y bd =
-  let (birthYear, _, _) = toGregorian bd
-   in y - birthYear
-
-ageAdjustment :: Year -> BirthDate -> Integer
-ageAdjustment y bd = if ageAtYearEnd y bd > 65 then 1350 else 0
+ageAtYearEnd year birthDate =
+  let (birthYear, _, _) = toGregorian birthDate
+   in year - birthYear
 
 bindRegime ::
   HasCallStack =>
@@ -96,7 +114,9 @@ bindRegime Trump 2021 Single bd pes =
     bd
     pes
     (perPersonExemptionFor Trump 2021)
-    (nonAgeAdjustedStdDeduction Trump 2021 Single)
+    (unAdjustedStdDeductionFor Trump 2021 Single)
+    (ageAdjustmentFor Trump 2021)
+    (ageAndSingleAdjustmentFor Trump 2021)
     ( FO.fromPairs
         [ (10, 0),
           (12, 9950),
@@ -113,7 +133,6 @@ bindRegime Trump 2021 Single bd pes =
           (20, 445850)
         ]
     )
-
 bindRegime Trump 2021 HeadOfHousehold bd pes =
   BoundRegime
     Trump
@@ -122,7 +141,9 @@ bindRegime Trump 2021 HeadOfHousehold bd pes =
     bd
     pes
     (perPersonExemptionFor Trump 2021)
-    (nonAgeAdjustedStdDeduction Trump 2021 HeadOfHousehold)
+    (unAdjustedStdDeductionFor Trump 2021 HeadOfHousehold)
+    (ageAdjustmentFor Trump 2021)
+    (ageAndSingleAdjustmentFor Trump 2021)
     ( FO.fromPairs
         [ (10, 0),
           (12, 14200),
@@ -147,7 +168,9 @@ bindRegime NonTrump 2017 Single bd pes =
     bd
     pes
     (perPersonExemptionFor NonTrump 2017)
-    (nonAgeAdjustedStdDeduction NonTrump 2017 Single)
+    (unAdjustedStdDeductionFor NonTrump 2017 Single)
+    (ageAdjustmentFor NonTrump 2017)
+    (ageAndSingleAdjustmentFor NonTrump 2017)
     ( FO.fromPairs
         [ (10, 0),
           (15, 9235),
@@ -172,7 +195,9 @@ bindRegime NonTrump 2017 HeadOfHousehold bd pes =
     bd
     pes
     (perPersonExemptionFor NonTrump 2017)
-    (nonAgeAdjustedStdDeduction NonTrump 2017 HeadOfHousehold)
+    (unAdjustedStdDeductionFor NonTrump 2017 HeadOfHousehold)
+    (ageAdjustmentFor NonTrump 2017)
+    (ageAndSingleAdjustmentFor NonTrump 2017)
     ( FO.fromPairs
         [ (10, 0),
           (15, 13350),
@@ -205,6 +230,7 @@ futureEstimated br inflationEstimate =
         (personalExemptions br)
         (perPersonExemption br * factor)
         (round $ factor * fromIntegral (unadjustedStandardDeduction br))
+        (round $ factor * fromIntegral (adjustmentWhenOver65 br))
+        (round $ factor * fromIntegral (adjustmentWhenOver65AndSingle br))
         (FO.inflate (ordinaryIncomeBrackets br) factor)
         (FQ.inflate (qualifiedIncomeBrackets br) factor)
-

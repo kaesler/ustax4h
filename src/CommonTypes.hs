@@ -7,6 +7,7 @@ module CommonTypes
     FilingStatus (..),
     InflationEstimate (..),
     inflationFactor,
+    isUnmarried,
     ItemizedDeductions,
     MassachusettsGrossIncome,
     Money,
@@ -52,6 +53,9 @@ newtype Age = Age Integer
 
 data FilingStatus = HeadOfHousehold | Single
   deriving (Eq, Ord, Show, Enum)
+
+isUnmarried :: FilingStatus -> Bool
+isUnmarried _ = True
 
 -- TODO: just Integer?
 newtype StandardDeduction = StandardDeduction Integer

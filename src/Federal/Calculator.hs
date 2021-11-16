@@ -80,11 +80,11 @@ taxResults ::
   SocSec ->
   OrdinaryIncome ->
   QualifiedIncome ->
+  ItemizedDeductions ->
   FederalTaxResults
-taxResults regime year filingStatus birthDate personalExemptions socSec ordinaryIncome qualifiedIncome =
+taxResults regime year filingStatus birthDate personalExemptions socSec ordinaryIncome qualifiedIncome itemized =
   let boundRegime = bindRegime regime year filingStatus birthDate personalExemptions
       calculator = makeCalculator boundRegime
-      itemized = 0
    in calculator socSec ordinaryIncome qualifiedIncome itemized
 
 taxDue ::
@@ -96,9 +96,10 @@ taxDue ::
   SocSec ->
   OrdinaryIncome ->
   QualifiedIncome ->
+  ItemizedDeductions ->
   Double
-taxDue regime year filingStatus birthDate personalExemptions socSec ordinaryIncome qualifiedIncome =
-  let results = taxResults regime year filingStatus birthDate personalExemptions socSec ordinaryIncome qualifiedIncome
+taxDue regime year filingStatus birthDate personalExemptions socSec ordinaryIncome qualifiedIncome itemized =
+  let results = taxResults regime year filingStatus birthDate personalExemptions socSec ordinaryIncome qualifiedIncome itemized
    in taxOnOrdinaryIncome results + taxOnQualifiedIncome results
 
 taxDueDebug ::
@@ -110,15 +111,17 @@ taxDueDebug ::
   SocSec ->
   OrdinaryIncome ->
   QualifiedIncome ->
+  ItemizedDeductions ->
   IO ()
-taxDueDebug regime year filingStatus birthDate personalExemptions socSec ordinaryIncome qualifiedIncome =
-  let r = taxResults regime year filingStatus birthDate personalExemptions socSec ordinaryIncome qualifiedIncome
+taxDueDebug regime year filingStatus birthDate personalExemptions socSec ordinaryIncome qualifiedIncome itemized =
+  let r = taxResults regime year filingStatus birthDate personalExemptions socSec ordinaryIncome qualifiedIncome itemized
    in do
         putStrLn "Inputs"
         putStrLn (" fs: " ++ show filingStatus)
         putStrLn (" socSec: " ++ show socSec)
         putStrLn (" ordinaryIncome: " ++ show ordinaryIncome)
         putStrLn (" qualifiedIncome: " ++ show qualifiedIncome)
+        putStrLn (" itemizedDeductions: " ++ show itemized)
         putStrLn "Outputs"
         putStrLn ("  ssRelevantOtherIncome: " ++ show (ssRelevantOtherIncome r))
         putStrLn ("  taxableSocSec: " ++ show (taxableSocSec r))
