@@ -136,7 +136,7 @@ bindRegime Trump 2022 Single bd pes =
         )
         ( FQ.fromPairs
             [ (0, 0),
-              (15, 4675),
+              (15, 41675),
               (20, 459750)
             ]
         )
