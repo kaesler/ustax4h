@@ -14,7 +14,7 @@ data Regime = Trump | NonTrump
   deriving (Eq, Ord, Show, Enum)
 
 lastYearKnown :: Regime -> Year
-lastYearKnown Trump = 2021
+lastYearKnown Trump = 2022
 lastYearKnown NonTrump = 2017
 
 requireRegimeValidInYear :: HasCallStack => Regime -> Year -> ()

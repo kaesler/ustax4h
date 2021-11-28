@@ -71,7 +71,7 @@ netDeduction br itemized =
   let StandardDeduction stdDed = standardDeduction br
    in personalExemptionDeduction br + max itemized (fromIntegral stdDed)
 
--- Note: did't seem to get adjusted for inflation.
+-- Note: does't seem to get adjusted for inflation.
 perPersonExemptionFor :: Regime -> Year -> Money
 perPersonExemptionFor NonTrump _ = 4050
 perPersonExemptionFor Trump _ = 0
@@ -79,16 +79,20 @@ perPersonExemptionFor Trump _ = 0
 unAdjustedStdDeductionFor :: Regime -> Year -> FilingStatus -> Integer
 unAdjustedStdDeductionFor NonTrump 2017 Single = 6350
 unAdjustedStdDeductionFor NonTrump 2017 HeadOfHousehold = 9350
+unAdjustedStdDeductionFor Trump 2022 Single = 12950
+unAdjustedStdDeductionFor Trump 2022 HeadOfHousehold = 19400
 unAdjustedStdDeductionFor Trump 2021 Single = 12550
 unAdjustedStdDeductionFor Trump 2021 HeadOfHousehold = 18800
 unAdjustedStdDeductionFor r y _ = error $ printf "Unsupported combination %s, %d " (show r) y
 
 ageAdjustmentFor :: HasCallStack => Regime -> Year -> Integer
+ageAdjustmentFor Trump 2022 = 1400
 ageAdjustmentFor Trump 2021 = 1350
 ageAdjustmentFor NonTrump 2017 = 1250
 ageAdjustmentFor r y = error $ printf "Unsupported combination %s, %d" (show r) y
 
 ageAndSingleAdjustmentFor :: HasCallStack => Regime -> Year -> Integer
+ageAndSingleAdjustmentFor Trump 2022 = 350
 ageAndSingleAdjustmentFor Trump 2021 = 350
 ageAndSingleAdjustmentFor NonTrump 2017 = 300
 ageAndSingleAdjustmentFor r y = error $ printf "Unsupported combination %s, %d" (show r) y
@@ -106,114 +110,186 @@ bindRegime ::
   BirthDate ->
   PersonalExemptions ->
   BoundRegime
+bindRegime Trump 2022 Single bd pes =
+  let regime = Trump
+      year = 2022
+      fs = Single
+   in BoundRegime
+        regime
+        year
+        fs
+        bd
+        pes
+        (perPersonExemptionFor regime year)
+        (unAdjustedStdDeductionFor regime year fs)
+        (ageAdjustmentFor regime year)
+        (ageAndSingleAdjustmentFor regime year)
+        ( FO.fromPairs
+            [ (10, 0),
+              (12, 10275),
+              (22, 41775),
+              (24, 89075),
+              (32, 170050),
+              (35, 215950),
+              (37, 539900)
+            ]
+        )
+        ( FQ.fromPairs
+            [ (0, 0),
+              (15, 4675),
+              (20, 459750)
+            ]
+        )
+bindRegime Trump 2022 HeadOfHousehold bd pes =
+  let regime = Trump
+      year = 2022
+      fs = HeadOfHousehold
+   in BoundRegime
+        regime
+        year
+        fs
+        bd
+        pes
+        (perPersonExemptionFor regime year)
+        (unAdjustedStdDeductionFor regime year fs)
+        (ageAdjustmentFor regime year)
+        (ageAndSingleAdjustmentFor regime year)
+        ( FO.fromPairs
+            [ (10, 0),
+              (12, 14650),
+              (22, 55900),
+              (24, 89050),
+              (32, 170050),
+              (35, 215950),
+              (37, 539900)
+            ]
+        )
+        ( FQ.fromPairs
+            [ (0, 0),
+              (15, 55800),
+              (20, 488500)
+            ]
+        )
 bindRegime Trump 2021 Single bd pes =
-  BoundRegime
-    Trump
-    2021
-    Single
-    bd
-    pes
-    (perPersonExemptionFor Trump 2021)
-    (unAdjustedStdDeductionFor Trump 2021 Single)
-    (ageAdjustmentFor Trump 2021)
-    (ageAndSingleAdjustmentFor Trump 2021)
-    ( FO.fromPairs
-        [ (10, 0),
-          (12, 9950),
-          (22, 40525),
-          (24, 86375),
-          (32, 164925),
-          (35, 209425),
-          (37, 523600)
-        ]
-    )
-    ( FQ.fromPairs
-        [ (0, 0),
-          (15, 40400),
-          (20, 445850)
-        ]
-    )
+  let regime = Trump
+      year = 2021
+      fs = Single
+   in BoundRegime
+        regime
+        year
+        fs
+        bd
+        pes
+        (perPersonExemptionFor regime year)
+        (unAdjustedStdDeductionFor regime year fs)
+        (ageAdjustmentFor regime year)
+        (ageAndSingleAdjustmentFor regime year)
+        ( FO.fromPairs
+            [ (10, 0),
+              (12, 9950),
+              (22, 40525),
+              (24, 86375),
+              (32, 164925),
+              (35, 209425),
+              (37, 523600)
+            ]
+        )
+        ( FQ.fromPairs
+            [ (0, 0),
+              (15, 40400),
+              (20, 445850)
+            ]
+        )
 bindRegime Trump 2021 HeadOfHousehold bd pes =
-  BoundRegime
-    Trump
-    2021
-    HeadOfHousehold
-    bd
-    pes
-    (perPersonExemptionFor Trump 2021)
-    (unAdjustedStdDeductionFor Trump 2021 HeadOfHousehold)
-    (ageAdjustmentFor Trump 2021)
-    (ageAndSingleAdjustmentFor Trump 2021)
-    ( FO.fromPairs
-        [ (10, 0),
-          (12, 14200),
-          (22, 54200),
-          (24, 86350),
-          (32, 164900),
-          (35, 209400),
-          (37, 523600)
-        ]
-    )
-    ( FQ.fromPairs
-        [ (0, 0),
-          (15, 54100),
-          (20, 473850)
-        ]
-    )
+  let regime = Trump
+      year = 2021
+      fs = HeadOfHousehold
+   in BoundRegime
+        regime
+        year
+        fs
+        bd
+        pes
+        (perPersonExemptionFor regime year)
+        (unAdjustedStdDeductionFor regime year fs)
+        (ageAdjustmentFor regime year)
+        (ageAndSingleAdjustmentFor regime year)
+        ( FO.fromPairs
+            [ (10, 0),
+              (12, 14200),
+              (22, 54200),
+              (24, 86350),
+              (32, 164900),
+              (35, 209400),
+              (37, 523600)
+            ]
+        )
+        ( FQ.fromPairs
+            [ (0, 0),
+              (15, 54100),
+              (20, 473850)
+            ]
+        )
 bindRegime NonTrump 2017 Single bd pes =
-  BoundRegime
-    NonTrump
-    2017
-    Single
-    bd
-    pes
-    (perPersonExemptionFor NonTrump 2017)
-    (unAdjustedStdDeductionFor NonTrump 2017 Single)
-    (ageAdjustmentFor NonTrump 2017)
-    (ageAndSingleAdjustmentFor NonTrump 2017)
-    ( FO.fromPairs
-        [ (10, 0),
-          (15, 9235),
-          (25, 37950),
-          (28, 91900),
-          (33, 191650),
-          (35, 416700),
-          (39.6, 418400)
-        ]
-    )
-    ( FQ.fromPairs
-        [ (0, 0),
-          (15, 37950),
-          (20, 418400)
-        ]
-    )
+  let regime = NonTrump
+      year = 2017
+      fs = Single
+   in BoundRegime
+        regime
+        year
+        fs
+        bd
+        pes
+        (perPersonExemptionFor regime year)
+        (unAdjustedStdDeductionFor regime year fs)
+        (ageAdjustmentFor regime year)
+        (ageAndSingleAdjustmentFor regime year)
+        ( FO.fromPairs
+            [ (10, 0),
+              (15, 9235),
+              (25, 37950),
+              (28, 91900),
+              (33, 191650),
+              (35, 416700),
+              (39.6, 418400)
+            ]
+        )
+        ( FQ.fromPairs
+            [ (0, 0),
+              (15, 37950),
+              (20, 418400)
+            ]
+        )
 bindRegime NonTrump 2017 HeadOfHousehold bd pes =
-  BoundRegime
-    NonTrump
-    2017
-    HeadOfHousehold
-    bd
-    pes
-    (perPersonExemptionFor NonTrump 2017)
-    (unAdjustedStdDeductionFor NonTrump 2017 HeadOfHousehold)
-    (ageAdjustmentFor NonTrump 2017)
-    (ageAndSingleAdjustmentFor NonTrump 2017)
-    ( FO.fromPairs
-        [ (10, 0),
-          (15, 13350),
-          (25, 50800),
-          (28, 131200),
-          (33, 212500),
-          (35, 416700),
-          (39.6, 444550)
-        ]
-    )
-    ( FQ.fromPairs
-        [ (0, 0),
-          (15, 50800),
-          (20, 444550)
-        ]
-    )
+  let regime = NonTrump
+      year = 2017
+      fs = HeadOfHousehold
+   in BoundRegime
+        regime
+        year
+        fs
+        bd
+        pes
+        (perPersonExemptionFor regime year)
+        (unAdjustedStdDeductionFor regime year fs)
+        (ageAdjustmentFor regime year)
+        (ageAndSingleAdjustmentFor regime year)
+        ( FO.fromPairs
+            [ (10, 0),
+              (15, 13350),
+              (25, 50800),
+              (28, 131200),
+              (33, 212500),
+              (35, 416700),
+              (39.6, 444550)
+            ]
+        )
+        ( FQ.fromPairs
+            [ (0, 0),
+              (15, 50800),
+              (20, 444550)
+            ]
+        )
 bindRegime r y fs _ _ =
   error $ printf "Unsupported combination %s, %d, %s " (show r) y (show fs)
 
