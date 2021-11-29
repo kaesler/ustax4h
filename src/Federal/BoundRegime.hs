@@ -8,6 +8,7 @@ module Federal.BoundRegime
   )
 where
 
+import Age (ageAtYearEnd)
 import CommonTypes
   ( BirthDate,
     FilingStatus (..),
@@ -20,8 +21,6 @@ import CommonTypes
     inflationFactor,
     isUnmarried,
   )
-import Control.Exception.Base (bracket)
-import Data.Time (toGregorian)
 import Federal.OrdinaryIncome as FO (OrdinaryIncomeBrackets, fromPairs, inflate)
 import Federal.QualifiedIncome as FQ (QualifiedIncomeBrackets, fromPairs, inflate)
 import Federal.Regime (Regime (NonTrump, Trump), requireRegimeValidInYear)
@@ -108,11 +107,6 @@ ageAndSingleAdjustmentFor Trump 2019 = 350
 ageAndSingleAdjustmentFor Trump 2018 = 300
 ageAndSingleAdjustmentFor NonTrump 2017 = 300
 ageAndSingleAdjustmentFor r y = error $ printf "Unsupported combination %s, %d" (show r) y
-
-ageAtYearEnd :: Year -> BirthDate -> Integer
-ageAtYearEnd year birthDate =
-  let (birthYear, _, _) = toGregorian birthDate
-   in year - birthYear
 
 bindRegime ::
   HasCallStack =>
