@@ -4,8 +4,9 @@ module StateMA.Calculator
 where
 
 import CommonTypes
-  ( FilingStatus (HeadOfHousehold),
+  ( FilingStatus (..),
     MassachusettsGrossIncome,
+    Money,
     Year,
   )
 import Math (nonNegSub)
@@ -13,9 +14,13 @@ import Math (nonNegSub)
 taxRate :: Double
 taxRate = 0.05
 
-taxDue :: Year -> Int -> FilingStatus -> MassachusettsGrossIncome -> Double
+personalExemptionFor :: Year -> FilingStatus -> Money 
+personalExemptionFor _ HeadOfHousehold = 6800
+personalExemptionFor _ Single = 4400
+
+taxDue :: Year -> Int -> FilingStatus -> MassachusettsGrossIncome -> Money
 taxDue year dependents filingStatus maGrossIncome =
-  let personalExemption = if filingStatus == HeadOfHousehold then 6800 else 4400
+  let personalExemption = personalExemptionFor year filingStatus
       ageExemption = 700
       dependentsExemption = 1000.0 * fromIntegral dependents
    in taxRate * (maGrossIncome `nonNegSub` (personalExemption + ageExemption + dependentsExemption))
