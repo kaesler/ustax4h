@@ -1,5 +1,3 @@
-{-# LANGUAGE DisambiguateRecordFields #-}
-{-# LANGUAGE NamedFieldPuns #-}
 {-# LANGUAGE RecordWildCards #-}
 
 module StateMA.CalculatorSpec

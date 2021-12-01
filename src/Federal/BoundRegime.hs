@@ -8,7 +8,7 @@ module Federal.BoundRegime
   )
 where
 
-import Age (ageAtYearEnd)
+import Age (isAge65OrOlder)
 import CommonTypes
   ( BirthDate,
     FilingStatus (..),
@@ -51,7 +51,7 @@ standardDeduction :: BoundRegime -> StandardDeduction
 standardDeduction br =
   StandardDeduction $
     unadjustedStandardDeduction br
-      + ( if ageAtYearEnd (year br) (birthDate br) > 65
+      + ( if Age.isAge65OrOlder (birthDate br) (year br)
             then
               adjustmentWhenOver65 br
                 + ( if isUnmarried (filingStatus br)

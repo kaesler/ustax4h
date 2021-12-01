@@ -3,7 +3,7 @@ module StateMA.Calculator
   )
 where
 
-import Age (ageAtYearEnd)
+import Age (isAge65OrOlder)
 import CommonTypes
   ( BirthDate,
     FilingStatus (..),
@@ -28,6 +28,6 @@ personalExemptionFor _ Single = 4400
 taxDue :: Year -> BirthDate -> Int -> FilingStatus -> MassachusettsGrossIncome -> Money
 taxDue year birthDate dependents filingStatus maGrossIncome =
   let personalExemption = personalExemptionFor year filingStatus
-      ageExemption = if ageAtYearEnd year birthDate >= 65 then 700 else 0
+      ageExemption = if isAge65OrOlder birthDate year then 700 else 0
       dependentsExemption = 1000.0 * fromIntegral dependents
    in taxRate year * (maGrossIncome `nonNegSub` (personalExemption + ageExemption + dependentsExemption))
