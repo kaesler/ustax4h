@@ -36,9 +36,11 @@ library
       Federal.Regime
       Federal.RMDs
       Federal.TaxableSocialSecurity
+      Federal.Types
       Kevin
       Math
       StateMA.Calculator
+      StateMA.Types
   other-modules:
       Paths_retirement_model
   hs-source-dirs:

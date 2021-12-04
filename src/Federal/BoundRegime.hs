@@ -13,10 +13,7 @@ import CommonTypes
   ( BirthDate,
     FilingStatus (..),
     InflationEstimate (..),
-    ItemizedDeductions,
     Money,
-    PersonalExemptions,
-    StandardDeduction (..),
     Year,
     inflationFactor,
     isUnmarried,
@@ -24,6 +21,7 @@ import CommonTypes
 import Federal.OrdinaryIncome as FO (OrdinaryIncomeBrackets, fromPairs, inflate)
 import Federal.QualifiedIncome as FQ (QualifiedIncomeBrackets, fromPairs, inflate)
 import Federal.Regime (Regime (PreTrump, Trump), requireRegimeValidInYear)
+import Federal.Types (ItemizedDeductions, PersonalExemptions, StandardDeduction (..))
 import GHC.Stack (HasCallStack)
 import Text.Printf (printf)
 

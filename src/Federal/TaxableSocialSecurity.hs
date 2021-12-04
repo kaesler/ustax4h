@@ -5,12 +5,11 @@ module Federal.TaxableSocialSecurity
 where
 
 import CommonTypes
-  ( CombinedIncome,
-    FilingStatus (..),
-    SSRelevantOtherIncome,
-    SocSec,
+  ( FilingStatus (..),
     Year,
   )
+import Federal.Types (CombinedIncome, SSRelevantOtherIncome, SocSec)
+
 --  TODO: use InflationEstimate type instead?
 amountTaxableInflationAdjusted :: Year -> FilingStatus -> SocSec -> SSRelevantOtherIncome -> Double
 amountTaxableInflationAdjusted year filingStatus ssBenefits relevantIncome =

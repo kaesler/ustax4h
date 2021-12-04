@@ -13,13 +13,7 @@ where
 import CommonTypes
   ( BirthDate,
     FilingStatus,
-    ItemizedDeductions,
     Money,
-    OrdinaryIncome,
-    PersonalExemptions,
-    QualifiedIncome,
-    SocSec,
-    StandardDeduction (..),
     Year,
   )
 import Federal.BoundRegime
@@ -34,6 +28,7 @@ import Federal.QualifiedIncome (applyQualifiedIncomeBrackets)
 import Federal.RMDs ()
 import Federal.Regime (Regime)
 import qualified Federal.TaxableSocialSecurity as TaxableSocialSecurity
+import Federal.Types (ItemizedDeductions, OrdinaryIncome, PersonalExemptions, QualifiedIncome, SocSec, StandardDeduction (..))
 import Math (nonNegSub)
 
 type TaxCalculator = SocSec -> OrdinaryIncome -> QualifiedIncome -> ItemizedDeductions -> FederalTaxResults

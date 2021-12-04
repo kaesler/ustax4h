@@ -7,11 +7,11 @@ import Age (isAge65OrOlder)
 import CommonTypes
   ( BirthDate,
     FilingStatus (..),
-    MassachusettsGrossIncome,
     Money,
     Year,
   )
 import Math (nonNegSub)
+import StateMA.Types (MassachusettsGrossIncome)
 
 taxRate :: Year -> Double
 taxRate year

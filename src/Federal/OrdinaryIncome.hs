@@ -13,7 +13,7 @@ module Federal.OrdinaryIncome
   )
 where
 
-import CommonTypes (Money, OrdinaryIncome, StandardDeduction (..))
+import CommonTypes (Money)
 import Control.Exception.Base (bracket)
 import Data.Bits (toIntegralSized)
 import Data.Coerce (coerce)
@@ -22,6 +22,7 @@ import Data.List.NonEmpty as NonEmpty (fromList, head, last, reverse, tail, take
 import Data.Map.NonEmpty as NEMap (NEMap, assocs, fromList, keys, lookup)
 import Data.Maybe (fromJust)
 import Federal.BracketTypes (BracketStart (..))
+import Federal.Types (OrdinaryIncome, StandardDeduction (..))
 import Math (nonNegSub, roundHalfUp)
 
 type OrdinaryIncomeBrackets = NEMap OrdinaryRate BracketStart

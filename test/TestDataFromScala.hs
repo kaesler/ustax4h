@@ -8,11 +8,13 @@ import CommonTypes
   ( BirthDate,
     FilingStatus (..),
     Money,
-    QualifiedIncome,
-    SSRelevantOtherIncome,
-    SocSec,
+    
+    
+    
     Year,
   )
+import Federal.Types(QualifiedIncome, SSRelevantOtherIncome, SocSec)
+
 import Data.Time (fromGregorian)
 import Federal.Regime
 

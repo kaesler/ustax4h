@@ -5,12 +5,9 @@ where
 
 import CommonTypes
   ( FilingStatus (..),
-    OrdinaryIncome,
-    SSRelevantOtherIncome,
-    SocSec,
-    StandardDeduction (..),
-    Year,
+    Year
   )
+import Federal.Types(OrdinaryIncome, StandardDeduction (..), SSRelevantOtherIncome, SocSec)
 import Federal.BoundRegime
   ( BoundRegime (ordinaryIncomeBrackets),
     bindRegime,

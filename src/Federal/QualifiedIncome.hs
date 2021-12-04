@@ -10,8 +10,6 @@ where
 
 import CommonTypes
   ( FilingStatus (..),
-    OrdinaryIncome,
-    QualifiedIncome,
     Year,
   )
 import Data.Coerce (coerce)
@@ -19,6 +17,10 @@ import qualified Data.List as List
 import Data.List.NonEmpty as NonEmpty (fromList, reverse, (!!))
 import Data.Map.NonEmpty as NEMap (NEMap, assocs, elems, fromList)
 import Federal.BracketTypes (BracketStart (..))
+import Federal.Types
+  ( OrdinaryIncome,
+    QualifiedIncome,
+  )
 import Math (nonNegSub, roundHalfUp)
 
 type QualifiedIncomeBrackets = NEMap QualifiedRate BracketStart
