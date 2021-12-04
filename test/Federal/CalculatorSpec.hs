@@ -53,7 +53,7 @@ agreementWithMy2017ReturnSpec :: SpecWith ()
 agreementWithMy2017ReturnSpec =
   describe "Federal.Calculator.taxDue" $
     it "agrees with my 2017 Federal return" $ do
-      let regime = NonTrump
+      let regime = PreTrump
           year = 2017
           filingStatus = Kevin.filingStatus
           birthDate = Kevin.birthDate

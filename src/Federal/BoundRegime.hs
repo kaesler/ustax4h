@@ -23,7 +23,7 @@ import CommonTypes
   )
 import Federal.OrdinaryIncome as FO (OrdinaryIncomeBrackets, fromPairs, inflate)
 import Federal.QualifiedIncome as FQ (QualifiedIncomeBrackets, fromPairs, inflate)
-import Federal.Regime (Regime (NonTrump, Trump), requireRegimeValidInYear)
+import Federal.Regime (Regime (PreTrump, Trump), requireRegimeValidInYear)
 import GHC.Stack (HasCallStack)
 import Text.Printf (printf)
 
@@ -72,7 +72,7 @@ netDeduction br itemized =
 
 -- Note: does't seem to get adjusted for inflation.
 perPersonExemptionFor :: Regime -> Year -> Money
-perPersonExemptionFor NonTrump _ = 4050
+perPersonExemptionFor PreTrump _ = 4050
 perPersonExemptionFor Trump _ = 0
 
 unAdjustedStdDeductionFor :: Regime -> Year -> FilingStatus -> Integer
@@ -86,8 +86,8 @@ unAdjustedStdDeductionFor Trump 2019 HeadOfHousehold = 18350
 unAdjustedStdDeductionFor Trump 2019 Single = 12200
 unAdjustedStdDeductionFor Trump 2018 HeadOfHousehold = 18000
 unAdjustedStdDeductionFor Trump 2018 Single = 12000
-unAdjustedStdDeductionFor NonTrump 2017 Single = 6350
-unAdjustedStdDeductionFor NonTrump 2017 HeadOfHousehold = 9350
+unAdjustedStdDeductionFor PreTrump 2017 Single = 6350
+unAdjustedStdDeductionFor PreTrump 2017 HeadOfHousehold = 9350
 unAdjustedStdDeductionFor r y _ = error $ printf "Unsupported combination %s, %d " (show r) y
 
 ageAdjustmentFor :: HasCallStack => Regime -> Year -> Integer
@@ -96,7 +96,7 @@ ageAdjustmentFor Trump 2021 = 1350
 ageAdjustmentFor Trump 2020 = 1300
 ageAdjustmentFor Trump 2019 = 1300
 ageAdjustmentFor Trump 2018 = 1300
-ageAdjustmentFor NonTrump 2017 = 1250
+ageAdjustmentFor PreTrump 2017 = 1250
 ageAdjustmentFor r y = error $ printf "Unsupported combination %s, %d" (show r) y
 
 ageAndSingleAdjustmentFor :: HasCallStack => Regime -> Year -> Integer
@@ -105,7 +105,7 @@ ageAndSingleAdjustmentFor Trump 2021 = 350
 ageAndSingleAdjustmentFor Trump 2020 = 350
 ageAndSingleAdjustmentFor Trump 2019 = 350
 ageAndSingleAdjustmentFor Trump 2018 = 300
-ageAndSingleAdjustmentFor NonTrump 2017 = 300
+ageAndSingleAdjustmentFor PreTrump 2017 = 300
 ageAndSingleAdjustmentFor r y = error $ printf "Unsupported combination %s, %d" (show r) y
 
 bindRegime ::
@@ -416,8 +416,8 @@ bindRegime Trump 2018 Single bd pes =
               (20, 425800)
             ]
         )
-bindRegime NonTrump 2017 HeadOfHousehold bd pes =
-  let regime = NonTrump
+bindRegime PreTrump 2017 HeadOfHousehold bd pes =
+  let regime = PreTrump
       year = 2017
       fs = HeadOfHousehold
    in BoundRegime
@@ -446,8 +446,8 @@ bindRegime NonTrump 2017 HeadOfHousehold bd pes =
               (20, 444550)
             ]
         )
-bindRegime NonTrump 2017 Single bd pes =
-  let regime = NonTrump
+bindRegime PreTrump 2017 Single bd pes =
+  let regime = PreTrump
       year = 2017
       fs = Single
    in BoundRegime

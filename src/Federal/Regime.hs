@@ -10,12 +10,12 @@ import Federal.BracketTypes ()
 import GHC.Stack (HasCallStack)
 import Text.Printf (printf)
 
-data Regime = Trump | NonTrump
+data Regime = Trump | PreTrump
   deriving (Eq, Ord, Show, Enum)
 
 lastYearKnown :: Regime -> Year
 lastYearKnown Trump = 2022
-lastYearKnown NonTrump = 2017
+lastYearKnown PreTrump = 2017
 
 requireRegimeValidInYear :: HasCallStack => Regime -> Year -> ()
 requireRegimeValidInYear r y =
@@ -25,4 +25,4 @@ requireRegimeValidInYear r y =
 
 regimeValidInYear :: Regime -> Year -> Bool
 regimeValidInYear Trump y = y >= 2018
-regimeValidInYear NonTrump y = y < 2018 || y > 2025
+regimeValidInYear PreTrump y = y < 2018 || y > 2025
