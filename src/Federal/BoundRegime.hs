@@ -30,8 +30,8 @@ data BoundRegime = BoundRegime
     -- Static field: they never change.
     regime :: Regime,
     year :: Year,
-    filingStatus :: FilingStatus,
     birthDate :: BirthDate,
+    filingStatus :: FilingStatus,
     personalExemptions :: Int,
     --
     -- The following are inflatable. They may get adjusted to estimate the
@@ -121,8 +121,8 @@ bindRegime Trump 2022 bd HeadOfHousehold pes =
    in BoundRegime
         regime
         year
-        fs
         bd
+        fs
         pes
         (perPersonExemptionFor regime year)
         (unAdjustedStdDeductionFor regime year fs)
@@ -151,8 +151,8 @@ bindRegime Trump 2022 bd Single pes =
    in BoundRegime
         regime
         year
-        fs
         bd
+        fs
         pes
         (perPersonExemptionFor regime year)
         (unAdjustedStdDeductionFor regime year fs)
@@ -181,8 +181,8 @@ bindRegime Trump 2021 bd HeadOfHousehold pes =
    in BoundRegime
         regime
         year
-        fs
         bd
+        fs
         pes
         (perPersonExemptionFor regime year)
         (unAdjustedStdDeductionFor regime year fs)
@@ -211,8 +211,8 @@ bindRegime Trump 2021 bd Single pes =
    in BoundRegime
         regime
         year
-        fs
         bd
+        fs
         pes
         (perPersonExemptionFor regime year)
         (unAdjustedStdDeductionFor regime year fs)
@@ -241,8 +241,8 @@ bindRegime Trump 2020 bd HeadOfHousehold pes =
    in BoundRegime
         regime
         year
-        fs
         bd
+        fs
         pes
         (perPersonExemptionFor regime year)
         (unAdjustedStdDeductionFor regime year fs)
@@ -271,8 +271,8 @@ bindRegime Trump 2020 bd Single pes =
    in BoundRegime
         regime
         year
-        fs
         bd
+        fs
         pes
         (perPersonExemptionFor regime year)
         (unAdjustedStdDeductionFor regime year fs)
@@ -301,8 +301,8 @@ bindRegime Trump 2019 bd HeadOfHousehold pes =
    in BoundRegime
         regime
         year
-        fs
         bd
+        fs
         pes
         (perPersonExemptionFor regime year)
         (unAdjustedStdDeductionFor regime year fs)
@@ -331,8 +331,8 @@ bindRegime Trump 2019 bd Single pes =
    in BoundRegime
         regime
         year
-        fs
         bd
+        fs
         pes
         (perPersonExemptionFor regime year)
         (unAdjustedStdDeductionFor regime year fs)
@@ -361,8 +361,8 @@ bindRegime Trump 2018 bd HeadOfHousehold pes =
    in BoundRegime
         regime
         year
-        fs
         bd
+        fs
         pes
         (perPersonExemptionFor regime year)
         (unAdjustedStdDeductionFor regime year fs)
@@ -391,8 +391,8 @@ bindRegime Trump 2018 bd Single pes =
    in BoundRegime
         regime
         year
-        fs
         bd
+        fs
         pes
         (perPersonExemptionFor regime year)
         (unAdjustedStdDeductionFor regime year fs)
@@ -421,8 +421,8 @@ bindRegime PreTrump 2017 bd HeadOfHousehold pes =
    in BoundRegime
         regime
         year
-        fs
         bd
+        fs
         pes
         (perPersonExemptionFor regime year)
         (unAdjustedStdDeductionFor regime year fs)
@@ -451,8 +451,8 @@ bindRegime PreTrump 2017 bd Single pes =
    in BoundRegime
         regime
         year
-        fs
         bd
+        fs
         pes
         (perPersonExemptionFor regime year)
         (unAdjustedStdDeductionFor regime year fs)
@@ -485,8 +485,8 @@ futureEstimated br inflationEstimate =
    in BoundRegime
         (regime br)
         futureYear -- TODO: is this what we want ?
-        (filingStatus br)
         (birthDate br)
+        (filingStatus br)
         (personalExemptions br)
         (perPersonExemption br * factor)
         (round $ factor * fromIntegral (unadjustedStandardDeduction br))
