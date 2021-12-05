@@ -46,12 +46,12 @@ theYear = 2021
 
 ordinaryIncomeBracketsFor :: FilingStatus -> OrdinaryIncomeBrackets
 ordinaryIncomeBracketsFor filingStatus =
-  let br = bindRegime theRegime theYear filingStatus Kevin.birthDate Kevin.personalExemptions
+  let br = bindRegime theRegime theYear Kevin.birthDate filingStatus Kevin.personalExemptions
    in ordinaryIncomeBrackets br
 
 standardDeductionFor :: FilingStatus -> StandardDeduction
 standardDeductionFor filingStatus =
-  let br = bindRegime theRegime theYear filingStatus Kevin.birthDate Kevin.personalExemptions
+  let br = bindRegime theRegime theYear Kevin.birthDate filingStatus Kevin.personalExemptions
    in standardDeduction br
 
 genSocialSecurityBenefits :: Gen SocSec

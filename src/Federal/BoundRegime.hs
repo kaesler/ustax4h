@@ -110,11 +110,11 @@ bindRegime ::
   HasCallStack =>
   Regime ->
   Year ->
-  FilingStatus ->
   BirthDate ->
+  FilingStatus ->
   PersonalExemptions ->
   BoundRegime
-bindRegime Trump 2022 HeadOfHousehold bd pes =
+bindRegime Trump 2022 bd HeadOfHousehold pes =
   let regime = Trump
       year = 2022
       fs = HeadOfHousehold
@@ -144,7 +144,7 @@ bindRegime Trump 2022 HeadOfHousehold bd pes =
               (20, 488500)
             ]
         )
-bindRegime Trump 2022 Single bd pes =
+bindRegime Trump 2022 bd Single pes =
   let regime = Trump
       year = 2022
       fs = Single
@@ -174,7 +174,7 @@ bindRegime Trump 2022 Single bd pes =
               (20, 459750)
             ]
         )
-bindRegime Trump 2021 HeadOfHousehold bd pes =
+bindRegime Trump 2021 bd HeadOfHousehold pes =
   let regime = Trump
       year = 2021
       fs = HeadOfHousehold
@@ -204,7 +204,7 @@ bindRegime Trump 2021 HeadOfHousehold bd pes =
               (20, 473850)
             ]
         )
-bindRegime Trump 2021 Single bd pes =
+bindRegime Trump 2021 bd Single pes =
   let regime = Trump
       year = 2021
       fs = Single
@@ -234,7 +234,7 @@ bindRegime Trump 2021 Single bd pes =
               (20, 445850)
             ]
         )
-bindRegime Trump 2020 HeadOfHousehold bd pes =
+bindRegime Trump 2020 bd HeadOfHousehold pes =
   let regime = Trump
       year = 2020
       fs = HeadOfHousehold
@@ -264,7 +264,7 @@ bindRegime Trump 2020 HeadOfHousehold bd pes =
               (20, 469050)
             ]
         )
-bindRegime Trump 2020 Single bd pes =
+bindRegime Trump 2020 bd Single pes =
   let regime = Trump
       year = 2020
       fs = Single
@@ -294,7 +294,7 @@ bindRegime Trump 2020 Single bd pes =
               (20, 442450)
             ]
         )
-bindRegime Trump 2019 HeadOfHousehold bd pes =
+bindRegime Trump 2019 bd HeadOfHousehold pes =
   let regime = Trump
       year = 2019
       fs = HeadOfHousehold
@@ -324,7 +324,7 @@ bindRegime Trump 2019 HeadOfHousehold bd pes =
               (20, 461700)
             ]
         )
-bindRegime Trump 2019 Single bd pes =
+bindRegime Trump 2019 bd Single pes =
   let regime = Trump
       year = 2019
       fs = Single
@@ -354,7 +354,7 @@ bindRegime Trump 2019 Single bd pes =
               (20, 434550)
             ]
         )
-bindRegime Trump 2018 HeadOfHousehold bd pes =
+bindRegime Trump 2018 bd HeadOfHousehold pes =
   let regime = Trump
       year = 2018
       fs = HeadOfHousehold
@@ -384,7 +384,7 @@ bindRegime Trump 2018 HeadOfHousehold bd pes =
               (20, 452400)
             ]
         )
-bindRegime Trump 2018 Single bd pes =
+bindRegime Trump 2018 bd Single pes =
   let regime = Trump
       year = 2018
       fs = Single
@@ -414,7 +414,7 @@ bindRegime Trump 2018 Single bd pes =
               (20, 425800)
             ]
         )
-bindRegime PreTrump 2017 HeadOfHousehold bd pes =
+bindRegime PreTrump 2017 bd HeadOfHousehold pes =
   let regime = PreTrump
       year = 2017
       fs = HeadOfHousehold
@@ -444,7 +444,7 @@ bindRegime PreTrump 2017 HeadOfHousehold bd pes =
               (20, 444550)
             ]
         )
-bindRegime PreTrump 2017 Single bd pes =
+bindRegime PreTrump 2017 bd Single pes =
   let regime = PreTrump
       year = 2017
       fs = Single

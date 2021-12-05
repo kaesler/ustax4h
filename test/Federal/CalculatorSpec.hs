@@ -69,7 +69,7 @@ agreementWithMy2017ReturnSpec =
           adjustedGrossIncome = totalIncome - hsaDeduction
           qualifiedIncome = qualifiedDividends
           ordinaryIncome = adjustedGrossIncome - qualifiedIncome
-          boundRegime = bindRegime regime year filingStatus birthDate personalExemptions
+          boundRegime = bindRegime regime year birthDate filingStatus personalExemptions
           calc = makeCalculator boundRegime
           res = calc socSec ordinaryIncome qualifiedIncome itemizedDeductions
        in do

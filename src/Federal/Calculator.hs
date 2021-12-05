@@ -69,16 +69,16 @@ data FederalTaxResults = FederalTaxResults
 taxResults ::
   Regime ->
   Year ->
-  FilingStatus ->
   BirthDate ->
+  FilingStatus ->
   PersonalExemptions ->
   SocSec ->
   OrdinaryIncome ->
   QualifiedIncome ->
   ItemizedDeductions ->
   FederalTaxResults
-taxResults regime year filingStatus birthDate personalExemptions socSec ordinaryIncome qualifiedIncome itemized =
-  let boundRegime = bindRegime regime year filingStatus birthDate personalExemptions
+taxResults regime year birthDate filingStatus  personalExemptions socSec ordinaryIncome qualifiedIncome itemized =
+  let boundRegime = bindRegime regime year birthDate filingStatus personalExemptions
       calculator = makeCalculator boundRegime
    in calculator socSec ordinaryIncome qualifiedIncome itemized
 
@@ -94,7 +94,7 @@ taxDue ::
   ItemizedDeductions ->
   Double
 taxDue regime year filingStatus birthDate personalExemptions socSec ordinaryIncome qualifiedIncome itemized =
-  let results = taxResults regime year filingStatus birthDate personalExemptions socSec ordinaryIncome qualifiedIncome itemized
+  let results = taxResults regime year birthDate filingStatus personalExemptions socSec ordinaryIncome qualifiedIncome itemized
    in taxOnOrdinaryIncome results + taxOnQualifiedIncome results
 
 taxDueDebug ::
@@ -109,7 +109,7 @@ taxDueDebug ::
   ItemizedDeductions ->
   IO ()
 taxDueDebug regime year filingStatus birthDate personalExemptions socSec ordinaryIncome qualifiedIncome itemized =
-  let r = taxResults regime year filingStatus birthDate personalExemptions socSec ordinaryIncome qualifiedIncome itemized
+  let r = taxResults regime year birthDate filingStatus personalExemptions socSec ordinaryIncome qualifiedIncome itemized
    in do
         putStrLn "Inputs"
         putStrLn (" fs: " ++ show filingStatus)

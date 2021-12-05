@@ -13,7 +13,7 @@ futureEstimationSpec :: SpecWith ()
 futureEstimationSpec =
   describe "Federal.Regime.futureEstimated" $
     it "should behave as expected" $ do
-      let before = bindRegime Trump 2021 HeadOfHousehold Kevin.birthDate Kevin.personalExemptions
+      let before = bindRegime Trump 2021 Kevin.birthDate HeadOfHousehold Kevin.personalExemptions
           rate = 0.03 :: Double
           factor = 1.0 + rate
           after = futureEstimated before $ InflationEstimate 2022 rate
