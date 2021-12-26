@@ -39,7 +39,13 @@ library
       Federal.Types
       Kevin
       Math
-      Money.Moneys
+      Money.Deduction
+      Money.Income
+      Money.IncomeThreshold
+      Money.Money
+      Money.TaxableIncome
+      Money.TaxCredit
+      Money.TaxPayable
       StateMA.Calculator
       StateMA.Types
   other-modules:
