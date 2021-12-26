@@ -39,6 +39,7 @@ library
       Federal.Types
       Kevin
       Math
+      Money.Moneys
       StateMA.Calculator
       StateMA.Types
   other-modules:
