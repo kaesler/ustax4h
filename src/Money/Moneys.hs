@@ -52,3 +52,7 @@ newtype TaxCredit = TaxCredit Money
   deriving newtype Monoid
   deriving newtype Show
 
+applyDeductions :: Income -> [Deduction] -> TaxableIncome
+applyDeductions (Income mi) deductions = 
+  let (Deduction ds) = mconcat deductions
+   in TaxableIncome (mi `monus` ds)
