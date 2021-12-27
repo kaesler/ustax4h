@@ -1,3 +1,5 @@
+{-# LANGUAGE DerivingStrategies #-}
+{-# LANGUAGE GeneralizedNewtypeDeriving #-}
 module StateMA.StateMATaxRate(
   StateMATaxRate,
   mkStateMATaxRate
@@ -9,6 +11,7 @@ import Text.Printf (printf)
 import TaxRate ( TaxRate(..) )
 
 newtype StateMATaxRate = StateMATaxRate Double 
+  deriving newtype (Eq, Ord, Show)
 
 mkStateMATaxRate :: Double -> StateMATaxRate
 mkStateMATaxRate d

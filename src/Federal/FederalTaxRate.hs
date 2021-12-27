@@ -1,3 +1,5 @@
+{-# LANGUAGE DerivingStrategies #-}
+{-# LANGUAGE GeneralizedNewtypeDeriving #-}
 module Federal.FederalTaxRate(
   FederalTaxRate,
   mkFederalTaxRate
@@ -9,6 +11,7 @@ import Text.Printf (printf)
 import TaxRate ( TaxRate(..) )
 
 newtype FederalTaxRate = FederalTaxRate Double 
+  deriving newtype (Eq, Ord, Show)
 
 mkFederalTaxRate :: Double -> FederalTaxRate
 mkFederalTaxRate d
