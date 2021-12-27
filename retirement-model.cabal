@@ -31,6 +31,7 @@ library
       Federal.BoundRegime
       Federal.BracketTypes
       Federal.Calculator
+      Federal.FederalTaxRate
       Federal.OrdinaryIncome
       Federal.QualifiedIncome
       Federal.Regime
@@ -47,7 +48,10 @@ library
       Money.TaxCredit
       Money.TaxPayable
       StateMA.Calculator
+      StateMA.StateMATaxRate
       StateMA.Types
+      TaxFunction
+      TaxRate
   other-modules:
       Paths_retirement_model
   hs-source-dirs:
