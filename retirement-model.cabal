@@ -41,13 +41,7 @@ library
       Federal.Types
       Kevin
       Math
-      Money.Deduction
-      Money.Income
-      Money.IncomeThreshold
       Money.Money
-      Money.TaxableIncome
-      Money.TaxCredit
-      Money.TaxPayable
       StateMA.Calculator
       StateMA.StateMATaxRate
       StateMA.Types

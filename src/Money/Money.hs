@@ -1,26 +1,54 @@
 {-# LANGUAGE DerivingStrategies #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
-module Money.Money (
-  Money,
-  mkMoney,
-  monus
-)
 
-where 
+module Money.Money
+  ( Deduction,
+    Income,
+    IncomeThreshold,
+    TaxableIncome,
+    TaxCredit,
+    TaxPayable,
+  )
+where
 
-import Data.Monoid
+import Data.Monoid (Sum (Sum))
 
-newtype Money = Money (Sum Double)
-  deriving newtype Semigroup
-  deriving newtype Monoid
-instance Show Money where
-  show (Money (Sum d)) = show d
+type Money = Sum Double
 
 mkMoney :: Double -> Money
-mkMoney d = Money (Sum d)
+mkMoney = Sum
 
 monus :: Money -> Money -> Money
-monus (Money (Sum d1)) (Money (Sum d2))
+monus (Sum d1) (Sum d2)
   | d1 > d2 = mkMoney (d1 - d2)
   | otherwise = mkMoney 0.0
 
+newtype Deduction = Deduction Money
+  deriving newtype (Semigroup)
+  deriving newtype (Monoid)
+  deriving newtype (Show)
+
+newtype Income = Income Money
+  deriving newtype (Semigroup)
+  deriving newtype (Monoid)
+  deriving newtype (Show)
+
+newtype IncomeThreshold = IncomeThreshold Money
+  deriving newtype (Semigroup)
+  deriving newtype (Monoid)
+  deriving newtype (Show)
+
+newtype TaxableIncome = TaxableIncome Money
+  deriving newtype (Semigroup)
+  deriving newtype (Monoid)
+  deriving newtype (Show)
+
+newtype TaxCredit = TaxCredit Money
+  deriving newtype (Semigroup)
+  deriving newtype (Monoid)
+  deriving newtype (Show)
+
+newtype TaxPayable = TaxPayable Money
+  deriving newtype (Semigroup)
+  deriving newtype (Monoid)
+  deriving newtype (Show)
