@@ -3,8 +3,10 @@
 module TaxFunction () where
 
 import Brackets (Brackets)
+import Data.List.NonEmpty (NonEmpty, zip, zipWith, (<|))
+import Data.Map.NonEmpty (elems, keys, toAscList)
 import Money.Money (Income, IncomeThreshold, TaxPayable, TaxableIncome, amountAbove, applyTaxRate)
-import TaxRate (TaxRate (zero))
+import TaxRate (TaxRate (absoluteDifference, zero))
 
 type TaxFunction = TaxableIncome -> TaxPayable
 
@@ -17,4 +19,14 @@ flatTaxFunction = thresholdTaxFunction zero
     zero = mempty
 
 bracketsTaxFunction :: TaxRate r => Brackets r -> TaxFunction
-bracketsTaxFunction = undefined
+bracketsTaxFunction brackets =
+  let pairs = rateDeltas brackets
+      taxFuncs = fmap (uncurry thresholdTaxFunction) pairs
+   in foldl1 mappend taxFuncs
+
+rateDeltas :: TaxRate r => Brackets r -> NonEmpty (IncomeThreshold, r)
+rateDeltas brackets =
+  let thresholds = keys brackets
+      rates = elems brackets
+      rateDeltas = Data.List.NonEmpty.zipWith absoluteDifference (zero <| rates) rates
+   in Data.List.NonEmpty.zip thresholds rateDeltas
