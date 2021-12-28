@@ -1,21 +1,20 @@
 {-# LANGUAGE DerivingStrategies #-}
-{-# LANGUAGE GeneralizedNewtypeDeriving #-}
 
 module TaxFunction () where
 
 import Brackets (Brackets)
-import Money.Money (Income, IncomeThreshold, TaxPayable, TaxableIncome)
-import TaxRate (TaxRate)
+import Money.Money (Income, IncomeThreshold, TaxPayable, TaxableIncome, amountAbove, applyTaxRate)
+import TaxRate (TaxRate (zero))
 
-newtype TaxFunction = TaxFunction (TaxableIncome -> TaxPayable)
-  deriving newtype (Semigroup)
-  deriving newtype (Monoid)
+type TaxFunction = TaxableIncome -> TaxPayable
 
 thresholdTaxFunction :: TaxRate r => IncomeThreshold -> r -> TaxFunction
-thresholdTaxFunction = undefined
+thresholdTaxFunction threshold rate ti = applyTaxRate rate (amountAbove ti threshold)
 
 flatTaxFunction :: TaxRate r => r -> TaxFunction
-flatTaxFunction = undefined
+flatTaxFunction = thresholdTaxFunction zero
+  where
+    zero = mempty
 
 bracketsTaxFunction :: TaxRate r => Brackets r -> TaxFunction
 bracketsTaxFunction = undefined
