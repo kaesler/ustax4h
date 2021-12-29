@@ -1,6 +1,10 @@
 {-# LANGUAGE DerivingStrategies #-}
 
-module TaxFunction () where
+module TaxFunction
+  ( bracketsTaxFunction,
+    flatTaxFunction,
+  )
+where
 
 import Brackets (Brackets)
 import Data.List.NonEmpty (NonEmpty, zip, zipWith, (<|))
@@ -26,7 +30,7 @@ bracketsTaxFunction brackets =
 
 rateDeltas :: TaxRate r => Brackets r -> NonEmpty (IncomeThreshold, r)
 rateDeltas brackets =
-  let thresholds = keys brackets
-      rates = elems brackets
+  let rates = keys brackets
       rateDeltas = Data.List.NonEmpty.zipWith absoluteDifference (zero <| rates) rates
+      thresholds = elems brackets
    in Data.List.NonEmpty.zip thresholds rateDeltas

@@ -8,4 +8,4 @@ import TaxRate (TaxRate)
 import Money.Money (IncomeThreshold)
 import Data.Map.NonEmpty (NEMap)
 
-type Brackets r = NEMap IncomeThreshold r
+type Brackets r = NEMap r IncomeThreshold
