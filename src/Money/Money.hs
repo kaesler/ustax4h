@@ -10,10 +10,14 @@ module Money.Money
     TaxPayable,
     amountAbove,
     applyTaxRate,
+    inflateThreshold,
+    mkIncomeThreshold,
+    thresholdDifference,
   )
 where
 
 import Data.Monoid (Sum (Sum))
+import Math (roundHalfUp)
 import TaxRate (TaxRate (toDouble))
 
 type Money = Sum Double
@@ -31,6 +35,9 @@ monus (Sum d1) (Sum d2)
   | d1 > d2 = mkMoney (d1 - d2)
   | otherwise = zero
 
+diff :: Money -> Money -> Money
+diff (Sum m1) (Sum m2) = mkMoney (abs (m1 - m2))
+
 newtype Deduction = Deduction Money
   deriving newtype (Semigroup)
   deriving newtype (Monoid)
@@ -45,6 +52,15 @@ newtype IncomeThreshold = IncomeThreshold Money
   deriving newtype (Semigroup)
   deriving newtype (Monoid)
   deriving newtype (Show)
+
+mkIncomeThreshold :: Integer -> IncomeThreshold
+mkIncomeThreshold i = IncomeThreshold $ mkMoney (fromIntegral i)
+
+thresholdDifference :: IncomeThreshold -> IncomeThreshold -> TaxableIncome
+thresholdDifference (IncomeThreshold m1) (IncomeThreshold m2) = TaxableIncome (diff m1 m2)
+
+inflateThreshold :: Double -> IncomeThreshold -> IncomeThreshold
+inflateThreshold factor (IncomeThreshold (Sum m)) = IncomeThreshold $ Sum $ roundHalfUp (m * factor)
 
 newtype TaxableIncome = TaxableIncome Money
   deriving newtype (Semigroup)

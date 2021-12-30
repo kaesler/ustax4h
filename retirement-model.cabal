@@ -33,6 +33,7 @@ library
       Federal.BracketTypes
       Federal.Calculator
       Federal.FederalTaxRate
+      Federal.OrdinaryBrackets
       Federal.OrdinaryIncome
       Federal.QualifiedIncome
       Federal.Regime
