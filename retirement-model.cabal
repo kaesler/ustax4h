@@ -35,6 +35,7 @@ library
       Federal.FederalTaxRate
       Federal.OrdinaryBrackets
       Federal.OrdinaryIncome
+      Federal.QualifiedBrackets
       Federal.QualifiedIncome
       Federal.Regime
       Federal.RMDs

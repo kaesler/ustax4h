@@ -14,8 +14,6 @@ module Federal.OrdinaryIncome
 where
 
 import CommonTypes (Money)
-import Control.Exception.Base (bracket)
-import Data.Bits (toIntegralSized)
 import Data.Coerce (coerce)
 import qualified Data.List as List
 import Data.List.NonEmpty as NonEmpty (fromList, head, last, reverse, tail, takeWhile, toList)
