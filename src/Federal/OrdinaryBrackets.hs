@@ -11,13 +11,8 @@ where
 
 import qualified Brackets
 import Data.Coerce (coerce)
-import qualified Data.List as List
-import Data.List.NonEmpty (toList)
-import qualified Data.List.NonEmpty as NonEmpty
-import qualified Data.Map.NonEmpty as NEMap
-import Data.Maybe (fromJust)
 import Federal.FederalTaxRate (FederalTaxRate, mkFederalTaxRate)
-import Money.Money (IncomeThreshold, TaxPayable, TaxableIncome, applyTaxRate, thresholdDifference)
+import Money.Money (IncomeThreshold, TaxPayable, TaxableIncome)
 
 newtype OrdinaryBrackets = OrdinaryBrackets (Brackets.Brackets FederalTaxRate)
 
@@ -29,47 +24,17 @@ inflateThresholds factor (OrdinaryBrackets brackets) = coerce $ Brackets.inflate
 fromPairs :: [(Double, Integer)] -> OrdinaryBrackets
 fromPairs pairs = coerce $ Brackets.fromPairs pairs mkFederalTaxRate
 
--- TODO: delegate to Brackets module?
-rateSuccessor :: OrdinaryBrackets -> FederalTaxRate -> Maybe FederalTaxRate
-rateSuccessor (OrdinaryBrackets brackets) rate =
-  do
-    let rates = NEMap.keys brackets
-    let pairs = Prelude.zip (toList rates) (NonEmpty.tail rates)
-    pair <- List.find (\p -> fst p == rate) pairs
-    Just (snd pair)
+rateSuccessor :: FederalTaxRate -> OrdinaryBrackets -> Maybe FederalTaxRate
+rateSuccessor rate brackets = coerce $ Brackets.rateSuccessor rate (coerce brackets)
 
--- TODO: delegate to Brackets module?
 ordinaryRatesExceptTop :: OrdinaryBrackets -> [FederalTaxRate]
-ordinaryRatesExceptTop (OrdinaryBrackets brackets) =
-  let rates = NEMap.keys brackets
-      topRate = NonEmpty.last rates
-   in NonEmpty.takeWhile (/= topRate) rates
+ordinaryRatesExceptTop brackets = coerce $ Brackets.ratesExceptTop (coerce brackets)
 
--- TODO: delegate to Brackets module?
 taxableIncomeToEndOfOrdinaryBracket :: OrdinaryBrackets -> FederalTaxRate -> IncomeThreshold
-taxableIncomeToEndOfOrdinaryBracket os@(OrdinaryBrackets brackets) bracketRate =
-  let successorRate = fromJust (rateSuccessor os bracketRate)
-   in fromJust (NEMap.lookup successorRate brackets)
+taxableIncomeToEndOfOrdinaryBracket brackets = Brackets.taxableIncomeToEndOfBracket (coerce brackets)
 
--- TODO: delegate to Brackets module?
 ordinaryIncomeBracketWidth :: OrdinaryBrackets -> FederalTaxRate -> TaxableIncome
-ordinaryIncomeBracketWidth obs@(OrdinaryBrackets brackets) rate =
-  fromJust
-    ( do
-        threshold <- NEMap.lookup rate brackets
-        successorRate <- rateSuccessor obs rate
-        successorThreshold <- NEMap.lookup successorRate brackets
-        Just $ thresholdDifference threshold successorThreshold
-    )
+ordinaryIncomeBracketWidth brackets = Brackets.bracketWidth (coerce brackets)
 
--- TODO: delegate to Brackets module?
 taxToEndOfOrdinaryBracket :: OrdinaryBrackets -> FederalTaxRate -> TaxPayable
-taxToEndOfOrdinaryBracket brackets bracketRate =
-  let relevantRates = List.takeWhile (<= bracketRate) (ordinaryRatesExceptTop brackets)
-      bracketWidths = List.map (ordinaryIncomeBracketWidth brackets) relevantRates
-      pairs = relevantRates `zip` bracketWidths
-      taxesDue = List.map taxForBracket pairs
-        where
-          taxForBracket :: (FederalTaxRate, TaxableIncome) -> TaxPayable
-          taxForBracket (rate, width) = applyTaxRate rate width
-   in mconcat taxesDue
+taxToEndOfOrdinaryBracket brackets = Brackets.taxToEndOfBracket (coerce brackets)
