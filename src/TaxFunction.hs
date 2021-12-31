@@ -22,12 +22,12 @@ flatTaxFunction = thresholdTaxFunction mempty
 
 bracketsTaxFunction :: TaxRate r => Brackets r -> TaxFunction
 bracketsTaxFunction brackets =
-  let pairs = asRateDeltas brackets
+  let pairs = rateDeltasForBrackets brackets
       taxFuncs = fmap (uncurry thresholdTaxFunction) pairs
    in foldl1 mappend taxFuncs
 
-asRateDeltas :: TaxRate r => Brackets r -> NonEmpty (IncomeThreshold, r)
-asRateDeltas brackets =
+rateDeltasForBrackets :: TaxRate r => Brackets r -> NonEmpty (IncomeThreshold, r)
+rateDeltasForBrackets brackets =
   let rates = keys brackets
       deltas = Data.List.NonEmpty.zipWith absoluteDifference (zero <| rates) rates
       thresholds = elems brackets
