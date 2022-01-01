@@ -3,5 +3,5 @@ module Federal.BracketTypes
   )
 where
 
-newtype BracketStart = BracketStart Integer
+newtype BracketStart = BracketStart Int
   deriving (Eq, Ord, Show)

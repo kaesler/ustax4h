@@ -13,5 +13,5 @@ newtype QualifiedBrackets = QualifiedBrackets (Brackets.Brackets FederalTaxRate)
 inflateThresholds :: Double -> QualifiedBrackets -> QualifiedBrackets
 inflateThresholds factor (QualifiedBrackets brackets) = coerce $ Brackets.inflateThresholds factor brackets
 
-fromPairs :: [(Double, Integer)] -> QualifiedBrackets
+fromPairs :: [(Double, Int)] -> QualifiedBrackets
 fromPairs pairs = coerce $ Brackets.fromPairs pairs mkFederalTaxRate

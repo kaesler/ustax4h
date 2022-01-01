@@ -37,9 +37,9 @@ data BoundRegime = BoundRegime
     -- The following are inflatable. They may get adjusted to estimate the
     -- the tax regime for a future year, based on estimated inflation.
     perPersonExemption :: Money,
-    unadjustedStandardDeduction :: Integer,
-    adjustmentWhenOver65 :: Integer,
-    adjustmentWhenOver65AndSingle :: Integer,
+    unadjustedStandardDeduction :: Int,
+    adjustmentWhenOver65 :: Int,
+    adjustmentWhenOver65AndSingle :: Int,
     ordinaryIncomeBrackets :: FO.OrdinaryIncomeBrackets,
     qualifiedIncomeBrackets :: FQ.QualifiedIncomeBrackets
   }
@@ -73,7 +73,7 @@ perPersonExemptionFor :: Regime -> Year -> Money
 perPersonExemptionFor PreTrump _ = 4050
 perPersonExemptionFor Trump _ = 0
 
-unAdjustedStdDeductionFor :: Regime -> Year -> FilingStatus -> Integer
+unAdjustedStdDeductionFor :: Regime -> Year -> FilingStatus -> Int
 unAdjustedStdDeductionFor Trump 2022 Single = 12950
 unAdjustedStdDeductionFor Trump 2022 HeadOfHousehold = 19400
 unAdjustedStdDeductionFor Trump 2021 Single = 12550
@@ -88,7 +88,7 @@ unAdjustedStdDeductionFor PreTrump 2017 Single = 6350
 unAdjustedStdDeductionFor PreTrump 2017 HeadOfHousehold = 9350
 unAdjustedStdDeductionFor r y _ = error $ printf "Unsupported combination %s, %d " (show r) y
 
-ageAdjustmentFor :: HasCallStack => Regime -> Year -> Integer
+ageAdjustmentFor :: HasCallStack => Regime -> Year -> Int
 ageAdjustmentFor Trump 2022 = 1400
 ageAdjustmentFor Trump 2021 = 1350
 ageAdjustmentFor Trump 2020 = 1300
@@ -97,7 +97,7 @@ ageAdjustmentFor Trump 2018 = 1300
 ageAdjustmentFor PreTrump 2017 = 1250
 ageAdjustmentFor r y = error $ printf "Unsupported combination %s, %d" (show r) y
 
-ageAndSingleAdjustmentFor :: HasCallStack => Regime -> Year -> Integer
+ageAndSingleAdjustmentFor :: HasCallStack => Regime -> Year -> Int
 ageAndSingleAdjustmentFor Trump 2022 = 350
 ageAndSingleAdjustmentFor Trump 2021 = 350
 ageAndSingleAdjustmentFor Trump 2020 = 350

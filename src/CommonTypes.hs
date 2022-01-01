@@ -20,7 +20,7 @@ type Money = Double
 
 type Year = Integer
 
-newtype Age = Age Integer
+newtype Age = Age Int
   deriving (Eq, Ord, Show)
 
 data FilingStatus = HeadOfHousehold | Single

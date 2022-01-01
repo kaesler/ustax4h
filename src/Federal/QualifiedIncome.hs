@@ -31,7 +31,7 @@ newtype QualifiedRate = QualifiedRate Double
 qualifiedRateAsFraction :: QualifiedRate -> Double
 qualifiedRateAsFraction (QualifiedRate r) = r / 100.0
 
-fromPairs :: [(Double, Integer)] -> QualifiedIncomeBrackets
+fromPairs :: [(Double, Int)] -> QualifiedIncomeBrackets
 fromPairs = NEMap.fromList . NonEmpty.fromList . fmap f
   where
     f (rateAsDouble, startAsInt) = (QualifiedRate rateAsDouble, BracketStart startAsInt)
@@ -43,7 +43,7 @@ inflate brackets factor =
     inflateBracketStart (BracketStart s) =
       BracketStart $ round $ roundHalfUp $ factor * fromIntegral s
 
-startOfNonZeroQualifiedRateBracket :: QualifiedIncomeBrackets -> Integer
+startOfNonZeroQualifiedRateBracket :: QualifiedIncomeBrackets -> Int
 startOfNonZeroQualifiedRateBracket brackets =
   -- The start of the 2nd-to-bottom bracket.
   coerce $ (NonEmpty.!!) (NEMap.elems brackets) 1
@@ -60,8 +60,8 @@ applyQualifiedIncomeBrackets brackets taxableOrdinaryIncome qualifiedIncome =
     func (totalIncomeInHigherBrackets, gainsYetToBeTaxed, gainsTaxSoFar) (rate, BracketStart start) =
       let totalIncomeYetToBeTaxed = totalTaxableIncome `nonNegSub` totalIncomeInHigherBrackets
           ordinaryIncomeYetToBeTaxed = totalIncomeYetToBeTaxed `nonNegSub` gainsYetToBeTaxed
-          totalIncomeInThisBracket = totalIncomeYetToBeTaxed `nonNegSub` fromInteger start
-          ordinaryIncomeInThisBracket = ordinaryIncomeYetToBeTaxed `nonNegSub` fromInteger start
+          totalIncomeInThisBracket = totalIncomeYetToBeTaxed `nonNegSub` fromIntegral start
+          ordinaryIncomeInThisBracket = ordinaryIncomeYetToBeTaxed `nonNegSub` fromIntegral start
           gainsInThisBracket = totalIncomeInThisBracket `nonNegSub` ordinaryIncomeInThisBracket
           taxInThisBracket = gainsInThisBracket * qualifiedRateAsFraction rate
        in ( totalIncomeInHigherBrackets + totalIncomeInThisBracket,

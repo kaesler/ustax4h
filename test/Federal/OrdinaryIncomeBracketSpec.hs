@@ -129,7 +129,7 @@ assertCorrectTaxDueAtBracketBoundary filingStatus bracketRate =
       stdDed = standardDeductionFor filingStatus
       StandardDeduction deduction = stdDed
       income = incomeToEndOfOrdinaryBracket brackets stdDed bracketRate
-      taxableIncome = income - fromInteger deduction
+      taxableIncome = income - fromIntegral deduction
       expectedTax = roundHalfUp $ taxToEndOfOrdinaryBracket brackets bracketRate
       computedTax = roundHalfUp $ applyOrdinaryIncomeBrackets brackets taxableIncome
    in do
@@ -147,7 +147,7 @@ assertCorrectTaxDueAtBracketBoundaries filingStatus =
           taxDueIsAsExpected :: (Double, Double) -> Expectation
           taxDueIsAsExpected (income, expectedTax) =
             let StandardDeduction deduction = stdDed
-                taxableIncome = income - fromInteger deduction
+                taxableIncome = income - fromIntegral deduction
                 computedTax = roundHalfUp $ applyOrdinaryIncomeBrackets brackets taxableIncome
              in do
                   computedTax `shouldBe` roundHalfUp expectedTax

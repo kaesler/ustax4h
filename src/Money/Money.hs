@@ -3,15 +3,20 @@
 
 module Money.Money
   ( Deduction,
-    Income,
+    Income(..), -- TODO: hide ctors
     IncomeThreshold,
     TaxableIncome,
     TaxCredit,
     TaxPayable,
     amountAbove,
+    applyDeductions,
     applyTaxRate,
+    hackIncomeFromDouble,
+    hackTaxPayableToDouble,
     inflateThreshold,
+    mkDeduction,
     mkIncomeThreshold,
+    roundTaxPayable,
     thresholdDifference,
     thresholdAsTaxableIncome,
   )
@@ -45,17 +50,24 @@ newtype Deduction = Deduction Money
   deriving newtype (Monoid)
   deriving newtype (Show)
 
+mkDeduction :: Int-> Deduction
+mkDeduction i = coerce $ mkMoney $ fromIntegral i
+
 newtype Income = Income Money
   deriving newtype (Semigroup)
   deriving newtype (Monoid)
   deriving newtype (Show)
+
+-- TODO: temporary
+hackIncomeFromDouble :: Double -> Income
+hackIncomeFromDouble d = coerce d
 
 newtype IncomeThreshold = IncomeThreshold Money
   deriving newtype (Semigroup)
   deriving newtype (Monoid)
   deriving newtype (Show)
 
-mkIncomeThreshold :: Integer -> IncomeThreshold
+mkIncomeThreshold :: Int -> IncomeThreshold
 mkIncomeThreshold i = coerce (fromIntegral i :: Double)
 
 thresholdDifference :: IncomeThreshold -> IncomeThreshold -> TaxableIncome
@@ -64,16 +76,26 @@ thresholdDifference it1 it2 = coerce $ diff (coerce it1) (coerce it2)
 inflateThreshold :: Double -> IncomeThreshold -> IncomeThreshold
 inflateThreshold factor threshold = coerce $ roundHalfUp (coerce threshold * factor)
 
+
 newtype TaxableIncome = TaxableIncome Money
   deriving newtype (Semigroup)
   deriving newtype (Monoid)
   deriving newtype (Show)
+
+hackTaxPayableToDouble :: TaxPayable -> Double
+hackTaxPayableToDouble = coerce
+
+roundTaxPayable :: TaxPayable -> TaxPayable
+roundTaxPayable tp = coerce $ roundHalfUp $ coerce tp
 
 thresholdAsTaxableIncome :: IncomeThreshold -> TaxableIncome
 thresholdAsTaxableIncome = coerce
 
 amountAbove :: TaxableIncome -> IncomeThreshold -> TaxableIncome
 amountAbove income threshold = coerce $ coerce income `monus` coerce threshold
+
+applyDeductions :: Income -> Deduction -> TaxableIncome
+applyDeductions income deductions = coerce $ coerce income `monus` coerce deductions
 
 newtype TaxCredit = TaxCredit Money
   deriving newtype (Semigroup)

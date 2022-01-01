@@ -7,6 +7,7 @@ where
 
 import Math (roundHalfUp)
 import MathInSpecs (closeEnoughTo)
+import Money.Money (hackIncomeFromDouble, hackTaxPayableToDouble, roundTaxPayable)
 import qualified StateMA.Calculator as Calc
 import Test.Hspec
   ( Expectation,
@@ -24,17 +25,17 @@ stateMATaxCalculatorSpec =
       let makeExpectation :: TestCase -> Expectation
           makeExpectation tc@TestCase {..} =
             let calculatedTaxDue =
-                  roundHalfUp
+                  roundTaxPayable
                     ( Calc.taxDue
                         year
                         birthDate
                         dependents
                         filingStatus
-                        (ordinaryIncomeNonSS + qualifiedIncome)
+                        (hackIncomeFromDouble (ordinaryIncomeNonSS + qualifiedIncome))
                     )
              in do
                   -- print tc
                   -- print calculatedTaxDue
-                  calculatedTaxDue `shouldSatisfy` closeEnoughTo expectedStateTax
+                  (hackTaxPayableToDouble calculatedTaxDue) `shouldSatisfy` closeEnoughTo expectedStateTax
           expectations = fmap makeExpectation TDFS.cases
        in () <$ sequence expectations

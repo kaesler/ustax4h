@@ -45,13 +45,13 @@ applyOrdinaryIncomeBrackets brackets taxableOrdinaryincome =
   where
     func :: (Double, Double) -> (OrdinaryRate, BracketStart) -> (Double, Double)
     func (incomeYetToBeTaxed, taxSoFar) (rate, BracketStart start) =
-      let incomeInThisBracket = incomeYetToBeTaxed `nonNegSub` fromInteger start
+      let incomeInThisBracket = incomeYetToBeTaxed `nonNegSub` fromIntegral start
           taxInThisBracket = incomeInThisBracket * ordinaryRateAsFraction rate
        in ( incomeYetToBeTaxed `nonNegSub` incomeInThisBracket,
             taxSoFar + taxInThisBracket
           )
 
-fromPairs :: [(Double, Integer)] -> OrdinaryIncomeBrackets
+fromPairs :: [(Double, Int)] -> OrdinaryIncomeBrackets
 fromPairs = NEMap.fromList . NonEmpty.fromList . fmap f
   where
     f (rateAsDouble, startAsInt) = (OrdinaryRate rateAsDouble, BracketStart startAsInt)
@@ -75,7 +75,7 @@ incomeToEndOfOrdinaryBracket brackets stdDeduction bracketRate =
   let successorRate = fromJust (rateSuccessor brackets bracketRate)
       BracketStart startOfSuccessor = fromJust (NEMap.lookup successorRate brackets)
       StandardDeduction deduction = stdDeduction
-   in fromInteger (startOfSuccessor + deduction)
+   in fromIntegral (startOfSuccessor + deduction)
 
 taxToEndOfOrdinaryBracket :: OrdinaryIncomeBrackets -> OrdinaryRate -> Double
 taxToEndOfOrdinaryBracket brackets bracketRate =
@@ -94,7 +94,7 @@ bottomRateOnOrdinaryIncome brackets = NonEmpty.head $ NEMap.keys brackets
 topRateOnOrdinaryIncome :: OrdinaryIncomeBrackets -> OrdinaryRate
 topRateOnOrdinaryIncome brackets = NonEmpty.last $ NEMap.keys brackets
 
-ordinaryIncomeBracketWidth :: OrdinaryIncomeBrackets -> OrdinaryRate -> Integer
+ordinaryIncomeBracketWidth :: OrdinaryIncomeBrackets -> OrdinaryRate -> Int
 ordinaryIncomeBracketWidth brackets rate =
   fromJust
     ( do

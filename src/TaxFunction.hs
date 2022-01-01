@@ -1,7 +1,8 @@
 {-# LANGUAGE DerivingStrategies #-}
 
 module TaxFunction
-  ( bracketsTaxFunction,
+  ( TaxFunction,
+    bracketsTaxFunction,
     flatTaxFunction,
   )
 where

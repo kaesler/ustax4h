@@ -21,7 +21,7 @@ newtype OrdinaryBrackets = OrdinaryBrackets (Brackets.Brackets FederalTaxRate)
 inflateThresholds :: Double -> OrdinaryBrackets -> OrdinaryBrackets
 inflateThresholds factor (OrdinaryBrackets brackets) = coerce $ Brackets.inflateThresholds factor brackets
 
-fromPairs :: [(Double, Integer)] -> OrdinaryBrackets
+fromPairs :: [(Double, Int)] -> OrdinaryBrackets
 fromPairs pairs = coerce $ Brackets.fromPairs pairs mkFederalTaxRate
 
 rateSuccessor :: FederalTaxRate -> OrdinaryBrackets -> Maybe FederalTaxRate

@@ -29,5 +29,5 @@ type CombinedIncome = Money
 
 type DistributionPeriod = Double
 
-newtype StandardDeduction = StandardDeduction Integer
+newtype StandardDeduction = StandardDeduction Int
   deriving (Eq, Ord, Show)

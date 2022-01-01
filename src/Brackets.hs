@@ -21,7 +21,7 @@ import Data.Maybe (fromJust)
 
 type Brackets r = NEMap r IncomeThreshold
 
-fromPairs :: TaxRate r => [(Double, Integer)] -> (Double -> r) -> Brackets r
+fromPairs :: TaxRate r => [(Double, Int)] -> (Double -> r) -> Brackets r
 fromPairs pairs mkRate =
   let nePairs = NonEmpty.fromList pairs
       f (rateAsDouble, thresholdAsInteger) = (mkRate rateAsDouble, mkIncomeThreshold thresholdAsInteger)
