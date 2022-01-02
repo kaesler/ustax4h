@@ -6,18 +6,18 @@ module Brackets
     ratesExceptTop,
     rateSuccessor,
     taxableIncomeToEndOfBracket,
-    taxToEndOfBracket
+    taxToEndOfBracket,
   )
 where
 
-import Data.List.NonEmpty as NonEmpty (fromList, tail, last, takeWhile)
-import Data.Map.NonEmpty (NEMap)
-import qualified Data.Map.NonEmpty as NEMap
-import Money.Money (IncomeThreshold, inflateThreshold, mkIncomeThreshold, TaxableIncome, thresholdDifference, TaxPayable, applyTaxRate)
-import TaxRate (TaxRate)
 import qualified Data.List as List
 import Data.List.NonEmpty (toList)
+import Data.List.NonEmpty as NonEmpty (fromList, last, tail, takeWhile)
+import Data.Map.NonEmpty (NEMap)
+import qualified Data.Map.NonEmpty as NEMap
 import Data.Maybe (fromJust)
+import Moneys (IncomeThreshold, TaxPayable, TaxableIncome, applyTaxRate, inflateThreshold, mkIncomeThreshold, thresholdDifference)
+import TaxRate (TaxRate)
 
 type Brackets r = NEMap r IncomeThreshold
 

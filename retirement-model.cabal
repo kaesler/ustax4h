@@ -43,7 +43,7 @@ library
       Federal.Types
       Kevin
       Math
-      Money.Money
+      Moneys
       StateMA.Calculator
       StateMA.StateMATaxRate
       StateMA.Types

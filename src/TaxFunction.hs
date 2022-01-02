@@ -10,7 +10,7 @@ where
 import Brackets (Brackets)
 import Data.List.NonEmpty (NonEmpty, zip, zipWith, (<|))
 import Data.Map.NonEmpty (elems, keys)
-import Money.Money (IncomeThreshold, TaxPayable, TaxableIncome, amountAbove, applyTaxRate)
+import Moneys (IncomeThreshold, TaxPayable, TaxableIncome, amountAbove, applyTaxRate)
 import TaxRate (TaxRate (absoluteDifference, zero))
 
 type TaxFunction = TaxableIncome -> TaxPayable

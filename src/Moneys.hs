@@ -1,10 +1,14 @@
 {-# LANGUAGE DerivingStrategies #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
 
-module Money.Money
+module Moneys
   ( Deduction,
-    Income(..), -- TODO: hide ctors
+    Income (..), -- TODO: hide ctors
     IncomeThreshold,
+    ItemizedDeductions,
+    OrdinaryIncome,
+    QualifiedIncome,
+    SocSec,
     TaxableIncome,
     TaxCredit,
     TaxPayable,
@@ -29,6 +33,14 @@ import TaxRate (TaxRate (toDouble))
 
 type Money = Sum Double
 
+type ItemizedDeductions = Deduction
+
+type OrdinaryIncome = Income
+
+type QualifiedIncome = Income
+
+type SocSec = Income
+
 mkMoney :: Double -> Money
 mkMoney d
   | d < 0 = error "Money can't be negative"
@@ -50,7 +62,7 @@ newtype Deduction = Deduction Money
   deriving newtype (Monoid)
   deriving newtype (Show)
 
-mkDeduction :: Int-> Deduction
+mkDeduction :: Int -> Deduction
 mkDeduction i = coerce $ mkMoney $ fromIntegral i
 
 newtype Income = Income Money
@@ -60,7 +72,7 @@ newtype Income = Income Money
 
 -- TODO: temporary
 hackIncomeFromDouble :: Double -> Income
-hackIncomeFromDouble d = coerce d
+hackIncomeFromDouble = coerce
 
 newtype IncomeThreshold = IncomeThreshold Money
   deriving newtype (Semigroup)
@@ -75,7 +87,6 @@ thresholdDifference it1 it2 = coerce $ diff (coerce it1) (coerce it2)
 
 inflateThreshold :: Double -> IncomeThreshold -> IncomeThreshold
 inflateThreshold factor threshold = coerce $ roundHalfUp (coerce threshold * factor)
-
 
 newtype TaxableIncome = TaxableIncome Money
   deriving newtype (Semigroup)

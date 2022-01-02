@@ -12,7 +12,7 @@ where
 import qualified Brackets
 import Data.Coerce (coerce)
 import Federal.FederalTaxRate (FederalTaxRate, mkFederalTaxRate)
-import Money.Money (IncomeThreshold, TaxPayable, TaxableIncome)
+import Moneys (IncomeThreshold, TaxPayable, TaxableIncome)
 
 newtype OrdinaryBrackets = OrdinaryBrackets (Brackets.Brackets FederalTaxRate)
 

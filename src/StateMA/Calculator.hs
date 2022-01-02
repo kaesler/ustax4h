@@ -12,7 +12,7 @@ import CommonTypes
   )
 import Data.Function
 import Math (nonNegSub)
-import Money.Money (Deduction, Income, TaxPayable, applyDeductions, mkDeduction)
+import Moneys (Deduction, Income, TaxPayable, applyDeductions, mkDeduction)
 import StateMA.StateMATaxRate (StateMATaxRate, mkStateMATaxRate)
 import StateMA.Types (MassachusettsGrossIncome)
 import qualified TaxFunction
