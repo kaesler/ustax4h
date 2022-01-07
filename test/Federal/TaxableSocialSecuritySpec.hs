@@ -5,22 +5,23 @@ where
 
 import CommonTypes (FilingStatus (Single))
 import qualified Federal.TaxableSocialSecurity as TSS
+import Moneys (makeFromInt, noMoney)
 import Test.Hspec (SpecWith, describe, it, shouldBe)
 
 taxableSocialSecuritySpec :: SpecWith ()
 taxableSocialSecuritySpec =
   describe "Federal.TaxableSocialSecurit.taxableSocialSecurity" $ do
     it "Untaxable 1" $
-      TSS.amountTaxable Single 50000.0 0.0 `shouldBe` 0.0
+      TSS.amountTaxable Single (makeFromInt 50000) noMoney `shouldBe` noMoney
     it "Untaxable 2" $
-      TSS.amountTaxable Single 40000.0 5000.0 `shouldBe` 0.0
+      TSS.amountTaxable Single (makeFromInt 40000) (makeFromInt 5000) `shouldBe` noMoney
     it "Top of middle tier 1" $
-      TSS.amountTaxable Single 68000.0 0.0 `shouldBe` 4500.0
+      TSS.amountTaxable Single (makeFromInt 68000) noMoney `shouldBe` makeFromInt 4500
     it "Top of middle tier 2" $
-      TSS.amountTaxable Single 28000.0 20000.0 `shouldBe` 4500.0
+      TSS.amountTaxable Single (makeFromInt 28000) (makeFromInt 20000) `shouldBe` makeFromInt 4500
     it "Example 1 from Pub 915" $
-      TSS.amountTaxable Single 5980.0 28900.0 `shouldBe` 2990.0
+      TSS.amountTaxable Single (makeFromInt 5980) (makeFromInt 28900) `shouldBe` makeFromInt 2990
     it "Jackson Example from Pub 915" $
-      TSS.amountTaxable Single 11000.0 25500.0 `shouldBe` 3000.0
+      TSS.amountTaxable Single (makeFromInt 11000) (makeFromInt 25500) `shouldBe` makeFromInt 3000
     it "Example like I will face" $
-      TSS.amountTaxable Single 49000.0 17000.0 `shouldBe` 10875.0
+      TSS.amountTaxable Single (makeFromInt 49000) (makeFromInt 17000) `shouldBe` makeFromInt 10875

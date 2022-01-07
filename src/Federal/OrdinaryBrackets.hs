@@ -1,10 +1,15 @@
+{-# LANGUAGE DerivingStrategies #-}
+{-# LANGUAGE GeneralizedNewtypeDeriving #-}
+
 module Federal.OrdinaryBrackets
-  ( inflateThresholds,
+  ( OrdinaryBrackets,
+    inflateThresholds,
     fromPairs,
     ordinaryIncomeBracketWidth,
     ordinaryRatesExceptTop,
     rateSuccessor,
     taxableIncomeToEndOfOrdinaryBracket,
+    taxFunctionFor,
     taxToEndOfOrdinaryBracket,
   )
 where
@@ -13,16 +18,21 @@ import qualified Brackets
 import Data.Coerce (coerce)
 import Federal.FederalTaxRate (FederalTaxRate, mkFederalTaxRate)
 import Moneys (IncomeThreshold, TaxPayable, TaxableIncome)
+import TaxFunction (TaxFunction, bracketsTaxFunction)
 
 newtype OrdinaryBrackets = OrdinaryBrackets (Brackets.Brackets FederalTaxRate)
+  deriving newtype (Show)
 
--- TODO: do we need all these?
+fromPairs :: [(Double, Int)] -> OrdinaryBrackets
+fromPairs pairs = coerce $ Brackets.fromPairs pairs mkFederalTaxRate
 
 inflateThresholds :: Double -> OrdinaryBrackets -> OrdinaryBrackets
 inflateThresholds factor (OrdinaryBrackets brackets) = coerce $ Brackets.inflateThresholds factor brackets
 
-fromPairs :: [(Double, Int)] -> OrdinaryBrackets
-fromPairs pairs = coerce $ Brackets.fromPairs pairs mkFederalTaxRate
+taxFunctionFor :: OrdinaryBrackets -> TaxFunction
+taxFunctionFor (OrdinaryBrackets brs) = bracketsTaxFunction brs
+
+-- TODO: do we need all these?
 
 rateSuccessor :: FederalTaxRate -> OrdinaryBrackets -> Maybe FederalTaxRate
 rateSuccessor rate brackets = coerce $ Brackets.rateSuccessor rate (coerce brackets)
@@ -30,7 +40,7 @@ rateSuccessor rate brackets = coerce $ Brackets.rateSuccessor rate (coerce brack
 ordinaryRatesExceptTop :: OrdinaryBrackets -> [FederalTaxRate]
 ordinaryRatesExceptTop brackets = coerce $ Brackets.ratesExceptTop (coerce brackets)
 
-taxableIncomeToEndOfOrdinaryBracket :: OrdinaryBrackets -> FederalTaxRate -> IncomeThreshold
+taxableIncomeToEndOfOrdinaryBracket :: OrdinaryBrackets -> FederalTaxRate -> TaxableIncome
 taxableIncomeToEndOfOrdinaryBracket brackets = Brackets.taxableIncomeToEndOfBracket (coerce brackets)
 
 ordinaryIncomeBracketWidth :: OrdinaryBrackets -> FederalTaxRate -> TaxableIncome

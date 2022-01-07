@@ -5,8 +5,15 @@ where
 
 import CommonTypes (FilingStatus (HeadOfHousehold), InflationEstimate (InflationEstimate))
 import Federal.BoundRegime
-import Federal.Regime
+  ( BoundRegime (perPersonExemption, unadjustedStandardDeduction),
+    bindRegime,
+    futureEstimated,
+    netDeduction,
+    standardDeduction,
+  )
+import Federal.Regime (Regime (Trump))
 import qualified Kevin
+import Moneys (makeFromInt, mul, noMoney)
 import Test.Hspec (SpecWith, describe, it, shouldBe)
 
 futureEstimationSpec :: SpecWith ()
@@ -22,8 +29,8 @@ futureEstimationSpec =
             -- print before
             -- print "After:"
             -- print after
-            unadjustedStandardDeduction after `shouldBe` round (fromIntegral (unadjustedStandardDeduction before) * factor)
-            perPersonExemption after `shouldBe` perPersonExemption before * factor
+            unadjustedStandardDeduction after `shouldBe` (unadjustedStandardDeduction before) `mul` factor
+            perPersonExemption after `shouldBe` perPersonExemption before `mul` factor
             standardDeduction before < standardDeduction after `shouldBe` True
-            netDeduction before 15000 < netDeduction after 15000 `shouldBe` True
-            netDeduction before 0 < netDeduction after 0 `shouldBe` True
+            netDeduction before (makeFromInt 15000) < netDeduction after (makeFromInt 15000) `shouldBe` True
+            netDeduction before noMoney < netDeduction after noMoney `shouldBe` True

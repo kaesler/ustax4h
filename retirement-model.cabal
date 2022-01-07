@@ -34,12 +34,11 @@ library
       Federal.Calculator
       Federal.FederalTaxRate
       Federal.OrdinaryBrackets
-      Federal.OrdinaryIncome
       Federal.QualifiedBrackets
-      Federal.QualifiedIncome
       Federal.Regime
       Federal.RMDs
       Federal.TaxableSocialSecurity
+      Federal.TaxFunctions
       Federal.Types
       Kevin
       Math
@@ -81,11 +80,10 @@ test-suite retirement-model-test
   other-modules:
       AgeSpec
       Federal.CalculatorSpec
-      Federal.OrdinaryIncomeBracketSpec
-      Federal.QualifiedIncomeBracketSpec
+      Federal.OrdinaryBracketsSpec
+      Federal.QualifiedBracketsSpec
       Federal.RegimeSpec
       Federal.TaxableSocialSecuritySpec
-      MathInSpecs
       StateMA.CalculatorSpec
       TestDataFromScala
       Paths_retirement_model

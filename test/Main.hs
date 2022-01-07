@@ -3,21 +3,21 @@ module Main
   )
 where
 
+import AgeSpec (ageSpec)
 import Federal.CalculatorSpec (agreementWithMy2017ReturnSpec, agreementWithScalaImplementationSpec)
-import Federal.OrdinaryIncomeBracketSpec (ordinaryIncomeBracketsSpec)
-import Federal.QualifiedIncomeBracketSpec (qualifiedIncomeBracketsSpec)
+import Federal.OrdinaryBracketsSpec (ordinaryBracketsSpec)
+import Federal.QualifiedBracketsSpec (qualifiedBracketsSpec)
 import Federal.RegimeSpec (futureEstimationSpec)
 import Federal.TaxableSocialSecuritySpec (taxableSocialSecuritySpec)
 import StateMA.CalculatorSpec (stateMATaxCalculatorSpec)
-import AgeSpec (ageSpec)
 import Test.Hspec (hspec)
 
 main :: IO ()
 main = hspec $ do
   taxableSocialSecuritySpec
   --
-  ordinaryIncomeBracketsSpec
-  qualifiedIncomeBracketsSpec
+  ordinaryBracketsSpec
+  qualifiedBracketsSpec
   agreementWithScalaImplementationSpec
   agreementWithMy2017ReturnSpec
   stateMATaxCalculatorSpec

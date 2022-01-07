@@ -16,7 +16,7 @@ import Data.List.NonEmpty as NonEmpty (fromList, last, tail, takeWhile)
 import Data.Map.NonEmpty (NEMap)
 import qualified Data.Map.NonEmpty as NEMap
 import Data.Maybe (fromJust)
-import Moneys (IncomeThreshold, TaxPayable, TaxableIncome, applyTaxRate, inflateThreshold, mkIncomeThreshold, thresholdDifference)
+import Moneys (IncomeThreshold, TaxPayable, TaxableIncome, applyTaxRate, inflateThreshold, makeFromInt, thresholdAsTaxableIncome, thresholdDifference)
 import TaxRate (TaxRate)
 
 type Brackets r = NEMap r IncomeThreshold
@@ -24,7 +24,9 @@ type Brackets r = NEMap r IncomeThreshold
 fromPairs :: TaxRate r => [(Double, Int)] -> (Double -> r) -> Brackets r
 fromPairs pairs mkRate =
   let nePairs = NonEmpty.fromList pairs
-      f (rateAsDouble, thresholdAsInteger) = (mkRate rateAsDouble, mkIncomeThreshold thresholdAsInteger)
+      f (rateAsPercentage, thresholdAsInteger) =
+        let rate = mkRate $ rateAsPercentage / 100.0
+         in (rate, makeFromInt thresholdAsInteger)
       mappedPairs = f <$> nePairs
    in NEMap.fromList mappedPairs
 
@@ -45,10 +47,10 @@ ratesExceptTop brackets =
       topRate = NonEmpty.last rates
    in NonEmpty.takeWhile (/= topRate) rates
 
-taxableIncomeToEndOfBracket :: TaxRate r => Brackets r -> r -> IncomeThreshold
+taxableIncomeToEndOfBracket :: TaxRate r => Brackets r -> r -> TaxableIncome
 taxableIncomeToEndOfBracket brackets bracketRate =
   let successorRate = fromJust (rateSuccessor bracketRate brackets)
-   in fromJust (NEMap.lookup successorRate brackets)
+   in thresholdAsTaxableIncome $ fromJust (NEMap.lookup successorRate brackets)
 
 bracketWidth :: TaxRate r => Brackets r -> r -> TaxableIncome
 bracketWidth brackets rate =

@@ -1,17 +1,7 @@
 module Math
-  ( nonNeg,
-    nonNegSub,
-    roundHalfUp,
+  ( roundHalfUp,
   )
 where
-
-nonNeg :: Double -> Double
-nonNeg x
-  | x < 0.0 = 0.0
-  | otherwise = x
-
-nonNegSub :: Double -> Double -> Double
-nonNegSub x y = nonNeg (x - y)
 
 roundHalfUp :: Double -> Double
 roundHalfUp x =

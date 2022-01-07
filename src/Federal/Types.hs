@@ -11,23 +11,22 @@ module Federal.Types
   )
 where
 
-import CommonTypes (Money)
-
-type ItemizedDeductions = Money
+import Moneys
 
 type PersonalExemptions = Int
 
-type OrdinaryIncome = Money
+type OrdinaryIncome = Income
 
-type QualifiedIncome = Money
+type QualifiedIncome = Income
 
-type SSRelevantOtherIncome = Money
+type SSRelevantOtherIncome = Income
 
-type SocSec = Money
+type SocSec = Income
 
-type CombinedIncome = Money
+type CombinedIncome = Income
 
 type DistributionPeriod = Double
 
-newtype StandardDeduction = StandardDeduction Int
-  deriving (Eq, Ord, Show)
+type StandardDeduction = Deduction
+
+type ItemizedDeductions = Deduction

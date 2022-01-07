@@ -1,5 +1,3 @@
-{-# LANGUAGE DisambiguateRecordFields #-}
-{-# LANGUAGE NamedFieldPuns #-}
 {-# LANGUAGE RecordWildCards #-}
 
 module Federal.Calculator
@@ -23,24 +21,37 @@ import Federal.BoundRegime
     personalExemptionDeduction,
     standardDeduction,
   )
-import Federal.OrdinaryIncome (applyOrdinaryIncomeBrackets)
-import Federal.QualifiedIncome (applyQualifiedIncomeBrackets)
 import Federal.RMDs ()
 import Federal.Regime (Regime)
+import qualified Federal.TaxFunctions as TFS
 import qualified Federal.TaxableSocialSecurity as TaxableSocialSecurity
-import Federal.Types (ItemizedDeductions, OrdinaryIncome, PersonalExemptions, QualifiedIncome, SocSec, StandardDeduction (..))
-import Math (nonNegSub)
+import Federal.Types
+  ( ItemizedDeductions,
+    OrdinaryIncome,
+    PersonalExemptions,
+    QualifiedIncome,
+    SocSec,
+  )
+import Moneys
+  ( Deduction,
+    Income,
+    TaxPayable,
+    TaxableIncome,
+    applyDeductions,
+    asTaxable,
+  )
 
 type TaxCalculator = SocSec -> OrdinaryIncome -> QualifiedIncome -> ItemizedDeductions -> FederalTaxResults
 
 makeCalculator :: BoundRegime -> TaxCalculator
 makeCalculator br@BoundRegime {..} socSec ordinaryIncome qualifiedIncome itemized =
-  let ssRelevantOtherIncome = ordinaryIncome + qualifiedIncome
+  let ssRelevantOtherIncome = ordinaryIncome <> qualifiedIncome
       taxableSocSec = TaxableSocialSecurity.amountTaxable filingStatus socSec ssRelevantOtherIncome
-      StandardDeduction sd = standardDeduction br
-      taxableOrdinaryIncome = (taxableSocSec + ordinaryIncome) `nonNegSub` netDeduction br itemized
-      taxOnOrdinaryIncome = applyOrdinaryIncomeBrackets ordinaryIncomeBrackets taxableOrdinaryIncome
-      taxOnQualifiedIncome = applyQualifiedIncomeBrackets qualifiedIncomeBrackets taxableOrdinaryIncome qualifiedIncome
+      sd = standardDeduction br
+      taxableOrdinaryIncome = (taxableSocSec <> ordinaryIncome) `applyDeductions` netDeduction br itemized
+      taxOnOrdinaryIncome = TFS.taxDueOnOrdinaryIncome ordinaryBrackets taxableOrdinaryIncome
+      taxOnQualifiedIncome =
+        TFS.taxDueOnQualifiedIncome qualifiedBrackets taxableOrdinaryIncome (asTaxable qualifiedIncome)
    in FederalTaxResults
         { boundRegime = br,
           ssRelevantOtherIncome = ssRelevantOtherIncome,
@@ -55,14 +66,14 @@ makeCalculator br@BoundRegime {..} socSec ordinaryIncome qualifiedIncome itemize
 
 data FederalTaxResults = FederalTaxResults
   { boundRegime :: BoundRegime,
-    ssRelevantOtherIncome :: Money,
-    taxableSocSec :: Money,
-    finalStandardDeduction :: StandardDeduction,
-    finalPersonalExemptionDeduction :: Money,
-    finalNetDeduction :: Money,
-    taxableOrdinaryIncome :: Money,
-    taxOnOrdinaryIncome :: Money,
-    taxOnQualifiedIncome :: Money
+    ssRelevantOtherIncome :: Income,
+    taxableSocSec :: Income,
+    finalStandardDeduction :: Deduction,
+    finalPersonalExemptionDeduction :: Deduction,
+    finalNetDeduction :: Deduction,
+    taxableOrdinaryIncome :: TaxableIncome,
+    taxOnOrdinaryIncome :: TaxPayable,
+    taxOnQualifiedIncome :: TaxPayable
   }
   deriving (Show)
 
@@ -77,7 +88,7 @@ taxResults ::
   QualifiedIncome ->
   ItemizedDeductions ->
   FederalTaxResults
-taxResults regime year birthDate filingStatus  personalExemptions socSec ordinaryIncome qualifiedIncome itemized =
+taxResults regime year birthDate filingStatus personalExemptions socSec ordinaryIncome qualifiedIncome itemized =
   let boundRegime = bindRegime regime year birthDate filingStatus personalExemptions
       calculator = makeCalculator boundRegime
    in calculator socSec ordinaryIncome qualifiedIncome itemized
@@ -92,10 +103,10 @@ taxDue ::
   OrdinaryIncome ->
   QualifiedIncome ->
   ItemizedDeductions ->
-  Double
+  TaxPayable
 taxDue regime year filingStatus birthDate personalExemptions socSec ordinaryIncome qualifiedIncome itemized =
   let results = taxResults regime year birthDate filingStatus personalExemptions socSec ordinaryIncome qualifiedIncome itemized
-   in taxOnOrdinaryIncome results + taxOnQualifiedIncome results
+   in taxOnOrdinaryIncome results <> taxOnQualifiedIncome results
 
 taxDueDebug ::
   Regime ->
@@ -125,4 +136,4 @@ taxDueDebug regime year filingStatus birthDate personalExemptions socSec ordinar
         putStrLn ("  taxableOrdinaryIncome: " ++ show (taxableOrdinaryIncome r))
         putStrLn ("  taxOnOrdinaryIncome: " ++ show (taxOnOrdinaryIncome r))
         putStrLn ("  taxOnQualifiedIncome: " ++ show (taxOnQualifiedIncome r))
-        putStrLn ("  result: " ++ show (taxOnOrdinaryIncome r + taxOnQualifiedIncome r))
+        putStrLn ("  result: " ++ show (taxOnOrdinaryIncome r <> taxOnQualifiedIncome r))
