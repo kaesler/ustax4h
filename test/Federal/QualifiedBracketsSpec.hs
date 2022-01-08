@@ -11,7 +11,7 @@ import Federal.BoundRegime
 import Federal.Regime (Regime (Trump))
 import qualified Federal.TaxFunctions as TFS
 import qualified Kevin
-import Moneys ( noMoney )
+import Moneys (noMoney)
 import Test.Hspec (SpecWith, describe, it, shouldBe)
 
 theRegime :: Regime

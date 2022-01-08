@@ -6,7 +6,6 @@ module Federal.Regime
 where
 
 import CommonTypes (Year)
-import Federal.BracketTypes ()
 import GHC.Stack (HasCallStack)
 import Text.Printf (printf)
 

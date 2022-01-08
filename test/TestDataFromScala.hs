@@ -7,7 +7,6 @@ where
 import CommonTypes
   ( BirthDate,
     FilingStatus (..),
-    Money,
     Year,
   )
 import Data.Time (fromGregorian)

@@ -4,7 +4,7 @@ module Age
 where
 
 import CommonTypes (BirthDate, Year)
-import Data.Time (addGregorianYearsClip, fromGregorian, toGregorian)
+import Data.Time (addGregorianYearsClip, fromGregorian)
 import Prelude
 
 -- You're considered by the IRS to be 65 on the day before your

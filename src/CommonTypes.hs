@@ -6,7 +6,6 @@ module CommonTypes
     InflationEstimate (..),
     inflationFactor,
     isUnmarried,
-    Money,
     Year,
   )
 where
@@ -15,8 +14,6 @@ import Data.Time.Calendar (Day)
 import GHC.Float (powerDouble)
 
 type BirthDate = Day
-
-type Money = Double
 
 type Year = Integer
 

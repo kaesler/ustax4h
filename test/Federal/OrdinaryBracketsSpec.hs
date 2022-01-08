@@ -21,9 +21,8 @@ import Federal.OrdinaryBrackets
   )
 import Federal.Regime (Regime (Trump))
 import qualified Federal.TaxFunctions as TFS
-import Federal.Types (OrdinaryIncome, SSRelevantOtherIncome, SocSec, StandardDeduction (..))
+import Federal.Types (SSRelevantOtherIncome, SocSec, StandardDeduction)
 import qualified Kevin
-import Math (roundHalfUp)
 import Moneys
   ( TaxPayable,
     TaxableIncome,

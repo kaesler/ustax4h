@@ -1,6 +1,6 @@
 module Main where
 
-import CommonTypes (FilingStatus (HeadOfHousehold, Single))
+import CommonTypes (FilingStatus (Single))
 import qualified Federal.TaxableSocialSecurity as TSS
 import Moneys (makeFromInt)
 

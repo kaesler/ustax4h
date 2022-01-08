@@ -30,7 +30,7 @@ where
 
 import Data.Monoid (Sum (Sum))
 import Data.Semigroup (mtimesDefault)
-import GHC.Base (Coercible, Semigroup (stimes), coerce)
+import GHC.Base (Coercible, coerce)
 import Math (roundHalfUp)
 import TaxRate (TaxRate (toDouble))
 

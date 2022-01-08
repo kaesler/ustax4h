@@ -7,13 +7,11 @@ import Age (isAge65OrOlder)
 import CommonTypes
   ( BirthDate,
     FilingStatus (..),
-    Money,
     Year,
   )
 import Data.Function ()
 import Moneys (Deduction, Income, TaxPayable, applyDeductions, makeFromInt)
 import StateMA.StateMATaxRate (StateMATaxRate, mkStateMATaxRate)
-import StateMA.Types (MassachusettsGrossIncome)
 import qualified TaxFunction
 
 taxRate :: Year -> StateMATaxRate

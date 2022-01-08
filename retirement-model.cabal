@@ -28,9 +28,7 @@ library
       Age
       Brackets
       CommonTypes
-      Debug
       Federal.BoundRegime
-      Federal.BracketTypes
       Federal.Calculator
       Federal.FederalTaxRate
       Federal.OrdinaryBrackets
@@ -45,7 +43,6 @@ library
       Moneys
       StateMA.Calculator
       StateMA.StateMATaxRate
-      StateMA.Types
       TaxFunction
       TaxRate
   other-modules:

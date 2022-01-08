@@ -1,7 +1,6 @@
-module TaxRate( 
-  TaxRate(..) 
+module TaxRate
+  ( TaxRate (..),
   )
-
 where
 
 class Ord r => TaxRate r where

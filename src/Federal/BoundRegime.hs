@@ -13,20 +13,25 @@ import CommonTypes
   ( BirthDate,
     FilingStatus (..),
     InflationEstimate (..),
-    Money,
     Year,
     inflationFactor,
     isUnmarried,
   )
-import Data.Function ( (&) )
+import Data.Function ((&))
 import Federal.OrdinaryBrackets as OB
-    ( fromPairs, inflateThresholds, OrdinaryBrackets )
+  ( OrdinaryBrackets,
+    fromPairs,
+    inflateThresholds,
+  )
 import Federal.QualifiedBrackets as QB
-    ( fromPairs, inflateThresholds, QualifiedBrackets )
+  ( QualifiedBrackets,
+    fromPairs,
+    inflateThresholds,
+  )
 import Federal.Regime (Regime (PreTrump, Trump), requireRegimeValidInYear)
-import Federal.Types (ItemizedDeductions, PersonalExemptions, StandardDeduction (..))
+import Federal.Types (ItemizedDeductions, PersonalExemptions, StandardDeduction)
 import GHC.Stack (HasCallStack)
-import Moneys ( Deduction, makeFromInt, mul, noMoney, times )
+import Moneys (Deduction, makeFromInt, mul, noMoney, times)
 import Text.Printf (printf)
 
 data BoundRegime = BoundRegime

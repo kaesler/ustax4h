@@ -6,8 +6,8 @@ module Federal.Types
     OrdinaryIncome,
     QualifiedIncome,
     SSRelevantOtherIncome,
+    StandardDeduction,
     SocSec,
-    StandardDeduction (..),
   )
 where
 

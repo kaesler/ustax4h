@@ -9,9 +9,7 @@ import Federal.QualifiedBrackets as QB
   ( QualifiedBrackets,
     taxFunctionFor,
   )
-import qualified Federal.QualifiedBrackets as QB
-import Moneys (TaxPayable, TaxableIncome, asTaxable, reduceBy)
-import TaxFunction (bracketsTaxFunction)
+import Moneys (TaxPayable, TaxableIncome, reduceBy)
 
 taxDueOnOrdinaryIncome :: OB.OrdinaryBrackets -> TaxableIncome -> TaxPayable
 taxDueOnOrdinaryIncome = OB.taxFunctionFor

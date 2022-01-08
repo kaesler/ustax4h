@@ -11,7 +11,6 @@ where
 import CommonTypes
   ( BirthDate,
     FilingStatus,
-    Money,
     Year,
   )
 import Federal.BoundRegime

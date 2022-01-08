@@ -17,7 +17,7 @@ where
 import qualified Brackets
 import Data.Coerce (coerce)
 import Federal.FederalTaxRate (FederalTaxRate, mkFederalTaxRate)
-import Moneys (IncomeThreshold, TaxPayable, TaxableIncome)
+import Moneys (TaxPayable, TaxableIncome)
 import TaxFunction (TaxFunction, bracketsTaxFunction)
 
 newtype OrdinaryBrackets = OrdinaryBrackets (Brackets.Brackets FederalTaxRate)
@@ -31,8 +31,6 @@ inflateThresholds factor (OrdinaryBrackets brackets) = coerce $ Brackets.inflate
 
 taxFunctionFor :: OrdinaryBrackets -> TaxFunction
 taxFunctionFor (OrdinaryBrackets brs) = bracketsTaxFunction brs
-
--- TODO: do we need all these?
 
 rateSuccessor :: FederalTaxRate -> OrdinaryBrackets -> Maybe FederalTaxRate
 rateSuccessor rate brackets = coerce $ Brackets.rateSuccessor rate (coerce brackets)
