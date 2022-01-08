@@ -11,7 +11,6 @@ import Prelude
 -- 65th birthday. Therefore, you are considered age 65 at the
 -- end of the year if your 65th birthday is on or before
 -- January 1 of the following year.
--- TODO: unit test it.
 isAge65OrOlder :: BirthDate -> Year -> Bool
 isAge65OrOlder bd y =
   let firstDayAfterYearEnd = fromGregorian (succ y) 1 1

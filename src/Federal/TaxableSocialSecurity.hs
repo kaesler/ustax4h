@@ -19,11 +19,12 @@ import Moneys
     mul,
   )
 
---  TODO: use InflationEstimate type instead?
 amountTaxableInflationAdjusted :: Year -> FilingStatus -> SocSec -> SSRelevantOtherIncome -> Income
 amountTaxableInflationAdjusted year filingStatus ssBenefits relevantIncome =
   let unadjusted = amountTaxable filingStatus ssBenefits relevantIncome
-      adjustmentFactor = 1.0 + (0.03 * fromIntegral (year - 2021))
+      baseYear = 2021
+      annualInflationRate = 0.03
+      adjustmentFactor = 1.0 + (annualInflationRate * fromIntegral (year - baseYear))
       adjusted = unadjusted `mul` adjustmentFactor
    in min adjusted (ssBenefits `mul` 0.85)
 

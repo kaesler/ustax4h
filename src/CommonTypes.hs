@@ -26,7 +26,6 @@ data FilingStatus = HeadOfHousehold | Single
 isUnmarried :: FilingStatus -> Bool
 isUnmarried _ = True
 
--- TODO: just Integer?
 type AnnualGrowthRatePercentage = Double
 
 -- target year, growth rate as a percentage

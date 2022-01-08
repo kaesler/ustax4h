@@ -502,7 +502,7 @@ futureEstimated br inflationEstimate =
       factor = inflationFactor inflationEstimate (year br)
    in BoundRegime
         (regime br)
-        futureYear -- TODO: is this what we want ?
+        futureYear
         (birthDate br)
         (filingStatus br)
         (personalExemptions br)
