@@ -4,17 +4,16 @@
 
 module Moneys
   ( Deduction,
-    Income (..), -- TODO: hide ctors
+    Income,
     IncomeThreshold,
     TaxableIncome,
     TaxCredit,
     TaxPayable,
-    amountAbove,
+    amountOverThreshold,
     applyDeductions,
     applyTaxRate,
     asTaxable,
     closeEnoughTo,
-    incomeAmountAbove,
     inflateThreshold,
     isBelow,
     makeFromInt,
@@ -33,39 +32,6 @@ import Data.Semigroup (mtimesDefault)
 import GHC.Base (Coercible, coerce)
 import Math (roundHalfUp)
 import TaxRate (TaxRate (toDouble))
-
-type Money = Sum Double
-
-mkMoney :: Double -> Money
-mkMoney d
-  | d < 0 = error "Money can't be negative"
-  | otherwise = coerce d
-
-zero :: Money
-zero = mkMoney 0.0
-
-monus :: Money -> Money -> Money
-monus m1 m2
-  | m1 > m2 = coerce $ (coerce m1 :: Double) - coerce m2
-  | otherwise = zero
-
-diff :: Money -> Money -> Money
-diff m1 m2 = coerce $ abs $ m1 - m2
-
-newtype Deduction = Deduction Money
-  deriving newtype (Eq)
-  deriving newtype (Monoid)
-  deriving newtype (Ord)
-  deriving newtype (Semigroup)
-  deriving newtype (Show)
-
-instance HasTimes Deduction
-
-instance HasMakeFromInt Deduction
-
-instance HasMul Deduction
-
-instance HasNoMoney Deduction
 
 class Monoid m => HasNoMoney m where
   noMoney :: m
@@ -88,38 +54,63 @@ class Monoid h => HasTimes h where
   times = mtimesDefault
 
 class Coercible Double h => HasAmountOverThreshold h where
-  amountOverThreshold :: IncomeThreshold -> h -> h
-  amountOverThreshold threshold income = coerce $ monus (coerce income) (coerce threshold)
+  amountOverThreshold :: h -> IncomeThreshold -> h
+  amountOverThreshold income threshold = coerce $ monus (coerce income) (coerce threshold)
 
---times :: Int -> Deduction -> Deduction
---times i d = coerce $ fromIntegral i * (coerce d :: Double)
+type Money = Sum Double
+
+mkMoney :: Double -> Money
+mkMoney d
+  | d < 0 = error "Money can't be negative"
+  | otherwise = coerce d
+
+monus :: Money -> Money -> Money
+monus m1 m2
+  | m1 > m2 = coerce $ (coerce m1 :: Double) - coerce m2
+  | otherwise = mkMoney 0.0
+
+diff :: Money -> Money -> Money
+diff m1 m2 = coerce $ abs $ m1 - m2
 
 newtype Income = Income Money
-  deriving newtype (Semigroup)
-  deriving newtype (Monoid)
   deriving newtype (Eq)
+  deriving newtype (Monoid)
   deriving newtype (Ord)
+  deriving newtype (Semigroup)
   deriving newtype (Show)
 
-instance HasMul Income
+instance HasAmountOverThreshold Income
 
 instance HasMakeFromInt Income
+
+instance HasMul Income
 
 instance HasNoMoney Income
 
 isBelow :: Income -> IncomeThreshold -> Bool
 isBelow i it = (coerce i :: Money) < coerce it
 
--- TODO: make a type class so we only need amountAbove?
-incomeAmountAbove :: Income -> IncomeThreshold -> Income
-incomeAmountAbove i it = coerce $ coerce i `monus` coerce it
-
 asTaxable :: Income -> TaxableIncome
 asTaxable = coerce
 
-newtype IncomeThreshold = IncomeThreshold Money
-  deriving newtype (Semigroup)
+newtype Deduction = Deduction Money
+  deriving newtype (Eq)
   deriving newtype (Monoid)
+  deriving newtype (Ord)
+  deriving newtype (Semigroup)
+  deriving newtype (Show)
+
+instance HasMakeFromInt Deduction
+
+instance HasMul Deduction
+
+instance HasNoMoney Deduction
+
+instance HasTimes Deduction
+
+newtype IncomeThreshold = IncomeThreshold Money
+  deriving newtype (Monoid)
+  deriving newtype (Semigroup)
   deriving newtype (Show)
 
 instance HasMakeFromInt IncomeThreshold
@@ -132,10 +123,12 @@ inflateThreshold factor threshold = coerce $ roundHalfUp (coerce threshold * fac
 
 newtype TaxableIncome = TaxableIncome Money
   deriving newtype (Eq)
-  deriving newtype (Semigroup)
   deriving newtype (Monoid)
   deriving newtype (Ord)
+  deriving newtype (Semigroup)
   deriving newtype (Show)
+
+instance HasAmountOverThreshold TaxableIncome
 
 instance HasMakeFromInt TaxableIncome
 
@@ -147,22 +140,19 @@ roundTaxPayable tp = coerce $ roundHalfUp $ coerce tp
 thresholdAsTaxableIncome :: IncomeThreshold -> TaxableIncome
 thresholdAsTaxableIncome = coerce
 
-amountAbove :: TaxableIncome -> IncomeThreshold -> TaxableIncome
-amountAbove income threshold = coerce $ coerce income `monus` coerce threshold
-
 applyDeductions :: Income -> Deduction -> TaxableIncome
 applyDeductions income deductions = coerce $ coerce income `monus` coerce deductions
 
 newtype TaxCredit = TaxCredit Money
-  deriving newtype (Semigroup)
   deriving newtype (Monoid)
+  deriving newtype (Semigroup)
   deriving newtype (Show)
 
 newtype TaxPayable = TaxPayable Money
   deriving newtype (Eq)
-  deriving newtype (Semigroup)
   deriving newtype (Monoid)
   deriving newtype (Ord)
+  deriving newtype (Semigroup)
   deriving newtype (Show)
 
 instance HasCloseEnoughTo TaxPayable

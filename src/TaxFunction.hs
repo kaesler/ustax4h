@@ -10,13 +10,13 @@ where
 import Brackets (Brackets)
 import Data.List.NonEmpty (NonEmpty, zip, zipWith, (<|))
 import Data.Map.NonEmpty (elems, keys)
-import Moneys (IncomeThreshold, TaxPayable, TaxableIncome, amountAbove, applyTaxRate)
+import Moneys (IncomeThreshold, TaxPayable, TaxableIncome, amountOverThreshold, applyTaxRate)
 import TaxRate (TaxRate (absoluteDifference, zero))
 
 type TaxFunction = TaxableIncome -> TaxPayable
 
 thresholdTaxFunction :: TaxRate r => IncomeThreshold -> r -> TaxFunction
-thresholdTaxFunction threshold rate ti = applyTaxRate rate (amountAbove ti threshold)
+thresholdTaxFunction threshold rate ti = applyTaxRate rate (ti `amountOverThreshold` threshold)
 
 flatTaxFunction :: TaxRate r => r -> TaxFunction
 flatTaxFunction = thresholdTaxFunction mempty

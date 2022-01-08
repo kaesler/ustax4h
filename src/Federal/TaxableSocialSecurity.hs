@@ -13,7 +13,7 @@ import Federal.Types (CombinedIncome, SSRelevantOtherIncome, SocSec)
 import Moneys
   ( Income,
     IncomeThreshold,
-    incomeAmountAbove,
+    amountOverThreshold,
     isBelow,
     makeFromInt,
     mul,
@@ -50,10 +50,10 @@ amountTaxable filingStatus ssBenefits relevantIncome =
       | combinedIncome `isBelow` highBase =
         let fractionTaxable = 0.5
             maxSocSecTaxable = ssBenefits `mul` fractionTaxable
-         in min ((combinedIncome `incomeAmountAbove` lowBase) `mul` fractionTaxable) maxSocSecTaxable
+         in min ((combinedIncome `amountOverThreshold` lowBase) `mul` fractionTaxable) maxSocSecTaxable
       | otherwise =
         let fractionTaxable = 0.85
             maxSocSecTaxable = ssBenefits `mul` fractionTaxable
          in min
-              (makeFromInt 4500 <> ((combinedIncome `incomeAmountAbove` highBase) `mul` fractionTaxable))
+              (makeFromInt 4500 <> ((combinedIncome `amountOverThreshold` highBase) `mul` fractionTaxable))
               maxSocSecTaxable
