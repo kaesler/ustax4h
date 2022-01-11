@@ -1,13 +1,13 @@
 cradle:
   stack:
     - path: "./src"
-      component: "retirement-model:lib"
+      component: "ustax4h:lib"
 
     - path: "./app/Main.hs"
-      component: "retirement-model:exe:retirement-model-exe"
+      component: "ustax4h:exe:ustax4h-exe"
 
     - path: "./app/Paths_retirement_model.hs"
-      component: "retirement-model:exe:retirement-model-exe"
+      component: "ustax4h:exe:ustax4h-exe"
 
     - path: "./test"
-      component: "retirement-model:test:retirement-model-test"
+      component: "ustax4h:test:ustax4h-test"

@@ -1,6 +1,6 @@
-name:                retirement-model
+name:                ustax4h
 version:             0.1.0.0
-github:              "kaesler/retirement-model"
+github:              "kaesler/ustax4h"
 license:             BSD3
 author:              "Kevin Esler"
 maintainer:          "kevin.esler@gmail.com"
@@ -29,7 +29,7 @@ library:
   source-dirs: src
 
 executables:
-  retirement-model-exe:
+  ustax4h-exe:
     main:                Main.hs
     source-dirs:         app
     ghc-options:
@@ -37,10 +37,10 @@ executables:
     - -rtsopts
     - -with-rtsopts=-N
     dependencies:
-    - retirement-model
+    - ustax4h
 
 tests:
-  retirement-model-test:
+  ustax4h-test:
     main:                Main.hs
     source-dirs:         test
     ghc-options:
@@ -48,7 +48,7 @@ tests:
     - -rtsopts
     - -with-rtsopts=-N
     dependencies:
-    - retirement-model
+    - ustax4h
     - hspec >=2.0.0
     - QuickCheck
 
