@@ -4,9 +4,11 @@ module Federal.OrdinaryBracketsSpec
 where
 
 import CommonTypes
-  ( FilingStatus (..),
+  ( BirthDate,
+    FilingStatus (..),
     Year,
   )
+import Data.Time (fromGregorian)
 import Federal.BoundRegime
   ( BoundRegime (ordinaryBrackets),
     bindRegime,
@@ -22,7 +24,6 @@ import Federal.OrdinaryBrackets
 import Federal.Regime (Regime (Trump))
 import qualified Federal.TaxFunctions as TFS
 import Federal.Types (SSRelevantOtherIncome, SocSec, StandardDeduction)
-import qualified Kevin
 import Moneys
   ( TaxPayable,
     TaxableIncome,
@@ -47,14 +48,20 @@ theRegime = Trump
 theYear :: Year
 theYear = 2021
 
+theBirthDate :: BirthDate
+theBirthDate = fromGregorian 1955 10 2
+
+thePersonalExemptions :: Int
+thePersonalExemptions = 2
+
 ordinaryBracketsFor :: FilingStatus -> OrdinaryBrackets
 ordinaryBracketsFor filingStatus =
-  let br = bindRegime theRegime theYear Kevin.birthDate filingStatus Kevin.personalExemptions
+  let br = bindRegime theRegime theYear theBirthDate filingStatus thePersonalExemptions
    in ordinaryBrackets br
 
 standardDeductionFor :: FilingStatus -> StandardDeduction
 standardDeductionFor filingStatus =
-  let br = bindRegime theRegime theYear Kevin.birthDate filingStatus Kevin.personalExemptions
+  let br = bindRegime theRegime theYear theBirthDate filingStatus thePersonalExemptions
    in standardDeduction br
 
 genSocialSecurityBenefits :: Gen SocSec
