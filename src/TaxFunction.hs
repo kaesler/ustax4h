@@ -9,7 +9,7 @@ where
 
 import Brackets (Brackets)
 import Data.List.NonEmpty (NonEmpty, zip, zipWith, (<|))
-import Data.Map.NonEmpty (elems, keys)
+import Data.Map.NonEmpty (elems, keys, toList)
 import Moneys (IncomeThreshold, TaxPayable, TaxableIncome, amountOverThreshold, applyTaxRate)
 import TaxRate (TaxRate (absoluteDifference, zeroRate))
 
@@ -29,7 +29,8 @@ bracketsTaxFunction brackets =
 
 rateDeltasForBrackets :: TaxRate r => Brackets r -> NonEmpty (IncomeThreshold, r)
 rateDeltasForBrackets brackets =
-  let rates = keys brackets
+  let pairs = toList brackets
+      rates = fmap fst pairs
+      thresholds = fmap snd pairs
       deltas = Data.List.NonEmpty.zipWith absoluteDifference (zeroRate <| rates) rates
-      thresholds = elems brackets
    in Data.List.NonEmpty.zip thresholds deltas
