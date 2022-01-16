@@ -36,7 +36,7 @@ rateSuccessor :: FederalTaxRate -> OrdinaryBrackets -> Maybe FederalTaxRate
 rateSuccessor rate brackets = coerce $ Brackets.rateSuccessor rate (coerce brackets)
 
 ordinaryRatesExceptTop :: OrdinaryBrackets -> [FederalTaxRate]
-ordinaryRatesExceptTop brackets = coerce $ Brackets.ratesExceptTop (coerce brackets)
+ordinaryRatesExceptTop brackets = Brackets.ratesExceptTop (coerce brackets)
 
 taxableIncomeToEndOfOrdinaryBracket :: OrdinaryBrackets -> FederalTaxRate -> TaxableIncome
 taxableIncomeToEndOfOrdinaryBracket brackets = Brackets.taxableIncomeToEndOfBracket (coerce brackets)
