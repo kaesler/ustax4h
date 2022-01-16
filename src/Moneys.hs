@@ -50,6 +50,7 @@ class Coercible Double h => HasCloseEnoughTo h where
   closeEnoughTo x y = abs ((coerce x :: Double) - (coerce y :: Double)) <= 2.0
 
 class Monoid h => HasTimes h where
+  -- TODO: requre the Int to be non-negative.
   times :: Int -> h -> h
   times = mtimesDefault
 
@@ -121,6 +122,9 @@ thresholdDifference it1 it2 = coerce $ diff (coerce it1) (coerce it2)
 inflateThreshold :: Double -> IncomeThreshold -> IncomeThreshold
 inflateThreshold factor threshold = coerce $ roundHalfUp (coerce threshold * factor)
 
+thresholdAsTaxableIncome :: IncomeThreshold -> TaxableIncome
+thresholdAsTaxableIncome = coerce
+
 newtype TaxableIncome = TaxableIncome Money
   deriving newtype (Eq)
   deriving newtype (Monoid)
@@ -133,12 +137,6 @@ instance HasAmountOverThreshold TaxableIncome
 instance HasMakeFromInt TaxableIncome
 
 instance HasNoMoney TaxableIncome
-
-roundTaxPayable :: TaxPayable -> TaxPayable
-roundTaxPayable tp = coerce $ roundHalfUp $ coerce tp
-
-thresholdAsTaxableIncome :: IncomeThreshold -> TaxableIncome
-thresholdAsTaxableIncome = coerce
 
 applyDeductions :: Income -> Deduction -> TaxableIncome
 applyDeductions income deductions = coerce $ coerce income `monus` coerce deductions
@@ -166,3 +164,6 @@ applyTaxRate rate income = coerce $ coerce income * toDouble rate
 
 reduceBy :: TaxPayable -> TaxPayable -> TaxPayable
 reduceBy x y = coerce $ coerce x `monus` coerce y
+
+roundTaxPayable :: TaxPayable -> TaxPayable
+roundTaxPayable tp = coerce $ roundHalfUp $ coerce tp

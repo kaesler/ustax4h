@@ -11,7 +11,7 @@ import Brackets (Brackets)
 import Data.List.NonEmpty (NonEmpty, zip, zipWith, (<|))
 import Data.Map.NonEmpty (elems, keys)
 import Moneys (IncomeThreshold, TaxPayable, TaxableIncome, amountOverThreshold, applyTaxRate)
-import TaxRate (TaxRate (absoluteDifference, zero))
+import TaxRate (TaxRate (absoluteDifference, zeroRate))
 
 type TaxFunction = TaxableIncome -> TaxPayable
 
@@ -30,6 +30,6 @@ bracketsTaxFunction brackets =
 rateDeltasForBrackets :: TaxRate r => Brackets r -> NonEmpty (IncomeThreshold, r)
 rateDeltasForBrackets brackets =
   let rates = keys brackets
-      deltas = Data.List.NonEmpty.zipWith absoluteDifference (zero <| rates) rates
+      deltas = Data.List.NonEmpty.zipWith absoluteDifference (zeroRate <| rates) rates
       thresholds = elems brackets
    in Data.List.NonEmpty.zip thresholds deltas

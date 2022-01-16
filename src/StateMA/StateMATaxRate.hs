@@ -20,7 +20,7 @@ mkStateMATaxRate d
   | otherwise = StateMATaxRate d
 
 instance TaxRate StateMATaxRate where
-  zero = mkStateMATaxRate 0.0
+  zeroRate = mkStateMATaxRate 0.0
   toDouble (StateMATaxRate d) = d
   absoluteDifference (StateMATaxRate d1) (StateMATaxRate d2) = 
     StateMATaxRate (abs (d1 - d2))

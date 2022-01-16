@@ -20,7 +20,7 @@ mkFederalTaxRate d
   | otherwise = FederalTaxRate d
 
 instance TaxRate FederalTaxRate where
-  zero = mkFederalTaxRate 0.0
+  zeroRate = mkFederalTaxRate 0.0
   toDouble (FederalTaxRate d) = d
   absoluteDifference (FederalTaxRate d1) (FederalTaxRate d2) =
     FederalTaxRate (abs (d1 - d2))
