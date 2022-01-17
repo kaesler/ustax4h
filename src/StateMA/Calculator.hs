@@ -9,7 +9,6 @@ import CommonTypes
     FilingStatus (..),
     Year,
   )
-import Data.Function ()
 import Moneys (Deduction, Income, TaxPayable, applyDeductions, makeFromInt)
 import StateMA.StateMATaxRate (StateMATaxRate, mkStateMATaxRate)
 import qualified TaxFunction
