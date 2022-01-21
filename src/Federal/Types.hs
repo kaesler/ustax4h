@@ -2,12 +2,12 @@ module Federal.Types
   ( CombinedIncome,
     DistributionPeriod,
     ItemizedDeductions,
-    PersonalExemptions,
     OrdinaryIncome,
+    PersonalExemptions,
     QualifiedIncome,
+    SocSec,
     SSRelevantOtherIncome,
     StandardDeduction,
-    SocSec,
   )
 where
 
