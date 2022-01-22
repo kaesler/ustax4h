@@ -46,7 +46,6 @@ makeCalculator :: BoundRegime -> TaxCalculator
 makeCalculator br@BoundRegime {..} socSec ordinaryIncome qualifiedIncome itemized =
   let ssRelevantOtherIncome = ordinaryIncome <> qualifiedIncome
       taxableSocSec = TaxableSocialSecurity.amountTaxable filingStatus socSec ssRelevantOtherIncome
-      sd = standardDeduction br
       taxableOrdinaryIncome = (taxableSocSec <> ordinaryIncome) `applyDeductions` netDeduction br itemized
       taxOnOrdinaryIncome = TFS.taxDueOnOrdinaryIncome ordinaryBrackets taxableOrdinaryIncome
       taxOnQualifiedIncome =
