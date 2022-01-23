@@ -146,7 +146,6 @@ assertCorrectTaxDueAtBracketBoundaries :: FilingStatus -> Expectation
 assertCorrectTaxDueAtBracketBoundaries filingStatus =
   let brackets = ordinaryBracketsFor filingStatus
       rates = ordinaryRatesExceptTop brackets
-      stdDed = standardDeductionFor filingStatus
       incomes = map (taxableIncomeToEndOfOrdinaryBracket brackets) rates
       expectedTaxes = map (taxToEndOfOrdinaryBracket brackets) rates
       expectations = zipWith (curry taxDueIsAsExpected) incomes expectedTaxes
