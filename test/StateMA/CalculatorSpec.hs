@@ -5,7 +5,6 @@ module StateMA.CalculatorSpec
   )
 where
 
-import Math (roundHalfUp)
 import Moneys (closeEnoughTo, roundTaxPayable)
 import qualified StateMA.Calculator as Calc
 import Test.Hspec

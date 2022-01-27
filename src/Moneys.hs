@@ -30,7 +30,6 @@ where
 import Data.Monoid (Sum (Sum))
 import Data.Semigroup (mtimesDefault)
 import GHC.Base (Coercible, coerce)
-import Math (roundHalfUp)
 import TaxRate (TaxRate (toDouble))
 
 class Monoid m => HasNoMoney m where
@@ -167,3 +166,10 @@ reduceBy x y = coerce $ coerce x `monus` coerce y
 
 roundTaxPayable :: TaxPayable -> TaxPayable
 roundTaxPayable tp = coerce $ roundHalfUp $ coerce tp
+
+roundHalfUp :: Double -> Double
+roundHalfUp x =
+  let xAbs = abs x
+      sign = if x >= 0.0 then 1.0 else (-1.0)
+      (whole, frac) = properFraction xAbs
+   in (sign *) $ fromInteger $ if frac >= 0.5 then whole + 1 else whole

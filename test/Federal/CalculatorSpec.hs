@@ -9,7 +9,6 @@ import Federal.BoundRegime (bindRegime)
 import Federal.Calculator (FederalTaxResults (..), makeCalculator, taxDue, taxDueDebug)
 import Federal.Regime (Regime (..))
 import Federal.Types (OrdinaryIncome, QualifiedIncome)
-import Math (roundHalfUp)
 import Moneys
   ( TaxPayable,
     closeEnoughTo,
