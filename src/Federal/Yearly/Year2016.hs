@@ -1,6 +1,6 @@
+{-# LANGUAGE LambdaCase #-}
 {-# OPTIONS_GHC -Wno-unrecognised-pragmas #-}
 
-{-# HLINT ignore "Use lambda-case" #-}
 module Federal.Yearly.Year2016
   ( values,
   )
@@ -27,14 +27,14 @@ values =
     { regime = PreTrump,
       year = 2016,
       perPersonExemption = makeFromInt 4050,
-      unadjustedStandardDeduction = \fs ->
-        case fs of
+      unadjustedStandardDeduction =
+        \case
           HeadOfHousehold -> makeFromInt 9200
           Single -> makeFromInt 6300,
       adjustmentWhenOver65 = makeFromInt 1250,
       adjustmentWhenOver65AndSingle = makeFromInt 300,
-      ordinaryBrackets = \fs ->
-        case fs of
+      ordinaryBrackets =
+        \case
           HeadOfHousehold ->
             OB.fromRPairs
               [ (0, 10),
@@ -55,8 +55,8 @@ values =
                 (413350, 35),
                 (415050, 39.6)
               ],
-      qualifiedBrackets = \fs ->
-        case fs of
+      qualifiedBrackets =
+        \case
           HeadOfHousehold ->
             QB.fromRPairs
               [ (0, 0),
