@@ -2,6 +2,7 @@ module Brackets
   ( Brackets,
     bracketWidth,
     fromPairs,
+    fromRPairs,
     inflateThresholds,
     ratesExceptTop,
     rateSuccessor,
@@ -21,10 +22,20 @@ import TaxRate (TaxRate)
 
 type Brackets r = NEMap r IncomeThreshold
 
+-- TODO get rind of one of these
 fromPairs :: TaxRate r => [(Double, Int)] -> (Double -> r) -> Brackets r
 fromPairs pairs mkRate =
   let nePairs = NonEmpty.fromList pairs
       f (rateAsPercentage, thresholdAsInteger) =
+        let rate = mkRate $ rateAsPercentage / 100.0
+         in (rate, makeFromInt thresholdAsInteger)
+      mappedPairs = f <$> nePairs
+   in NEMap.fromList mappedPairs
+
+fromRPairs :: TaxRate r => [(Int, Double)] -> (Double -> r) -> Brackets r
+fromRPairs pairs mkRate =
+  let nePairs = NonEmpty.fromList pairs
+      f (thresholdAsInteger, rateAsPercentage) =
         let rate = mkRate $ rateAsPercentage / 100.0
          in (rate, makeFromInt thresholdAsInteger)
       mappedPairs = f <$> nePairs

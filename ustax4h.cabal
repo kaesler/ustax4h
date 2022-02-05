@@ -38,6 +38,14 @@ library
       Federal.TaxableSocialSecurity
       Federal.TaxFunctions
       Federal.Types
+      Federal.Yearly.Year2016
+      Federal.Yearly.Year2017
+      Federal.Yearly.Year2018
+      Federal.Yearly.Year2019
+      Federal.Yearly.Year2020
+      Federal.Yearly.Year2021
+      Federal.Yearly.Year2022
+      Federal.Yearly.YearlyValues
       Moneys
       StateMA.Calculator
       StateMA.StateMATaxRate
