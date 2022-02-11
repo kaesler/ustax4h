@@ -8,14 +8,10 @@ where
 
 import CommonTypes (FilingStatus (HeadOfHousehold, Single))
 import Federal.OrdinaryBrackets as OB
-  ( OrdinaryBrackets,
-    fromPairs,
-    fromRPairs,
+  ( fromRPairs,
   )
 import Federal.QualifiedBrackets as QB
-  ( QualifiedBrackets,
-    fromPairs,
-    fromRPairs,
+  ( fromRPairs,
   )
 import Federal.Regime (Regime (..))
 import Federal.Yearly.Type (YearlyValues (..))
