@@ -38,6 +38,7 @@ library
       Federal.TaxableSocialSecurity
       Federal.TaxFunctions
       Federal.Types
+      Federal.Yearly.Type
       Federal.Yearly.Year2016
       Federal.Yearly.Year2017
       Federal.Yearly.Year2018

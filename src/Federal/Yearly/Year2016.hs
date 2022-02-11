@@ -18,7 +18,7 @@ import Federal.QualifiedBrackets as QB
     fromRPairs,
   )
 import Federal.Regime (Regime (..))
-import Federal.Yearly.YearlyValues (YearlyValues (..))
+import Federal.Yearly.Type (YearlyValues (..))
 import Moneys (makeFromInt)
 
 values :: YearlyValues
