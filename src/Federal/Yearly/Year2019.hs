@@ -26,31 +26,47 @@ values =
   YearlyValues
     { regime = Trump,
       year = 2019,
-      perPersonExemption = makeFromInt undefined ,
+      perPersonExemption = makeFromInt 0,
       unadjustedStandardDeduction =
         \case
-          HeadOfHousehold -> makeFromInt undefined
-          Single -> makeFromInt undefined,
-      adjustmentWhenOver65 = makeFromInt undefined,
-      adjustmentWhenOver65AndSingle = makeFromInt undefined,
+          HeadOfHousehold -> makeFromInt 18350
+          Single -> makeFromInt 12200,
+      adjustmentWhenOver65 = makeFromInt 1300,
+      adjustmentWhenOver65AndSingle = makeFromInt 350,
       ordinaryBrackets =
         \case
           HeadOfHousehold ->
             OB.fromRPairs
-              [ 
+              [ (0, 10),
+                (13850, 12),
+                (52850, 22),
+                (84200, 24),
+                (160700, 32),
+                (204100, 35),
+                (510300, 37)
               ]
           Single ->
             OB.fromRPairs
-              [ 
+              [ (0, 10),
+                (9700, 12),
+                (39475, 22),
+                (84200, 24),
+                (160725, 32),
+                (204100, 35),
+                (510300, 37)
               ],
       qualifiedBrackets =
         \case
           HeadOfHousehold ->
             QB.fromRPairs
-              [ 
+              [ (0, 0),
+                (52750, 15),
+                (461700, 20)
               ]
           Single ->
             QB.fromRPairs
-              [ 
+              [ (0, 0),
+                (39375, 15),
+                (434550, 20)
               ]
     }
