@@ -1,16 +1,16 @@
-module Federal.Yearly.Type(
-  YearlyValues (..)
-) where
+module Federal.Yearly.Type
+  ( YearlyValues (..),
+  )
+where
 
-import Federal.Regime (Regime)
-import CommonTypes (Year, FilingStatus)
-import Moneys (Deduction)
+import CommonTypes (FilingStatus, Year)
 import Federal.OrdinaryBrackets (OrdinaryBrackets)
 import Federal.QualifiedBrackets (QualifiedBrackets)
+import Federal.Regime (Regime)
+import Moneys (Deduction)
 
 data YearlyValues = YearlyValues
-  { 
-    regime :: Regime,
+  { regime :: Regime,
     year :: Year,
     perPersonExemption :: Deduction,
     unadjustedStandardDeduction :: FilingStatus -> Deduction,
