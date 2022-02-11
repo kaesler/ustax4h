@@ -1,16 +1,15 @@
 module Federal.Yearly.YearlyValues
-  (
+  ( valuesForYear,
+    mostRecent,
+    mostRecentForRegime,
   )
 where
 
-import CommonTypes (FilingStatus, Year)
-import Data.List (sortOn)
+import CommonTypes (Year)
 import Data.List.NonEmpty (NonEmpty)
 import qualified Data.List.NonEmpty as NEList
-import Data.Map.NonEmpty ( NEMap, toAscList )
+import Data.Map.NonEmpty (NEMap, toAscList)
 import qualified Data.Map.NonEmpty as NEMap
-import Federal.OrdinaryBrackets (OrdinaryBrackets)
-import Federal.QualifiedBrackets (QualifiedBrackets)
 import Federal.Regime (Regime)
 import Federal.Yearly.Type (YearlyValues (regime))
 import qualified Federal.Yearly.Year2016 as Year2016
@@ -20,16 +19,15 @@ import qualified Federal.Yearly.Year2019 as Year2019
 import qualified Federal.Yearly.Year2020 as Year2020
 import qualified Federal.Yearly.Year2021 as Year2021
 import qualified Federal.Yearly.Year2022 as Year2022
-import Moneys (Deduction)
 
 valuesForYear :: Year -> Maybe YearlyValues
 valuesForYear year = NEMap.lookup year forYear
 
-lastValues :: YearlyValues
-lastValues = NEList.last valuesAscendingByYear
+mostRecent :: YearlyValues
+mostRecent = NEList.last valuesAscendingByYear
 
-lastForRegime :: Regime -> YearlyValues
-lastForRegime reg = last $ valuesAscendingByYearForRegime reg
+mostRecentForRegime :: Regime -> YearlyValues
+mostRecentForRegime reg = last $ valuesAscendingByYearForRegime reg
 
 forYear :: NEMap Year YearlyValues
 forYear =
