@@ -5,8 +5,7 @@ module Federal.CalculatorSpec
   )
 where
 
-import Federal.BoundRegime (bindRegime)
-import Federal.Calculator (FederalTaxResults (..), makeCalculator, taxDue, taxDueDebug)
+import Federal.Calculator (FederalTaxResults (..), makeCalculator, taxDueForKnownYear, taxDueForKnownYearDebug)
 import Federal.Regime (Regime (..))
 import Federal.Types (OrdinaryIncome, QualifiedIncome)
 import Moneys
@@ -32,8 +31,7 @@ agreementWithScalaImplementationSpec =
           makeExpectation tc@TestCase {..} =
             let calculatedTaxDue =
                   roundTaxPayable
-                    ( taxDue
-                        regime
+                    ( taxDueForKnownYear
                         year
                         filingStatus
                         birthDate
@@ -45,7 +43,7 @@ agreementWithScalaImplementationSpec =
                     )
              in do
                   -- print tc
-                  -- taxDueDebug regime year filingStatus birthDate (dependents + 1) socSec ordinaryIncomeNonSS qualifiedIncome itemizedDeductions
+                  -- taxDueDebug year filingStatus birthDate (dependents + 1) socSec ordinaryIncomeNonSS qualifiedIncome itemizedDeductions
                   calculatedTaxDue `shouldSatisfy` closeEnoughTo expectedFederalTax
           expectations = fmap makeExpectation TDFS.cases
        in () <$ sequence expectations

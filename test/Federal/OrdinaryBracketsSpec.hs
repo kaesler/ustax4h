@@ -11,8 +11,7 @@ import CommonTypes
 import Data.Time (fromGregorian)
 import Federal.BoundRegime
   ( BoundRegime (ordinaryBrackets),
-    bindRegime,
-    standardDeduction,
+    boundRegimeForKnownYear,
   )
 import Federal.FederalTaxRate (FederalTaxRate, mkFederalTaxRate)
 import Federal.OrdinaryBrackets
@@ -21,9 +20,8 @@ import Federal.OrdinaryBrackets
     taxToEndOfOrdinaryBracket,
     taxableIncomeToEndOfOrdinaryBracket,
   )
-import Federal.Regime (Regime (Trump))
 import qualified Federal.TaxFunctions as TFS
-import Federal.Types (SSRelevantOtherIncome, SocSec, StandardDeduction)
+import Federal.Types (SSRelevantOtherIncome, SocSec)
 import Moneys
   ( TaxPayable,
     TaxableIncome,
@@ -42,9 +40,6 @@ import Test.QuickCheck
     forAll,
   )
 
-theRegime :: Regime
-theRegime = Trump
-
 theYear :: Year
 theYear = 2021
 
@@ -56,13 +51,8 @@ thePersonalExemptions = 2
 
 ordinaryBracketsFor :: FilingStatus -> OrdinaryBrackets
 ordinaryBracketsFor filingStatus =
-  let br = bindRegime theRegime theYear theBirthDate filingStatus thePersonalExemptions
+  let br = boundRegimeForKnownYear theYear theBirthDate filingStatus thePersonalExemptions
    in ordinaryBrackets br
-
-standardDeductionFor :: FilingStatus -> StandardDeduction
-standardDeductionFor filingStatus =
-  let br = bindRegime theRegime theYear theBirthDate filingStatus thePersonalExemptions
-   in standardDeduction br
 
 genSocialSecurityBenefits :: Gen SocSec
 genSocialSecurityBenefits = fmap makeFromInt (elements [0 .. 50000])

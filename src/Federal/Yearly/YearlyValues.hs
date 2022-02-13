@@ -1,7 +1,10 @@
 module Federal.Yearly.YearlyValues
-  ( valuesForYear,
+  ( YearlyValues (..),
+    unsafeValuesForYear,
+    valuesForYear,
     mostRecent,
     mostRecentForRegime,
+    mostRecentYearForRegime,
   )
 where
 
@@ -10,8 +13,9 @@ import Data.List.NonEmpty (NonEmpty)
 import qualified Data.List.NonEmpty as NEList
 import Data.Map.NonEmpty (NEMap, toAscList)
 import qualified Data.Map.NonEmpty as NEMap
+import Data.Maybe (fromJust)
 import Federal.Regime (Regime)
-import Federal.Yearly.Type (YearlyValues (regime))
+import Federal.Yearly.Type (YearlyValues (..))
 import qualified Federal.Yearly.Year2016 as Year2016
 import qualified Federal.Yearly.Year2017 as Year2017
 import qualified Federal.Yearly.Year2018 as Year2018
@@ -20,14 +24,20 @@ import qualified Federal.Yearly.Year2020 as Year2020
 import qualified Federal.Yearly.Year2021 as Year2021
 import qualified Federal.Yearly.Year2022 as Year2022
 
+unsafeValuesForYear :: Year -> YearlyValues
+unsafeValuesForYear y = fromJust $ NEMap.lookup y forYear
+
 valuesForYear :: Year -> Maybe YearlyValues
-valuesForYear year = NEMap.lookup year forYear
+valuesForYear y = NEMap.lookup y forYear
 
 mostRecent :: YearlyValues
 mostRecent = NEList.last valuesAscendingByYear
 
 mostRecentForRegime :: Regime -> YearlyValues
 mostRecentForRegime reg = last $ valuesAscendingByYearForRegime reg
+
+mostRecentYearForRegime :: Regime -> Year
+mostRecentYearForRegime reg = year $ mostRecentForRegime reg
 
 forYear :: NEMap Year YearlyValues
 forYear =

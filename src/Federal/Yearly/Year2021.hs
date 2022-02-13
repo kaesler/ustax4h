@@ -8,10 +8,10 @@ where
 
 import CommonTypes (FilingStatus (HeadOfHousehold, Single))
 import Federal.OrdinaryBrackets as OB
-  ( fromRPairs,
+  ( fromPairs,
   )
 import Federal.QualifiedBrackets as QB
-  ( fromRPairs,
+  ( fromPairs,
   )
 import Federal.Regime (Regime (..))
 import Federal.Yearly.Type (YearlyValues (..))
@@ -32,7 +32,7 @@ values =
       ordinaryBrackets =
         \case
           HeadOfHousehold ->
-            OB.fromRPairs
+            OB.fromPairs
               [ (0, 10),
                 (14200, 12),
                 (54200, 22),
@@ -42,7 +42,7 @@ values =
                 (523600, 37)
               ]
           Single ->
-            OB.fromRPairs
+            OB.fromPairs
               [ (0, 10),
                 (9950, 12),
                 (40525, 22),
@@ -54,13 +54,13 @@ values =
       qualifiedBrackets =
         \case
           HeadOfHousehold ->
-            QB.fromRPairs
+            QB.fromPairs
               [ (0, 0),
                 (54100, 15),
                 (473750, 20)
               ]
           Single ->
-            QB.fromRPairs
+            QB.fromPairs
               [ (0, 0),
                 (40400, 15),
                 (445850, 20)

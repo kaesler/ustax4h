@@ -5,7 +5,6 @@ module Federal.OrdinaryBrackets
   ( OrdinaryBrackets,
     inflateThresholds,
     fromPairs,
-    fromRPairs,
     ordinaryIncomeBracketWidth,
     ordinaryRatesExceptTop,
     rateSuccessor,
@@ -24,12 +23,8 @@ import TaxFunction (TaxFunction, bracketsTaxFunction)
 newtype OrdinaryBrackets = OrdinaryBrackets (Brackets.Brackets FederalTaxRate)
   deriving newtype (Show)
 
--- TODO get rind of one of these
-fromPairs :: [(Double, Int)] -> OrdinaryBrackets
+fromPairs :: [(Int, Double)] -> OrdinaryBrackets
 fromPairs pairs = coerce $ Brackets.fromPairs pairs mkFederalTaxRate
-
-fromRPairs :: [(Int, Double)] -> OrdinaryBrackets
-fromRPairs pairs = coerce $ Brackets.fromRPairs pairs mkFederalTaxRate
 
 inflateThresholds :: Double -> OrdinaryBrackets -> OrdinaryBrackets
 inflateThresholds factor (OrdinaryBrackets brackets) = coerce $ Brackets.inflateThresholds factor brackets

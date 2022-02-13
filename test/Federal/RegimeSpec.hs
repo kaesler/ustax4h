@@ -7,7 +7,7 @@ import CommonTypes (BirthDate, FilingStatus (HeadOfHousehold), InflationEstimate
 import Data.Time
 import Federal.BoundRegime
   ( BoundRegime (perPersonExemption, unadjustedStandardDeduction),
-    bindRegime,
+    boundRegimeForKnownYear,
     futureEstimated,
     netDeduction,
     standardDeduction,
@@ -23,7 +23,7 @@ futureEstimationSpec :: SpecWith ()
 futureEstimationSpec =
   describe "Federal.Regime.futureEstimated" $
     it "should behave as expected" $ do
-      let before = bindRegime Trump 2021 theBirthDate HeadOfHousehold 2
+      let before = boundRegimeForKnownYear 2021 theBirthDate HeadOfHousehold 2
           rate = 0.03 :: Double
           factor = 1.0 + rate
           after = futureEstimated before $ InflationEstimate 2022 rate
