@@ -26,7 +26,7 @@ import Federal.QualifiedBrackets as QB
   ( QualifiedBrackets,
     inflateThresholds,
   )
-import Federal.Regime (Regime, requireRegimeValidInYear)
+import Federal.Regime (Regime)
 import Federal.Types (ItemizedDeductions, PersonalExemptions, StandardDeduction)
 import qualified Federal.Yearly.YearlyValues as YV
 import Moneys (Deduction, mul, noMoney, times)
@@ -71,11 +71,6 @@ netDeduction :: BoundRegime -> ItemizedDeductions -> Deduction
 netDeduction br itemized =
   personalExemptionDeduction br <> max itemized (standardDeduction br)
 
-boundRegimeForFutureYear :: Regime -> InflationEstimate -> BirthDate -> FilingStatus -> PersonalExemptions -> BoundRegime
-boundRegimeForFutureYear reg estimate bd fs pe =
-  let baseYear = YV.mostRecentYearForRegime reg
-   in futureEstimated (boundRegimeForKnownYear baseYear bd fs pe) estimate
-
 boundRegimeForKnownYear :: Year -> BirthDate -> FilingStatus -> PersonalExemptions -> BoundRegime
 boundRegimeForKnownYear y bd fs pe =
   let yvs = YV.unsafeValuesForYear y
@@ -92,10 +87,14 @@ boundRegimeForKnownYear y bd fs pe =
         (YV.ordinaryBrackets yvs fs)
         (YV.qualifiedBrackets yvs fs)
 
+boundRegimeForFutureYear :: Regime -> InflationEstimate -> BirthDate -> FilingStatus -> PersonalExemptions -> BoundRegime
+boundRegimeForFutureYear reg estimate bd fs pe =
+  let baseYear = YV.mostRecentYearForRegime reg
+   in futureEstimated (boundRegimeForKnownYear baseYear bd fs pe) estimate
+
 futureEstimated :: BoundRegime -> InflationEstimate -> BoundRegime
 futureEstimated br inflationEstimate =
   let InflationEstimate futureYear _ = inflationEstimate
-      _ = requireRegimeValidInYear (regime br) futureYear
       factor = inflationFactor inflationEstimate (year br)
    in BoundRegime
         (regime br)
