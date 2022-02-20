@@ -24,6 +24,19 @@ import qualified Federal.Yearly.Year2020 as Year2020
 import qualified Federal.Yearly.Year2021 as Year2021
 import qualified Federal.Yearly.Year2022 as Year2022
 
+forYear :: NEMap Year YearlyValues
+forYear =
+  NEMap.fromList $
+    NEList.fromList
+      [ (2016, Year2016.values),
+        (2017, Year2017.values),
+        (2018, Year2018.values),
+        (2019, Year2019.values),
+        (2020, Year2020.values),
+        (2021, Year2021.values),
+        (2022, Year2022.values)
+      ]
+
 unsafeValuesForYear :: Year -> YearlyValues
 unsafeValuesForYear y = fromJust $ NEMap.lookup y forYear
 
@@ -38,19 +51,6 @@ mostRecentForRegime reg = last $ valuesAscendingByYearForRegime reg
 
 mostRecentYearForRegime :: Regime -> Year
 mostRecentYearForRegime reg = year $ mostRecentForRegime reg
-
-forYear :: NEMap Year YearlyValues
-forYear =
-  NEMap.fromList $
-    NEList.fromList
-      [ (2016, Year2016.values),
-        (2017, Year2017.values),
-        (2018, Year2018.values),
-        (2019, Year2019.values),
-        (2020, Year2020.values),
-        (2021, Year2021.values),
-        (2022, Year2022.values)
-      ]
 
 valuesAscendingByYear :: NonEmpty YearlyValues
 valuesAscendingByYear = snd <$> toAscList forYear

@@ -26,10 +26,10 @@ import Federal.QualifiedBrackets as QB
   ( QualifiedBrackets,
     inflateThresholds,
   )
-import Federal.Regime (Regime (PreTrump, Trump), requireRegimeValidInYear)
+import Federal.Regime (Regime, requireRegimeValidInYear)
 import Federal.Types (ItemizedDeductions, PersonalExemptions, StandardDeduction)
 import qualified Federal.Yearly.YearlyValues as YV
-import Moneys (Deduction, makeFromInt, mul, noMoney, times)
+import Moneys (Deduction, mul, noMoney, times)
 
 data BoundRegime = BoundRegime
   { --
@@ -70,11 +70,6 @@ personalExemptionDeduction br = personalExemptions br `times` perPersonExemption
 netDeduction :: BoundRegime -> ItemizedDeductions -> Deduction
 netDeduction br itemized =
   personalExemptionDeduction br <> max itemized (standardDeduction br)
-
--- Note: does't seem to get adjusted for inflation.
-perPersonExemptionFor :: Regime -> Year -> Deduction
-perPersonExemptionFor PreTrump _ = makeFromInt 4050
-perPersonExemptionFor Trump _ = noMoney
 
 boundRegimeForFutureYear :: Regime -> InflationEstimate -> BirthDate -> FilingStatus -> PersonalExemptions -> BoundRegime
 boundRegimeForFutureYear reg estimate bd fs pe =
