@@ -6,7 +6,7 @@ module Federal.Yearly.Year2016
   )
 where
 
-import CommonTypes (FilingStatus (HeadOfHousehold, Single))
+import CommonTypes (FilingStatus (..))
 import Federal.OrdinaryBrackets as OB
   ( fromPairs,
   )
@@ -25,12 +25,23 @@ values =
       perPersonExemption = makeFromInt 4050,
       unadjustedStandardDeduction =
         \case
+          Married -> makeFromInt 12600
           HeadOfHousehold -> makeFromInt 9200
           Single -> makeFromInt 6300,
       adjustmentWhenOver65 = makeFromInt 1250,
       adjustmentWhenOver65AndSingle = makeFromInt 300,
       ordinaryBrackets =
         \case
+          Married ->
+            OB.fromPairs
+              [ (0, 10),
+                (18550, 15),
+                (75300, 25),
+                (151900, 28),
+                (231450, 33),
+                (413350, 35),
+                (466950, 39.6)
+              ]
           HeadOfHousehold ->
             OB.fromPairs
               [ (0, 10),
@@ -53,6 +64,12 @@ values =
               ],
       qualifiedBrackets =
         \case
+          Married ->
+            QB.fromPairs
+              [ (0, 0),
+                (75300, 5),
+                (466950, 20)
+              ]
           HeadOfHousehold ->
             QB.fromPairs
               [ (0, 0),
