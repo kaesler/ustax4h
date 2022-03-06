@@ -9,7 +9,7 @@ where
 
 import Brackets (Brackets)
 import Data.List.NonEmpty (NonEmpty, zip, zipWith, (<|))
-import Data.Map.NonEmpty (elems, keys, toList)
+import Data.Map.NonEmpty (toList)
 import Moneys (IncomeThreshold, TaxPayable, TaxableIncome, amountOverThreshold, applyTaxRate)
 import TaxRate (TaxRate (absoluteDifference, zeroRate))
 
