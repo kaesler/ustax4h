@@ -32,14 +32,16 @@ amountTaxable :: FilingStatus -> SocSec -> SSRelevantOtherIncome -> Income
 amountTaxable filingStatus ssBenefits relevantIncome =
   let lowBase =
         ( case filingStatus of
-            Single -> 25000
+            Married -> 34000
             HeadOfHousehold -> 25000
+            Single -> 25000
         )
           & makeFromInt
       highBase =
         ( case filingStatus of
-            Single -> 34000
+            Married -> 44000
             HeadOfHousehold -> 34000
+            Single -> 34000
         )
           & makeFromInt
       combinedIncome = relevantIncome <> (ssBenefits `mul` 0.5)
