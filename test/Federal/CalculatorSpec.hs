@@ -42,8 +42,8 @@ agreementWithScalaImplementationSpec =
                         itemizedDeductions
                     )
              in do
-                  -- print tc
-                  -- taxDueDebug year filingStatus birthDate (dependents + 1) socSec ordinaryIncomeNonSS qualifiedIncome itemizedDeductions
+                  print tc
+                  taxDueForKnownYearDebug year filingStatus birthDate (dependents + 1) socSec ordinaryIncomeNonSS qualifiedIncome itemizedDeductions
                   calculatedTaxDue `shouldSatisfy` closeEnoughTo expectedFederalTax
           expectations = fmap makeExpectation TDFS.cases
        in () <$ sequence expectations

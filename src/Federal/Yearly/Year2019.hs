@@ -67,8 +67,8 @@ values =
           Married ->
             QB.fromPairs
               [ (0, 0),
-                (83350, 15),
-                (517200, 20)
+                (78750, 15),
+                (488850, 20)
               ]
           HeadOfHousehold ->
             QB.fromPairs
