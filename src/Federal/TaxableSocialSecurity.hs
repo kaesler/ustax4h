@@ -16,7 +16,7 @@ import Moneys
     amountOverThreshold,
     isBelow,
     makeFromInt,
-    mul,
+    mul, thresholdDifference, divInt, taxableAsIncome
   )
 
 amountTaxableInflationAdjusted :: Year -> FilingStatus -> SocSec -> SSRelevantOtherIncome -> Income
@@ -30,14 +30,14 @@ amountTaxableInflationAdjusted year filingStatus ssBenefits relevantIncome =
 
 amountTaxable :: FilingStatus -> SocSec -> SSRelevantOtherIncome -> Income
 amountTaxable filingStatus ssBenefits relevantIncome =
-  let lowBase =
+  let lowThreshold =
         ( case filingStatus of
             Married -> 32000
             HeadOfHousehold -> 25000
             Single -> 25000
         )
           & makeFromInt
-      highBase =
+      highThreshold =
         ( case filingStatus of
             Married -> 44000
             HeadOfHousehold -> 34000
@@ -45,18 +45,19 @@ amountTaxable filingStatus ssBenefits relevantIncome =
         )
           & makeFromInt
       combinedIncome = relevantIncome <> (ssBenefits `mul` 0.5)
-   in f combinedIncome (lowBase, highBase)
+   in f combinedIncome (lowThreshold, highThreshold)
   where
     f :: CombinedIncome -> (IncomeThreshold, IncomeThreshold) -> Income
-    f combinedIncome (lowBase, highBase)
-      | combinedIncome `isBelow` lowBase = makeFromInt 0
-      | combinedIncome `isBelow` highBase =
+    f combinedIncome (lowThreshold, highThreshold)
+      | combinedIncome `isBelow` lowThreshold = makeFromInt 0
+      | combinedIncome `isBelow` highThreshold =
         let fractionTaxable = 0.5
             maxSocSecTaxable = ssBenefits `mul` fractionTaxable
-         in min ((combinedIncome `amountOverThreshold` lowBase) `mul` fractionTaxable) maxSocSecTaxable
+         in min ((combinedIncome `amountOverThreshold` lowThreshold) `mul` fractionTaxable) maxSocSecTaxable
       | otherwise =
         let fractionTaxable = 0.85
             maxSocSecTaxable = ssBenefits `mul` fractionTaxable
+            halfMiddleBracketWidth = (highThreshold `thresholdDifference` lowThreshold) `divInt` 2
          in min
-              (makeFromInt 4500 <> ((combinedIncome `amountOverThreshold` highBase) `mul` fractionTaxable))
+              (taxableAsIncome halfMiddleBracketWidth <> ((combinedIncome `amountOverThreshold` highThreshold) `mul` fractionTaxable))
               maxSocSecTaxable

@@ -14,6 +14,7 @@ module Moneys
     applyTaxRate,
     asTaxable,
     closeEnoughTo,
+    divInt,
     inflateThreshold,
     isBelow,
     makeFromInt,
@@ -21,6 +22,7 @@ module Moneys
     noMoney,
     reduceBy,
     roundTaxPayable,
+    taxableAsIncome,
     thresholdDifference,
     thresholdAsTaxableIncome,
     times,
@@ -136,6 +138,12 @@ instance HasAmountOverThreshold TaxableIncome
 instance HasMakeFromInt TaxableIncome
 
 instance HasNoMoney TaxableIncome
+
+divInt :: TaxableIncome -> Int -> TaxableIncome
+divInt ti i = coerce $ (coerce ti :: Double) / fromIntegral i
+
+taxableAsIncome :: TaxableIncome -> Income
+taxableAsIncome = coerce
 
 applyDeductions :: Income -> Deduction -> TaxableIncome
 applyDeductions income deductions = coerce $ coerce income `monus` coerce deductions
