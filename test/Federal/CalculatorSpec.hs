@@ -33,8 +33,8 @@ agreementWithScalaImplementationSpec =
                   roundTaxPayable
                     ( taxDueForKnownYear
                         year
-                        filingStatus
                         birthDate
+                        filingStatus
                         (dependents + 1)
                         socSec
                         ordinaryIncomeNonSS
