@@ -1,4 +1,4 @@
-module TestDataFromScala
+module KnownYearTestDataFromScala
   ( TestCase (..),
     cases,
   )

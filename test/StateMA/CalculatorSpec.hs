@@ -14,7 +14,7 @@ import Test.Hspec
     it,
     shouldSatisfy,
   )
-import TestDataFromScala as TDFS (TestCase (..), cases)
+import KnownYearTestDataFromScala as TDFS (TestCase (..), cases)
 
 stateMATaxCalculatorSpec :: SpecWith ()
 stateMATaxCalculatorSpec =
