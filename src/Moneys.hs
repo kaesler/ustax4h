@@ -20,6 +20,7 @@ module Moneys
     makeFromInt,
     mul,
     noMoney,
+    nonZero,
     reduceBy,
     roundTaxPayable,
     taxableAsIncome,
@@ -37,6 +38,10 @@ import TaxRate (TaxRate (toDouble))
 class Monoid m => HasNoMoney m where
   noMoney :: m
   noMoney = mempty
+
+class Coercible Double h => HasNonZero h where
+  nonZero :: h -> Bool
+  nonZero h = (coerce h) == (0.0 :: Double)
 
 class Coercible Double h => HasMakeFromInt h where
   makeFromInt :: Int -> h
@@ -111,11 +116,14 @@ instance HasNoMoney Deduction
 instance HasTimes Deduction
 
 newtype IncomeThreshold = IncomeThreshold Money
+  deriving newtype (Eq)
   deriving newtype (Monoid)
   deriving newtype (Semigroup)
   deriving newtype (Show)
 
 instance HasMakeFromInt IncomeThreshold
+instance HasNoMoney IncomeThreshold
+instance HasNonZero IncomeThreshold
 
 thresholdDifference :: IncomeThreshold -> IncomeThreshold -> TaxableIncome
 thresholdDifference it1 it2 = coerce $ diff (coerce it1) (coerce it2)

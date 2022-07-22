@@ -7,11 +7,12 @@ module Brackets
     rateSuccessor,
     taxableIncomeToEndOfBracket,
     taxToEndOfBracket,
+    toPairs
   )
 where
 
 import qualified Data.List as List
-import Data.List.NonEmpty (toList)
+import Data.List.NonEmpty (NonEmpty, toList)
 import Data.List.NonEmpty as NonEmpty (fromList, last, tail, takeWhile)
 import Data.Map.NonEmpty (NEMap)
 import qualified Data.Map.NonEmpty as NEMap
@@ -29,6 +30,9 @@ fromPairs pairs mkRate =
          in (rate, makeFromInt thresholdAsInteger)
       mappedPairs = f <$> nePairs
    in NEMap.fromList mappedPairs
+
+toPairs :: TaxRate r => Brackets r -> NonEmpty (r, IncomeThreshold)
+toPairs brackets = NEMap.assocs brackets
 
 inflateThresholds :: TaxRate r => Double -> Brackets r -> Brackets r
 inflateThresholds factor = fmap (inflateThreshold factor)

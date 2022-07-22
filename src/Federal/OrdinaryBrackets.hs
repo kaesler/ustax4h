@@ -11,20 +11,25 @@ module Federal.OrdinaryBrackets
     taxableIncomeToEndOfOrdinaryBracket,
     taxFunctionFor,
     taxToEndOfOrdinaryBracket,
+    toPairs
   )
 where
 
 import qualified Brackets
 import Data.Coerce (coerce)
 import Federal.FederalTaxRate (FederalTaxRate, mkFederalTaxRate)
-import Moneys (TaxPayable, TaxableIncome)
+import Moneys (IncomeThreshold, TaxPayable, TaxableIncome)
 import TaxFunction (TaxFunction, bracketsTaxFunction)
+import Data.List.NonEmpty (NonEmpty)
 
 newtype OrdinaryBrackets = OrdinaryBrackets (Brackets.Brackets FederalTaxRate)
   deriving newtype (Show)
 
 fromPairs :: [(Int, Double)] -> OrdinaryBrackets
 fromPairs pairs = coerce $ Brackets.fromPairs pairs mkFederalTaxRate
+
+toPairs :: OrdinaryBrackets -> NonEmpty (FederalTaxRate, IncomeThreshold)
+toPairs (OrdinaryBrackets brackets) = Brackets.toPairs brackets
 
 inflateThresholds :: Double -> OrdinaryBrackets -> OrdinaryBrackets
 inflateThresholds factor (OrdinaryBrackets brackets) = coerce $ Brackets.inflateThresholds factor brackets
