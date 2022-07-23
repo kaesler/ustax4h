@@ -42,7 +42,7 @@ class Monoid m => HasNoMoney m where
 
 class Coercible Double h => HasNonZero h where
   nonZero :: h -> Bool
-  nonZero h = (coerce h) == (0.0 :: Double)
+  nonZero h = (coerce h) /= (0.0 :: Double)
 
 class Coercible Double h => HasMakeFromInt h where
   makeFromInt :: Int -> h
