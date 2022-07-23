@@ -23,6 +23,7 @@ module Moneys
     noMoney,
     nonZero,
     reduceBy,
+    roundHalfUp,
     roundTaxPayable,
     taxableAsIncome,
     thresholdDifference,

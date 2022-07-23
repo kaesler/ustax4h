@@ -89,6 +89,7 @@ test-suite ustax4h-test
       Federal.QualifiedBracketsSpec
       Federal.RegimeSpec
       Federal.TaxableSocialSecuritySpec
+      Federal.Yearly.YearlyValuesSpec
       KnownYearTestDataFromScala
       StateMA.CalculatorSpec
       Paths_ustax4h
