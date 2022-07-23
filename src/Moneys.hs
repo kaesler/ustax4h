@@ -15,6 +15,7 @@ module Moneys
     asTaxable,
     closeEnoughTo,
     divInt,
+    divide,
     inflateThreshold,
     isBelow,
     makeFromInt,
@@ -50,6 +51,10 @@ class Coercible Double h => HasMakeFromInt h where
 class Coercible Double h => HasMul h where
   mul :: h -> Double -> h
   mul h d = coerce $ d * coerce h
+
+class Coercible Double h => HasDivide h where
+  divide :: h -> h -> Double
+  divide left right = (coerce left) / (coerce right)
 
 class Coercible Double h => HasCloseEnoughTo h where
   closeEnoughTo :: h -> h -> Bool
@@ -124,6 +129,7 @@ newtype IncomeThreshold = IncomeThreshold Money
 instance HasMakeFromInt IncomeThreshold
 instance HasNoMoney IncomeThreshold
 instance HasNonZero IncomeThreshold
+instance HasDivide IncomeThreshold
 
 thresholdDifference :: IncomeThreshold -> IncomeThreshold -> TaxableIncome
 thresholdDifference it1 it2 = coerce $ diff (coerce it1) (coerce it2)

@@ -1,5 +1,6 @@
 module Federal.Yearly.YearlyValues
   ( YearlyValues (..),
+    averageThresholdChange,
     unsafeValuesForYear,
     valuesForYear,
     mostRecent,
@@ -7,14 +8,16 @@ module Federal.Yearly.YearlyValues
     mostRecentYearForRegime,
     ordinaryNonZeroThresholdsMap,
     qualifiedNonZeroThresholdsMap,
-    previous
+    previous,
+    haveCongruentOrdinaryBrackets,
+    haveCongruentQualifiedBrackets
   )
 where
 
 import CommonTypes (FilingStatus(..), Year)
 import Data.List.NonEmpty (NonEmpty)
 import qualified Data.List.NonEmpty as NEList
-import Data.Map (Map, fromList)
+import Data.Map.Strict (Map, fromList, keysSet, elems)
 import Data.Map.NonEmpty (NEMap, toAscList)
 import qualified Data.Map.NonEmpty as NEMap
 import Data.Maybe (fromJust)
@@ -30,7 +33,7 @@ import qualified Federal.Yearly.Year2019 as Year2019
 import qualified Federal.Yearly.Year2020 as Year2020
 import qualified Federal.Yearly.Year2021 as Year2021
 import qualified Federal.Yearly.Year2022 as Year2022
-import Moneys (IncomeThreshold, nonZero)
+import Moneys (IncomeThreshold, nonZero, divide)
 
 forYear :: NEMap Year YearlyValues
 forYear =
@@ -87,4 +90,27 @@ qualifiedNonZeroThresholdsMap yv =
                  return ((fs, rate), threshold)
   in 
     fromList pairs
-  
+
+haveCongruentOrdinaryBrackets :: YearlyValues -> YearlyValues -> Bool
+haveCongruentOrdinaryBrackets left right = 
+  (keysSet $ ordinaryNonZeroThresholdsMap left) == (keysSet $ ordinaryNonZeroThresholdsMap right)
+
+haveCongruentQualifiedBrackets :: YearlyValues -> YearlyValues -> Bool
+haveCongruentQualifiedBrackets left right = 
+  (keysSet $ qualifiedNonZeroThresholdsMap left) == (keysSet $ qualifiedNonZeroThresholdsMap right)
+
+averageThresholdChange :: YearlyValues -> YearlyValues -> Double
+averageThresholdChange left right =
+  let -- Note: these lists are sorted ascending by associated key order.
+      ordPairs | (haveCongruentOrdinaryBrackets left right) = 
+                   zip (elems (ordinaryNonZeroThresholdsMap left)) (elems (ordinaryNonZeroThresholdsMap right))
+               | otherwise = []
+      qualPairs | (haveCongruentQualifiedBrackets left right) = 
+                    zip (elems (qualifiedNonZeroThresholdsMap left)) (elems (qualifiedNonZeroThresholdsMap right))
+                | otherwise = []
+      pairs = ordPairs ++ qualPairs
+      changes = fmap (\(l, r) -> r `divide` l) pairs 
+      averageChange = (sum changes) / (fromIntegral (length changes))
+  in 
+    averageChange
+
