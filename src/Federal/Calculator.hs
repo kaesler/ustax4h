@@ -14,7 +14,6 @@ where
 import CommonTypes
   ( BirthDate,
     FilingStatus,
-    InflationEstimate,
     Year,
   )
 import Federal.BoundRegime
@@ -140,7 +139,8 @@ taxDueForKnownYearDebug year birthDate filingStatus personalExemptions socSec or
 
 taxResultsForFutureYear ::
   Regime ->
-  InflationEstimate ->
+  Year ->
+  Double ->
   BirthDate ->
   FilingStatus ->
   PersonalExemptions ->
@@ -149,14 +149,15 @@ taxResultsForFutureYear ::
   QualifiedIncome ->
   ItemizedDeductions ->
   FederalTaxResults
-taxResultsForFutureYear reg estimate birthDate filingStatus personalExemptions socSec ordinaryIncome qualifiedIncome itemized =
-  let boundRegime = boundRegimeForFutureYear reg estimate birthDate filingStatus personalExemptions
+taxResultsForFutureYear reg futureYear estimate birthDate filingStatus personalExemptions socSec ordinaryIncome qualifiedIncome itemized =
+  let boundRegime = boundRegimeForFutureYear reg futureYear estimate birthDate filingStatus personalExemptions
       calculator = makeCalculator boundRegime
    in calculator socSec ordinaryIncome qualifiedIncome itemized
 
 taxDueForFutureYear ::
   Regime ->
-  InflationEstimate ->
+  Year ->
+  Double ->
   BirthDate ->
   FilingStatus ->
   PersonalExemptions ->
@@ -165,6 +166,6 @@ taxDueForFutureYear ::
   QualifiedIncome ->
   ItemizedDeductions ->
   TaxPayable
-taxDueForFutureYear regime inflationEstimate birthDate filingStatus personalExemptions socSec ordinaryIncome qualifiedIncome itemized =
-  let results = taxResultsForFutureYear regime inflationEstimate birthDate filingStatus personalExemptions socSec ordinaryIncome qualifiedIncome itemized
+taxDueForFutureYear regime futureYear inflationEstimate birthDate filingStatus personalExemptions socSec ordinaryIncome qualifiedIncome itemized =
+  let results = taxResultsForFutureYear regime futureYear inflationEstimate birthDate filingStatus personalExemptions socSec ordinaryIncome qualifiedIncome itemized
    in taxOnOrdinaryIncome results <> taxOnQualifiedIncome results

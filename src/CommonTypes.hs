@@ -3,15 +3,12 @@ module CommonTypes
     AnnualGrowthRatePercentage,
     BirthDate,
     FilingStatus (..),
-    InflationEstimate (..),
-    inflationFactor,
     isUnmarried,
     Year,
   )
 where
 
 import Data.Time.Calendar (Day)
-import GHC.Float (powerDouble)
 
 type BirthDate = Day
 
@@ -28,11 +25,3 @@ isUnmarried Married = False
 isUnmarried _ = True
 
 type AnnualGrowthRatePercentage = Double
-
--- target year, growth rate as a percentage
-data InflationEstimate = InflationEstimate Year AnnualGrowthRatePercentage
-
-inflationFactor :: InflationEstimate -> Year -> Double
-inflationFactor (InflationEstimate targetYear annualGrowthRate) baseYear
-  | targetYear <= baseYear = error "Inflation goes forward"
-  | otherwise = powerDouble (1 + annualGrowthRate) $ fromIntegral (targetYear - baseYear)

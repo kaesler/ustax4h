@@ -2,10 +2,10 @@ module Federal.BoundRegime
   ( BoundRegime (..),
     boundRegimeForKnownYear,
     boundRegimeForFutureYear,
-    futureEstimated,
     netDeduction,
     personalExemptionDeduction,
     standardDeduction,
+    withEstimatedNetInflationFactor,
   )
 where
 
@@ -13,11 +13,10 @@ import Age (isAge65OrOlder)
 import CommonTypes
   ( BirthDate,
     FilingStatus (..),
-    InflationEstimate (..),
     Year,
-    inflationFactor,
     isUnmarried,
   )
+import Data.Maybe (fromMaybe)
 import Federal.OrdinaryBrackets as OB
   ( OrdinaryBrackets,
     inflateThresholds,
@@ -87,24 +86,31 @@ boundRegimeForKnownYear y bd fs pe =
         (YV.ordinaryBrackets yvs fs)
         (YV.qualifiedBrackets yvs fs)
 
-boundRegimeForFutureYear :: Regime -> InflationEstimate -> BirthDate -> FilingStatus -> PersonalExemptions -> BoundRegime
-boundRegimeForFutureYear reg estimate bd fs pe =
-  let baseYear = YV.mostRecentYearForRegime reg
-   in futureEstimated (boundRegimeForKnownYear baseYear bd fs pe) estimate
+boundRegimeForFutureYear :: Regime -> Year -> Double -> BirthDate -> FilingStatus -> PersonalExemptions -> BoundRegime
+boundRegimeForFutureYear r y annualInflationFactor bd fs pe =
+  let baseValues = YV.mostRecentForRegime r
+      baseYear = YV.year baseValues
+      baseRegime = boundRegimeForKnownYear y bd fs pe
+      yearsWithInflation = [(baseYear + 1) .. y]
+      inflationFactors =
+        do
+          ywi <- yearsWithInflation
+          let factor = fromMaybe annualInflationFactor $ YV.averageThresholdChangeOverPrevious ywi
+          return factor
+      netInflationFactor = product inflationFactors
+   in withEstimatedNetInflationFactor y netInflationFactor baseRegime
 
-futureEstimated :: BoundRegime -> InflationEstimate -> BoundRegime
-futureEstimated br inflationEstimate =
-  let InflationEstimate futureYear _ = inflationEstimate
-      factor = inflationFactor inflationEstimate (year br)
-   in BoundRegime
-        (regime br)
-        futureYear
-        (birthDate br)
-        (filingStatus br)
-        (personalExemptions br)
-        (perPersonExemption br `mul` factor)
-        (unadjustedStandardDeduction br `mul` factor)
-        (adjustmentWhenOver65 br `mul` factor)
-        (adjustmentWhenOver65AndSingle br `mul` factor)
-        (OB.inflateThresholds factor (ordinaryBrackets br))
-        (QB.inflateThresholds factor (qualifiedBrackets br))
+withEstimatedNetInflationFactor :: Year -> Double -> BoundRegime -> BoundRegime
+withEstimatedNetInflationFactor futureYear netInflationFactor br =
+  BoundRegime
+    (regime br)
+    futureYear
+    (birthDate br)
+    (filingStatus br)
+    (personalExemptions br)
+    (perPersonExemption br `mul` netInflationFactor)
+    (unadjustedStandardDeduction br `mul` netInflationFactor)
+    (adjustmentWhenOver65 br `mul` netInflationFactor)
+    (adjustmentWhenOver65AndSingle br `mul` netInflationFactor)
+    (OB.inflateThresholds netInflationFactor (ordinaryBrackets br))
+    (QB.inflateThresholds netInflationFactor (qualifiedBrackets br))

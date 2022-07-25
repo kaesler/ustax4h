@@ -3,16 +3,15 @@ module Federal.RegimeSpec
   )
 where
 
-import CommonTypes (BirthDate, FilingStatus (HeadOfHousehold), InflationEstimate (InflationEstimate))
+import CommonTypes (BirthDate, FilingStatus (HeadOfHousehold))
 import Data.Time
 import Federal.BoundRegime
   ( BoundRegime (perPersonExemption, unadjustedStandardDeduction),
     boundRegimeForKnownYear,
-    futureEstimated,
     netDeduction,
     standardDeduction,
+    withEstimatedNetInflationFactor,
   )
-import Federal.Regime (Regime (Trump))
 import Moneys (makeFromInt, mul, noMoney)
 import Test.Hspec (SpecWith, describe, it, shouldBe)
 
@@ -26,7 +25,7 @@ futureEstimationSpec =
       let before = boundRegimeForKnownYear 2021 theBirthDate HeadOfHousehold 2
           rate = 0.03 :: Double
           factor = 1.0 + rate
-          after = futureEstimated before $ InflationEstimate 2022 rate
+          after = withEstimatedNetInflationFactor 2022 factor before
        in do
             -- print "Before:"
             -- print before
