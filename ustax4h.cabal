@@ -90,6 +90,7 @@ test-suite ustax4h-test
       Federal.RegimeSpec
       Federal.TaxableSocialSecuritySpec
       Federal.Yearly.YearlyValuesSpec
+      FutureYearTestDataFromScala
       KnownYearTestDataFromScala
       StateMA.CalculatorSpec
       Paths_ustax4h

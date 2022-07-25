@@ -4,7 +4,7 @@ module Main
 where
 
 import AgeSpec (ageSpec)
-import Federal.CalculatorSpec (agreementWithScalaImplementationSpec)
+import Federal.CalculatorSpec (agreementWithScalaImplementationForFutureYearsSpec, agreementWithScalaImplementationForKnownYearsSpec)
 import Federal.OrdinaryBracketsSpec (ordinaryBracketsSpec)
 import Federal.QualifiedBracketsSpec (qualifiedBracketsSpec)
 import Federal.RegimeSpec (futureEstimationSpec)
@@ -19,7 +19,8 @@ main = hspec $ do
   --
   ordinaryBracketsSpec
   qualifiedBracketsSpec
-  agreementWithScalaImplementationSpec
+  agreementWithScalaImplementationForFutureYearsSpec
+  agreementWithScalaImplementationForKnownYearsSpec
   stateMATaxCalculatorSpec
   futureEstimationSpec
   ageSpec
