@@ -90,7 +90,7 @@ boundRegimeForFutureYear :: Regime -> Year -> Double -> BirthDate -> FilingStatu
 boundRegimeForFutureYear r y annualInflationFactor bd fs pe =
   let baseValues = YV.mostRecentForRegime r
       baseYear = YV.year baseValues
-      baseRegime = boundRegimeForKnownYear y bd fs pe
+      baseRegime = boundRegimeForKnownYear baseYear bd fs pe
       yearsWithInflation = [(baseYear + 1) .. y]
       inflationFactors =
         do
