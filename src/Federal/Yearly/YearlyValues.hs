@@ -111,7 +111,6 @@ averageThresholdChange left right =
                     zip (Map.elems (qualifiedNonZeroThresholdsMap left)) (Map.elems (qualifiedNonZeroThresholdsMap right))
                 | otherwise = []
       pairs = ordPairs ++ qualPairs
-      _ = Trace.trace "blah" ()
       changes = fmap (\(l, r) -> r `divide` l) pairs 
       averageChange = (sum changes) / (fromIntegral (length changes))
   in 
