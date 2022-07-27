@@ -16,7 +16,6 @@ module Federal.Yearly.YearlyValues
 where
 
 import CommonTypes (FilingStatus(..), Year)
-import qualified Debug.Trace as Trace
 import Data.List.NonEmpty (NonEmpty, toList)
 import qualified Data.List.NonEmpty as NEList
 import qualified Data.Map.Strict as Map 
