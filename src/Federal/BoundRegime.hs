@@ -35,9 +35,7 @@ data BoundRegime = BoundRegime
     -- Static field: they never change.
     regime :: Regime,
     year :: Year,
-    birthDate :: BirthDate,
     filingStatus :: FilingStatus,
-    personalExemptions :: Int,
     --
     -- The following are inflatable. They may get adjusted to estimate the
     -- the tax regime for a future year, based on estimated inflation.
@@ -50,10 +48,10 @@ data BoundRegime = BoundRegime
   }
   deriving (Show)
 
-standardDeduction :: BoundRegime -> StandardDeduction
-standardDeduction br =
+standardDeduction :: BoundRegime -> BirthDate -> StandardDeduction
+standardDeduction br birthDate =
   unadjustedStandardDeduction br
-    <> ( if Age.isAge65OrOlder (birthDate br) (year br)
+    <> ( if Age.isAge65OrOlder birthDate (year br)
            then
              adjustmentWhenOver65 br
                <> ( if isUnmarried (filingStatus br)
@@ -63,22 +61,20 @@ standardDeduction br =
            else noMoney
        )
 
-personalExemptionDeduction :: BoundRegime -> Deduction
-personalExemptionDeduction br = personalExemptions br `times` perPersonExemption br
+personalExemptionDeduction :: BoundRegime -> PersonalExemptions -> Deduction
+personalExemptionDeduction br personalExemptions = personalExemptions `times` perPersonExemption br
 
-netDeduction :: BoundRegime -> ItemizedDeductions -> Deduction
-netDeduction br itemized =
-  personalExemptionDeduction br <> max itemized (standardDeduction br)
+netDeduction :: BoundRegime -> BirthDate -> PersonalExemptions -> ItemizedDeductions -> Deduction
+netDeduction br birthDate personalExemptions itemized =
+  personalExemptionDeduction br personalExemptions <> max itemized (standardDeduction br birthDate )
 
-boundRegimeForKnownYear :: Year -> BirthDate -> FilingStatus -> PersonalExemptions -> BoundRegime
-boundRegimeForKnownYear y bd fs pe =
+boundRegimeForKnownYear :: Year -> FilingStatus -> BoundRegime
+boundRegimeForKnownYear y fs =
   let yvs = YV.unsafeValuesForYear y
    in BoundRegime
         (YV.regime yvs)
         y
-        bd
         fs
-        pe
         (YV.perPersonExemption yvs)
         (YV.unadjustedStandardDeduction yvs fs)
         (YV.adjustmentWhenOver65 yvs)
@@ -86,11 +82,11 @@ boundRegimeForKnownYear y bd fs pe =
         (YV.ordinaryBrackets yvs fs)
         (YV.qualifiedBrackets yvs fs)
 
-boundRegimeForFutureYear :: Regime -> Year -> Double -> BirthDate -> FilingStatus -> PersonalExemptions -> BoundRegime
-boundRegimeForFutureYear r y annualInflationFactor bd fs pe =
+boundRegimeForFutureYear :: Regime -> Year -> Double -> FilingStatus -> BoundRegime
+boundRegimeForFutureYear r y annualInflationFactor fs =
   let baseValues = YV.mostRecentForRegime r
       baseYear = YV.year baseValues
-      baseRegime = boundRegimeForKnownYear baseYear bd fs pe
+      baseRegime = boundRegimeForKnownYear baseYear fs
       yearsWithInflation = [(baseYear + 1) .. y]
       inflationFactors =
         do
@@ -105,9 +101,7 @@ withEstimatedNetInflationFactor futureYear netInflationFactor br =
   BoundRegime
     (regime br)
     futureYear
-    (birthDate br)
     (filingStatus br)
-    (personalExemptions br)
     (perPersonExemption br `mul` netInflationFactor)
     (unadjustedStandardDeduction br `mul` netInflationFactor)
     (adjustmentWhenOver65 br `mul` netInflationFactor)

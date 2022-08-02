@@ -51,7 +51,7 @@ thePersonalExemptions = 2
 
 ordinaryBracketsFor :: FilingStatus -> OrdinaryBrackets
 ordinaryBracketsFor filingStatus =
-  let br = boundRegimeForKnownYear theYear theBirthDate filingStatus thePersonalExemptions
+  let br = boundRegimeForKnownYear theYear filingStatus
    in ordinaryBrackets br
 
 genSocialSecurityBenefits :: Gen SocSec

@@ -35,8 +35,8 @@ agreementWithScalaImplementationForKnownYearsSpec =
                   roundTaxPayable
                     ( taxDueForKnownYear
                         year
-                        birthDate
                         filingStatus
+                        birthDate
                         (dependents + 1)
                         socSec
                         ordinaryIncomeNonSS
@@ -62,8 +62,8 @@ agreementWithScalaImplementationForFutureYearsSpec =
                         regime
                         year
                         estimatedAnnualInflationFactor
-                        birthDate
                         filingStatus
+                        birthDate
                         (dependents + 1)
                         socSec
                         ordinaryIncomeNonSS

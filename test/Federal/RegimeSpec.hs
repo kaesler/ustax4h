@@ -22,7 +22,7 @@ futureEstimationSpec :: SpecWith ()
 futureEstimationSpec =
   describe "Federal.Regime.futureEstimated" $
     it "should behave as expected" $ do
-      let before = boundRegimeForKnownYear 2021 theBirthDate HeadOfHousehold 2
+      let before = boundRegimeForKnownYear 2021 HeadOfHousehold
           rate = 0.03 :: Double
           factor = 1.0 + rate
           after = withEstimatedNetInflationFactor 2022 factor before
@@ -33,6 +33,6 @@ futureEstimationSpec =
             -- print after
             unadjustedStandardDeduction after `shouldBe` (unadjustedStandardDeduction before) `mul` factor
             perPersonExemption after `shouldBe` perPersonExemption before `mul` factor
-            standardDeduction before < standardDeduction after `shouldBe` True
-            netDeduction before (makeFromInt 15000) < netDeduction after (makeFromInt 15000) `shouldBe` True
-            netDeduction before noMoney < netDeduction after noMoney `shouldBe` True
+            standardDeduction before theBirthDate < standardDeduction after theBirthDate `shouldBe` True
+            netDeduction before theBirthDate 0 (makeFromInt 15000) < netDeduction after theBirthDate 0 (makeFromInt 15000) `shouldBe` True
+            netDeduction before theBirthDate 0 noMoney < netDeduction after theBirthDate 0 noMoney `shouldBe` True

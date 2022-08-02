@@ -23,7 +23,7 @@ qualifiedBracketsSpec :: SpecWith ()
 qualifiedBracketsSpec =
   describe "TaxeFunction from QualifiedBrackets" $
     it "never taxes zero income" $ do
-      let brSingle = boundRegimeForKnownYear theYear theBirthDate Single 0
+      let brSingle = boundRegimeForKnownYear theYear Single
       TFS.taxDueOnQualifiedIncome (qualifiedBrackets brSingle) noMoney noMoney `shouldBe` noMoney
-      let brHoH = boundRegimeForKnownYear theYear theBirthDate HeadOfHousehold 0
+      let brHoH = boundRegimeForKnownYear theYear HeadOfHousehold
       TFS.taxDueOnQualifiedIncome (qualifiedBrackets brHoH) noMoney noMoney `shouldBe` noMoney
