@@ -26,9 +26,9 @@ stateMATaxCalculatorSpec =
                   roundTaxPayable
                     ( Calc.taxDue
                         year
+                        filingStatus
                         birthDate
                         dependents
-                        filingStatus
                         (ordinaryIncomeNonSS <> qualifiedIncome)
                     )
              in do
