@@ -3,5 +3,5 @@ module Federal.Regime
   )
 where
 
-data Regime = Trump | PreTrump
+data Regime = TCJA | PreTCJA
   deriving (Eq, Ord, Show, Enum)

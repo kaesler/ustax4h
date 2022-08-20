@@ -20,7 +20,7 @@ import Moneys (makeFromInt)
 values :: YearlyValues
 values =
   YearlyValues
-    { regime = PreTrump,
+    { regime = PreTCJA,
       year = 2016,
       perPersonExemption = makeFromInt 4050,
       unadjustedStandardDeduction =
