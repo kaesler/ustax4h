@@ -15,7 +15,7 @@ averageThresholdChangeSpec :: SpecWith ()
 averageThresholdChangeSpec =
   describe "YearlyValues.averageThresholdChangeOverPrevious produces expected values" $ do
     -- https://docs.google.com/spreadsheets/d/1Y_-LOViktEYW5hT-lY7XsU6vsPmCyg7s5sNkPxTKykI
-    it "for 2018-2022" $
+    it "for 2018-2023" $
       let asPercentage :: Double -> Double
           asPercentage factor = 
             (roundHalfUp ((factor - 1.0) * 10000)) / 100.0
@@ -27,4 +27,5 @@ averageThresholdChangeSpec =
         asPercentage (fromJust (averageThresholdChangeOverPrevious 2020)) `shouldBe` 1.63
         asPercentage (fromJust (averageThresholdChangeOverPrevious 2021)) `shouldBe` 0.95
         asPercentage (fromJust (averageThresholdChangeOverPrevious 2022)) `shouldBe` 3.13
+        asPercentage (fromJust (averageThresholdChangeOverPrevious 2023)) `shouldBe` 7.08
 

@@ -34,6 +34,7 @@ import qualified Federal.Yearly.Year2019 as Year2019
 import qualified Federal.Yearly.Year2020 as Year2020
 import qualified Federal.Yearly.Year2021 as Year2021
 import qualified Federal.Yearly.Year2022 as Year2022
+import qualified Federal.Yearly.Year2023 as Year2023
 import Moneys (IncomeThreshold, nonZero, divide)
 
 forYear :: NEMap Year YearlyValues
@@ -46,7 +47,8 @@ forYear =
         (2019, Year2019.values),
         (2020, Year2020.values),
         (2021, Year2021.values),
-        (2022, Year2022.values)
+        (2022, Year2022.values),
+        (2023, Year2023.values)
       ]
 
 unsafeValuesForYear :: Year -> YearlyValues
