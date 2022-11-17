@@ -4,7 +4,7 @@ module Federal.QualifiedBracketsSpec
 where
 
 import CommonTypes (BirthDate, FilingStatus (HeadOfHousehold, Single), Year)
-import Data.Time
+import Data.Time (fromGregorian)
 import Federal.BoundRegime
   ( BoundRegime (qualifiedBrackets),
     boundRegimeForKnownYear,
