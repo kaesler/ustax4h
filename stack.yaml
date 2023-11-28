@@ -18,6 +18,7 @@
 # resolver: ./custom-snapshot.yaml
 # resolver: https://example.com/snapshots/2018-01-01.yaml
 
+#resolver: lts-21.22
 resolver: lts-20.00
 # resolver: nightly-2022-03-03
 

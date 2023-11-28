@@ -8,3 +8,8 @@ Ignored:
   - various phaseouts for high incomes
 
 
+stack upgrade
+stack build
+stack test
+
+https://www.stackage.org/
