@@ -14,9 +14,12 @@ import Moneys
   ( Income,
     IncomeThreshold,
     amountOverThreshold,
+    divInt,
     isBelow,
     makeFromInt,
-    mul, thresholdDifference, divInt, taxableAsIncome
+    mul,
+    taxableAsIncome,
+    thresholdDifference,
   )
 
 amountTaxableInflationAdjusted :: Year -> FilingStatus -> SocSec -> SSRelevantOtherIncome -> Income
@@ -32,14 +35,14 @@ amountTaxable :: FilingStatus -> SocSec -> SSRelevantOtherIncome -> Income
 amountTaxable filingStatus ssBenefits relevantIncome =
   let lowThreshold =
         ( case filingStatus of
-            Married -> 32000
+            MarriedJoint -> 32000
             HeadOfHousehold -> 25000
             Single -> 25000
         )
           & makeFromInt
       highThreshold =
         ( case filingStatus of
-            Married -> 44000
+            MarriedJoint -> 44000
             HeadOfHousehold -> 34000
             Single -> 34000
         )

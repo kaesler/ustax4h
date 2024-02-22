@@ -25,14 +25,14 @@ values =
       perPersonExemption = makeFromInt 0,
       unadjustedStandardDeduction =
         \case
-          Married -> makeFromInt 25100
+          MarriedJoint -> makeFromInt 25100
           HeadOfHousehold -> makeFromInt 18800
           Single -> makeFromInt 12550,
       adjustmentWhenOver65 = makeFromInt 1350,
       adjustmentWhenOver65AndSingle = makeFromInt 350,
       ordinaryBrackets =
         \case
-          Married ->
+          MarriedJoint ->
             OB.fromPairs
               [ (0, 10),
                 (19900, 12),
@@ -64,7 +64,7 @@ values =
               ],
       qualifiedBrackets =
         \case
-          Married ->
+          MarriedJoint ->
             QB.fromPairs
               [ (0, 0),
                 (80800, 15),

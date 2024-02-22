@@ -9,10 +9,10 @@ import CommonTypes
     FilingStatus (..),
     Year,
   )
+import Data.Foldable (Foldable (fold))
 import Moneys (Deduction, Income, TaxPayable, applyDeductions, makeFromInt)
 import StateMA.StateMATaxRate (StateMATaxRate, mkStateMATaxRate)
 import qualified TaxFunction
-import Data.Foldable ( Foldable(fold) )
 
 taxRate :: Year -> StateMATaxRate
 taxRate year = mkStateMATaxRate $ selectRate $ fromEnum year
@@ -28,7 +28,7 @@ taxFunction :: Year -> TaxFunction.TaxFunction
 taxFunction = TaxFunction.flatTaxFunction . taxRate
 
 personalExemptionFor :: Year -> FilingStatus -> Deduction
-personalExemptionFor _ Married = makeFromInt 8800
+personalExemptionFor _ MarriedJoint = makeFromInt 8800
 personalExemptionFor _ HeadOfHousehold = makeFromInt 6800
 personalExemptionFor _ Single = makeFromInt 4400
 
